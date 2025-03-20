@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hk11/navigation/app_shell.dart';
-import 'package:hk11/pages/profile_page_.dart';
 
 class OnboardingPage extends StatefulWidget {
   @override

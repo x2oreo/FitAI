@@ -1,6 +1,4 @@
 import 'package:hk11/navigation/app_shell.dart';
-import 'package:hk11/pages/onboarding.dart';
-import 'package:hk11/pages/profile_page_.dart';
 import 'package:flutter/material.dart';
 import 'view.dart';
 

@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:provider/provider.dart';
-import '../theme/theme_provider.dart';
+import 'package:firebase_auth/firebase_auth.dart'; // Add this import
+import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
 import '../services/quotes_service.dart';
 import 'workout_page.dart';
 import 'meal_page.dart';
@@ -14,13 +14,19 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final QuotesService _quotesService = QuotesService();
+  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Add Firestore instance
+  final FirebaseAuth _auth = FirebaseAuth.instance; // Add auth instance
+  
   String _currentQuote = 'Loading quote...';
+  String _userGoal = 'Loading goal...'; // Add goal state variable
   bool _isLoading = true;
+  bool _isLoadingGoal = true; // Add loading state for goal
   
   @override
   void initState() {
     super.initState();
     _loadQuote();
+    _fetchUserGoal(); // Add goal fetching
   }
   
   Future<void> _loadQuote() async {
@@ -37,10 +43,42 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+  
+  // Add method to fetch user goal
+  Future<void> _fetchUserGoal() async {
+    setState(() {
+      _isLoadingGoal = true;
+    });
+    
+    try {
+      String userId = _auth.currentUser?.uid ?? 'anonymous_user';
+      DocumentSnapshot doc = await _firestore.collection('users').doc(userId).get();
+      
+      if (doc.exists) {
+        Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+        String goal = userData['goal'] ?? '10.000 steps';
+        setState(() {
+          _userGoal = goal;
+        });
+      } else {
+        setState(() {
+          _userGoal = '10.000 steps'; // Default value if no data
+        });
+      }
+    } catch (e) {
+      setState(() {
+        _userGoal = '10.000 steps'; // Default on error
+      });
+      print('Error fetching user goal: $e');
+    } finally {
+      setState(() {
+        _isLoadingGoal = false;
+      });
+    }
+  }
 
   @override
   Widget build(BuildContext context) {
-    final themeProvider = Provider.of<ThemeProvider>(context);
     final theme = Theme.of(context);
 
     return Scaffold(
@@ -50,19 +88,7 @@ class _MyHomePageState extends State<MyHomePage> {
         scrolledUnderElevation: 0,
         elevation: 0,
         title: Text('FitAi'),
-        actions: [
-          IconButton(
-            icon: Icon(
-              themeProvider.isDarkMode 
-                  ? Icons.light_mode 
-                  : Icons.dark_mode,
-            ),
-            onPressed: () {
-              themeProvider.toggleTheme();
-            },
-            tooltip: 'Toggle Theme',
-          ),
-        ],
+        
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -164,14 +190,21 @@ class _MyHomePageState extends State<MyHomePage> {
                       child: Column(
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
-                          
                           SizedBox(height: 8),
-                          Text(
-                            '10.000 steps',
-                            style: theme.textTheme.headlineLarge?.copyWith(
-                              fontSize: 28,
-                            ),
-                          ),
+                          _isLoadingGoal 
+                            ? SizedBox(
+                                height: 24,
+                                width: 24,
+                                child: CircularProgressIndicator(
+                                  strokeWidth: 2,
+                                ),
+                              )
+                            : Text(
+                                _userGoal,
+                                style: theme.textTheme.headlineLarge?.copyWith(
+                                  fontSize: 28,
+                                ),
+                              ),
                         ],
                       ),
                     ),
