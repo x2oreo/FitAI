@@ -1,4 +1,6 @@
-import 'package:hk11/pages/login_page/profile_page.dart';
+import 'package:hk11/navigation/app_shell.dart';
+import 'package:hk11/pages/onboarding.dart';
+import 'package:hk11/pages/profile_page_.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'view.dart';
@@ -28,7 +30,7 @@ class _LoginPageState extends State<LoginPage> {
 
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
+        MaterialPageRoute(builder: (context) => AppShell()),
       );
       // Handle successful login (navigation, etc.)
     } on FirebaseAuthException catch (e) {
