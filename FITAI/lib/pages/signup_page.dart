@@ -1,7 +1,7 @@
-import 'package:hk11/navigation/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hk11/pages/onboarding.dart';
 import 'view.dart';
 
 class SignupPage extends StatefulWidget {
@@ -57,7 +57,7 @@ class _LoginPageState extends State<SignupPage> {
               if (!mounted) return;
               Navigator.pushReplacement(
                 context,
-                MaterialPageRoute(builder: (context) => AppShell()),
+                MaterialPageRoute(builder: (context) => OnboardingPage()),
               );
             })
             .catchError((error) {
