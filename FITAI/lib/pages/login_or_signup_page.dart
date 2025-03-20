@@ -1,5 +1,5 @@
-import 'package:fitai/navigation/app_shell.dart';
 import 'package:flutter/material.dart';
+import 'package:hk11/pages/profile_page_.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'view.dart';
 import 'package:hk11/pages/onboarding.dart'; // Import the onboarding screen
