@@ -1,8 +1,8 @@
-import 'package:hk11/pages/login_page/profile_page.dart';
+import 'package:hk11/navigation/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
-import 'package:hk11/pages/login_page/onboarding.dart';
+import 'package:hk11/pages/onboarding.dart';
 import 'view.dart';
 
 class LoginPage extends StatefulWidget {
@@ -47,7 +47,7 @@ class _LoginPageState extends State<LoginPage> {
         if (onboardingComplete) {
           Navigator.pushReplacement(
             context,
-            MaterialPageRoute(builder: (context) => ProfileScreen()),
+            MaterialPageRoute(builder: (context) => AppShell()),
           );
         } else {
           Navigator.pushReplacement(

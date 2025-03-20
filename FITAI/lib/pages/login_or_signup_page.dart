@@ -1,4 +1,4 @@
-import 'package:hk11/pages/login_page/profile_page.dart';
+import 'package:hk11/navigation/app_shell.dart';
 import 'package:flutter/material.dart';
 import 'view.dart';
 
@@ -64,7 +64,7 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                       await _auth.loginWithGoogle();
                       Navigator.of(context).push(
                         MaterialPageRoute(
-                          builder: (context) => ProfileScreen(),
+                          builder: (context) => AppShell(),
                         ),
                       );
                     },
@@ -77,7 +77,7 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                       ),
 
                       child: Image.asset(
-                        'lib/images/icon-google.png',
+                        'images/icon-google.png',
                         height: 10,
                         width: 10,
                       ),
