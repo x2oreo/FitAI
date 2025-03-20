@@ -107,13 +107,18 @@ final lightTheme = ThemeData(
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 52, 211, 153)),
+            backgroundColor: MaterialStateProperty.all(Colors.white),
             foregroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 17, 24, 39)),
-            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 255, 255, 255)),
+            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
+                side: BorderSide(
+                  color: Colors.black,
+                  width: 1,
+                ),
                 borderRadius: BorderRadius.circular(12),
               ),
+              
             ),
             textStyle: MaterialStateProperty.all(
               TextStyle(
@@ -234,14 +239,14 @@ final darktheme = ThemeData(
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 52, 211, 153)),
+            backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
             foregroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 229, 231, 235)),
-            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
+            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 255, 255, 255)),
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
                 side: BorderSide(
                   color: const Color.fromARGB(255, 0, 0, 0),
-                  width: 0.5,
+                  width: 1,
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),

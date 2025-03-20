@@ -5,6 +5,7 @@ import 'package:provider/provider.dart';
 import 'package:hk11/pages/view.dart';
 import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
+import 'package:hk11/navigation/app_shell.dart'; // Add this import
 
 void main() async {
   // Ensure Flutter is initialized
@@ -31,7 +32,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       theme: themeProvider.theme,
-      home: const MyHomePage(),
+      home: const AppShell(), // Changed from MyHomePage to AppShell
       debugShowCheckedModeBanner: false,
     );
   }
