@@ -1,11 +1,11 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'package:hk11/pages/profile_page_.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import '../pages/home_page.dart';
 import '../pages/chat_page.dart';
-import '../pages/profile_page.dart';
 import '../pages/workout_page.dart';
 import '../pages/meal_page.dart';
 
@@ -24,7 +24,7 @@ class _AppShellState extends State<AppShell> {
   final List<Widget> _pages = const [
     MyHomePage(),
     ChatPage(),
-    ProfilePage(),
+    ProfileScreen(),
   ];
   
   void _onItemTapped(int index) {
