@@ -1,5 +1,6 @@
 # Ignore all APK files
 *.apk
+*.env
 
 # Ignore the build folder
 build/
