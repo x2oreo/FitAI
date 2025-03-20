@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:hk11/pages/home_page.dart';
+import 'package:hk11/pages/onboarding.dart';
 import 'package:hk11/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:hk11/pages/view.dart';
@@ -32,7 +33,7 @@ class MyApp extends StatelessWidget {
     final themeProvider = Provider.of<ThemeProvider>(context);
     return MaterialApp(
       theme: themeProvider.theme,
-      home: const AppShell(), // Changed from MyHomePage to AppShell
+      home: LoginOrSignupPage(), // Changed from MyHomePage to AppShell
       debugShowCheckedModeBanner: false,
     );
   }

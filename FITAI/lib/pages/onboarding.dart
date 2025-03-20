@@ -1,7 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
-import 'package:hk11/pages/login_page/profile_page.dart';
+import 'package:hk11/navigation/app_shell.dart';
+import 'package:hk11/pages/profile_page_.dart';
 
 class OnboardingPage extends StatefulWidget {
   @override
@@ -153,7 +154,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
       // You should replace this with your actual navigation logic
       Navigator.pushReplacement(
         context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
+        MaterialPageRoute(builder: (context) => AppShell()),
       );
     } catch (e) {
       // Show error message
