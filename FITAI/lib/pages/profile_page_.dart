@@ -1,4 +1,4 @@
-import 'package:hk11/pages/login_page/view.dart';
+import 'package:hk11/pages/view.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
 import 'package:hk11/theme/theme_provider.dart';
