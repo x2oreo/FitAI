@@ -1,17 +1,19 @@
-import 'package:hk11/pages/login_page/login_or_signup_page.dart';
-import 'package:hk11/pages/login_page/onboarding.dart';
-import 'package:hk11/theme/theme_provider.dart';
 import 'package:flutter/material.dart';
-import 'package:firebase_core/firebase_core.dart';
-import 'package:hk11/pages/login_page/onboarding.dart';
 import 'package:hk11/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
+import 'package:hk11/pages/view.dart';
+import 'package:firebase_core/firebase_core.dart';
 import 'firebase_options.dart';
-import 'pages/login_page/view.dart';
 
 void main() async {
+  // Ensure Flutter is initialized
   WidgetsFlutterBinding.ensureInitialized();
-  await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
+  
+  // Initialize Firebase
+  await Firebase.initializeApp(
+    options: DefaultFirebaseOptions.currentPlatform,
+  );
+  
   runApp(
     ChangeNotifierProvider(
       create: (_) => ThemeProvider(),
@@ -26,6 +28,12 @@ class MyApp extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-    return MaterialApp(theme: themeProvider.theme, home: OnboardingPage());
+    return MaterialApp(
+      theme: themeProvider.theme,
+      home: LoginOrSignupPage(), // Changed from MyHomePage to AppShell
+      debugShowCheckedModeBanner: false,
+    );
   }
 }
+
+
