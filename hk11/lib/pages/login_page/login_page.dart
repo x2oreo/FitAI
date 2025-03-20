@@ -1,6 +1,8 @@
 import 'package:hk11/pages/login_page/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:hk11/pages/login_page/onboarding.dart';
 import 'view.dart';
 
 class LoginPage extends StatefulWidget {
@@ -26,15 +28,40 @@ class _LoginPageState extends State<LoginPage> {
         password: _passwordController.text.trim(),
       );
 
-      Navigator.pushReplacement(
-        context,
-        MaterialPageRoute(builder: (context) => ProfileScreen()),
-      );
-      // Handle successful login (navigation, etc.)
+      // Check if onboarding is complete for the current user
+      User? currentUser = FirebaseAuth.instance.currentUser;
+      if (currentUser != null) {
+        DocumentSnapshot userDoc =
+            await FirebaseFirestore.instance
+                .collection('users')
+                .doc(currentUser.uid)
+                .get();
+
+        bool onboardingComplete = false;
+        if (userDoc.exists) {
+          onboardingComplete = userDoc.get('onboardingComplete') ?? false;
+        }
+
+        if (!mounted) return;
+
+        if (onboardingComplete) {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => ProfileScreen()),
+          );
+        } else {
+          Navigator.pushReplacement(
+            context,
+            MaterialPageRoute(builder: (context) => OnboardingPage()),
+          );
+        }
+      }
     } on FirebaseAuthException catch (e) {
       // Handle login errors
       print(e.message);
-      // Show error message to user
+      setState(() {
+        _errorMessage = e.message ?? 'An error occurred during login';
+      });
     }
   }
 
