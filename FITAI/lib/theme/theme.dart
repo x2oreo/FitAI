@@ -9,7 +9,7 @@ final darktheme = ThemeData(
         dividerColor: Colors.white10,
         listTileTheme: ListTileThemeData(iconColor: Colors.white),
         appBarTheme: AppBarTheme(
-            backgroundColor: const Color.fromARGB(255, 30, 31, 31),
+            backgroundColor: const Color.fromARGB(255, 0, 0, 0),
             centerTitle: true,
             iconTheme: IconThemeData(color: Colors.white),
             titleTextStyle: TextStyle(
@@ -20,17 +20,22 @@ final darktheme = ThemeData(
         ),
         
         textTheme: TextTheme(
-          
+          headlineLarge: TextStyle(
+              color: Colors.white, 
+              fontWeight: FontWeight.w700, 
+              fontSize: 22,
+            ),
+
           bodyLarge: TextStyle(
               color: Colors.white, 
               fontWeight: FontWeight.w700, 
-              fontSize: 32,
+              fontSize: 28,
             ),
 
           bodyMedium: TextStyle(
               color: Colors.white, 
               fontWeight: FontWeight.w500, 
-              fontSize: 18,
+              fontSize: 22,
             ),
           bodySmall: TextStyle(
             color: Colors.white.withOpacity(0.7), 
@@ -129,16 +134,22 @@ final lightTheme = ThemeData(
   ),
   textTheme: TextTheme(
 
+    headlineLarge: TextStyle(
+              color: Colors.black, 
+              fontWeight: FontWeight.w700, 
+              fontSize: 22,
+            ),
+
     bodyLarge: TextStyle(
       color: Colors.black,
       fontWeight: FontWeight.w700,
-      fontSize: 32,
+      fontSize: 28,
     ),
 
     bodyMedium: TextStyle(
       color: Colors.black,
       fontWeight: FontWeight.w500,
-      fontSize: 18,
+      fontSize: 22,
     ),
 
     bodySmall: TextStyle(
