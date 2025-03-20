@@ -1,4 +1,4 @@
-import 'package:hk11/pages/login_page/profile_page.dart';
+import 'package:hk11/pages/profile_page.dart';
 import 'package:flutter/material.dart';
 import 'view.dart';
 
