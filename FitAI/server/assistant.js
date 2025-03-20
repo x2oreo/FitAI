@@ -1,4 +1,4 @@
-const { PineconeClient } = require('@pinecone-database/pinecone');
+const { Pinecone } = require('@pinecone-database/pinecone');
 const { OpenAI } = require('openai');
 const { GoogleGenerativeAI } = require('@google/generative-ai');
 require('dotenv').config();
@@ -8,42 +8,44 @@ const openai = new OpenAI({
   apiKey: process.env.OPENAI_API_KEY,
 });
 const genAI = new GoogleGenerativeAI(process.env.GEMINI_API_KEY);
-const pinecone = new Pinecone({apiKey: process.env.PINECONE_API_KEY});
+const pinecone = new Pinecone({
+  apiKey: process.env.PINECONE_API_KEY,
+});
 const index = pinecone.index(process.env.PINECONE_INDEX);
 
-// Generate embeddings using OpenAI's text-embedding-ada-002
+// Generate text embedding using OpenAI
 async function generateEmbedding(text) {
-    if (!query || typeof query !== "string") {
-        throw new Error("Invalid query parameter");
-      }
-      try {
-        const denseResponse = await openai.embeddings.create({
-          input: query,
-          model: denseModel,
+    if (!text || typeof text !== "string") {
+        throw new Error("Invalid text parameter");
+    }
+    try {
+        const response = await openai.embeddings.create({
+            input: text,
+            model: "text-embedding-3-large",
         });
-        return {vector: denseResponse.data[0].embedding};
-      } catch (error) {
-        console.error("Error embedding query:", error);
+        return { vector: response.data[0].embedding };
+    } catch (error) {
+        console.error("Error embedding text:", error);
         return null;
-      }
+    }
 }
 
 // Query Pinecone to get top 10 relevant chunks
 async function queryPinecone(embeddings, topK = 10) {
-    if (!queryEmbeddings || !queryEmbeddings.vector) {
+    if (!embeddings || !embeddings.vector) {
         throw new Error("Invalid embedding format");
-        }
+    }
     const queryResponse = await index.query({
         vector: embeddings.vector,
         topK,
         includeMetadata: true,
     });
     
-    return queryResponse.results;
+    return queryResponse.matches;  // Changed from results to matches
 }
 
-// Call Gemini API with the retrieved context
-async function queryGemini(query, nameUser, userInfo, contextChunks) {
+// Update queryGemini parameters and add default values
+async function queryGemini(query, nameUser = "User", userInfo = "", contextChunks = []) {
   const model = genAI.getGenerativeModel({ model: "gemini-2.0-flash" });
   
   // Format context chunks into a single string
@@ -66,6 +68,7 @@ async function queryGemini(query, nameUser, userInfo, contextChunks) {
     ${formattedContext}
 
     Guidelines:
+    - Make sure 
     - Provide answers in a clear, concise, and engaging manner.
     - Focus on practical, real-world solutions that fit into a programmer’s lifestyle.
     - Address health concerns related to prolonged sitting, screen time, stress, diet, sleep, and productivity.
@@ -78,7 +81,7 @@ async function queryGemini(query, nameUser, userInfo, contextChunks) {
 }
 
 // Main function to process a query
-async function processQuery(query) {
+async function processQuery(query, nameUser = "User", userInfo = "") {
   try {
     // Generate embedding for the query
     const embedding = await generateEmbedding(query);
@@ -92,7 +95,7 @@ async function processQuery(query) {
     }
     
     // Generate answer using Gemini with retrieved chunks as context
-    const answer = await queryGemini(query, relevantChunks);
+    const answer = await queryGemini(query, nameUser, userInfo, relevantChunks);
     
     return answer;
   } catch (error) {
@@ -102,3 +105,5 @@ async function processQuery(query) {
 }
 
 module.exports = { processQuery };
+
+processQuery("How can I improve my posture while working from home?", "Kaloyan", "16 year old, student").then(console.log);
