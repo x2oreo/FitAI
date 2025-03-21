@@ -141,117 +141,272 @@ class _MyHomePageState extends State<MyHomePage> {
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                SizedBox(height: 16),
+                SizedBox(height: 100),
 
-                // Quote container with blur
-                BlurTheme.applyBlur(
-                  context: context,
-                  child: Container(
-                    height: 220,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white, width: 1),
+                // Quote container with blur and gradient border
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      colors:
+                          isDarkMode
+                              ? [
+                                Colors.tealAccent.withOpacity(0.7),
+                                Colors.blue.withOpacity(0.7),
+                              ]
+                              : [
+                                Colors.blue.withOpacity(0.7),
+                                Colors.purple.withOpacity(0.7),
+                              ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.format_quote,
-                                color: Colors.blue,
-                                size: 20,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Quote',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: Colors.blue,
-                                ),
-                              ),
-                            ],
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(2), // Space for gradient border
+                  child: BlurTheme.applyBlur(
+                    context: context,
+                    child: Container(
+                      height: 220,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Decorative elements
+                          Positioned(
+                            top: 10,
+                            right: 10,
+                            child: Icon(
+                              Icons.format_quote,
+                              color: Colors.blue.withOpacity(0.3),
+                              size: 30,
+                            ),
                           ),
-                        ),
-                        Center(
-                          child: Padding(
-                            padding: const EdgeInsets.all(16.0),
-                            child:
-                                _isLoading
-                                    ? CircularProgressIndicator()
-                                    : Text(
-                                      _currentQuote,
-                                      style: theme.textTheme.bodyLarge
-                                          ?.copyWith(
-                                            fontSize: 28,
-                                            color: Colors.white,
-                                          ),
-                                      textAlign: TextAlign.center,
+                          Positioned(
+                            bottom: 10,
+                            left: 10,
+                            child: Icon(
+                              Icons.format_quote,
+                              color: Colors.blue.withOpacity(0.3),
+                              size: 30,
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
+                              ),
+                              decoration: BoxDecoration(
+                                color: Colors.blue.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.format_quote,
+                                    color: Colors.blue,
+                                    size: 20,
+                                  ),
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Quote',
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: Colors.blue,
+                                      fontWeight: FontWeight.bold,
                                     ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                          Center(
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                30.0,
+                                48.0,
+                                30.0,
+                                30.0,
+                              ),
+                              child:
+                                  _isLoading
+                                      ? CircularProgressIndicator()
+                                      : SingleChildScrollView(
+                                        physics: BouncingScrollPhysics(),
+                                        child: Container(
+                                          constraints: BoxConstraints(
+                                            minHeight: 120,
+                                          ),
+                                          child: Center(
+                                            child: Text(
+                                              _currentQuote,
+                                              style: theme.textTheme.bodyLarge
+                                                  ?.copyWith(
+                                                    fontSize: 22,
+                                                    color: Colors.white,
+                                                    fontStyle: FontStyle.italic,
+                                                    height:
+                                                        1.4, // Adds line spacing
+                                                    shadows: [
+                                                      Shadow(
+                                                        blurRadius: 4,
+                                                        color: Colors.black
+                                                            .withOpacity(0.3),
+                                                        offset: Offset(1, 1),
+                                                      ),
+                                                    ],
+                                                  ),
+                                              textAlign: TextAlign.center,
+                                              overflow: TextOverflow.visible,
+                                            ),
+                                          ),
+                                        ),
+                                      ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),
 
                 SizedBox(height: 16),
 
-                // Goal container with blur
-                BlurTheme.applyBlur(
-                  context: context,
-                  child: Container(
-                    height: 100,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(color: Colors.white, width: 1),
+                // Goal container with blur and gradient border
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    gradient: LinearGradient(
+                      colors:
+                          isDarkMode
+                              ? [
+                                Colors.orangeAccent.withOpacity(0.7),
+                                Colors.deepOrangeAccent.withOpacity(0.7),
+                              ]
+                              : [
+                                Colors.orange.withOpacity(0.7),
+                                Colors.deepOrange.withOpacity(0.7),
+                              ],
+                      begin: Alignment.topLeft,
+                      end: Alignment.bottomRight,
                     ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Row(
-                            children: [
-                              Icon(Icons.flag, color: Colors.orange, size: 20),
-                              SizedBox(width: 4),
-                              Text(
-                                'Goal',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: Colors.orange,
-                                ),
+                    boxShadow: [
+                      BoxShadow(
+                        color: Colors.black.withOpacity(0.2),
+                        blurRadius: 10,
+                        spreadRadius: 1,
+                      ),
+                    ],
+                  ),
+                  padding: const EdgeInsets.all(2), // Space for gradient border
+                  child: BlurTheme.applyBlur(
+                    context: context,
+                    child: Container(
+                      height: 150,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(14),
+                      ),
+                      child: Stack(
+                        children: [
+                          // Decorative elements
+                          Positioned(
+                            right: 15,
+                            bottom: 15,
+                            child: Icon(
+                              Icons.star,
+                              color: Colors.orangeAccent.withOpacity(0.3),
+                              size: 40,
+                            ),
+                          ),
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Container(
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 8,
+                                vertical: 4,
                               ),
-                            ],
-                          ),
-                        ),
-                        Center(
-                          child: Column(
-                            mainAxisAlignment: MainAxisAlignment.center,
-                            children: [
-                              SizedBox(height: 8),
-                              _isLoadingGoal
-                                  ? SizedBox(
-                                    height: 24,
-                                    width: 24,
-                                    child: CircularProgressIndicator(
-                                      strokeWidth: 2,
-                                    ),
-                                  )
-                                  : Text(
-                                    _userGoal,
-                                    style: theme.textTheme.headlineLarge
-                                        ?.copyWith(
-                                          fontSize: 28,
-                                          color: Colors.white,
-                                        ),
+                              decoration: BoxDecoration(
+                                color: Colors.orange.withOpacity(0.2),
+                                borderRadius: BorderRadius.circular(12),
+                              ),
+                              child: Row(
+                                children: [
+                                  Icon(
+                                    Icons.flag,
+                                    color: Colors.orange,
+                                    size: 20,
                                   ),
-                            ],
+                                  SizedBox(width: 4),
+                                  Text(
+                                    'Goal',
+                                    style: theme.textTheme.bodyLarge?.copyWith(
+                                      color: Colors.orange,
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                ],
+                              ),
+                            ),
                           ),
-                        ),
-                      ],
+                          Align(
+                            alignment: Alignment.centerLeft,
+                            child: Padding(
+                              padding: const EdgeInsets.fromLTRB(
+                                16.0,
+                                40.0,
+                                16.0,
+                                8.0,
+                              ),
+                              child: Column(
+                                mainAxisAlignment: MainAxisAlignment.center,
+                                crossAxisAlignment: CrossAxisAlignment.start,
+                                children: [
+                                  _isLoadingGoal
+                                      ? SizedBox(
+                                        height: 24,
+                                        width: 24,
+                                        child: CircularProgressIndicator(
+                                          strokeWidth: 2,
+                                        ),
+                                      )
+                                      : Text(
+                                        _userGoal,
+                                        style: theme.textTheme.headlineSmall
+                                            ?.copyWith(
+                                              fontSize: 24,
+                                              color: Colors.white,
+                                              fontWeight: FontWeight.bold,
+                                              shadows: [
+                                                Shadow(
+                                                  blurRadius: 4,
+                                                  color: Colors.black
+                                                      .withOpacity(0.3),
+                                                  offset: Offset(1, 1),
+                                                ),
+                                              ],
+                                            ),
+                                        textAlign: TextAlign.left,
+                                        overflow: TextOverflow.ellipsis,
+                                        maxLines: 2,
+                                      ),
+                                ],
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
                     ),
                   ),
                 ),

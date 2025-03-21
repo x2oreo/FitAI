@@ -15,14 +15,10 @@ class AppShell extends StatefulWidget {
 class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
   Widget _currentPage = const MyHomePage();
-  
+
   // List of main pages to navigate between
-  final List<Widget> _pages = const [
-    MyHomePage(),
-    ChatPage(),
-    ProfileScreen(),
-  ];
-  
+  final List<Widget> _pages = const [MyHomePage(), ChatPage(), ProfileScreen()];
+
   void _onItemTapped(int index) {
     setState(() {
       _selectedIndex = index;
@@ -46,7 +42,7 @@ class _AppShellState extends State<AppShell> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    
+
     return Scaffold(
       body: _currentPage,
       bottomNavigationBar: BottomNavigationBar(
