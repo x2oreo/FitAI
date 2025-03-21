@@ -82,6 +82,9 @@ class _ChatPageState extends State<ChatPage> {
 
       // Clear the message input
       _messageController.clear();
+
+      // Navigate to the chat detail page with the newly created chat
+      _navigateToChatDetail(context, chatRef.id, chatTitle);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error creating chat: ${e.toString()}')),
@@ -122,7 +125,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('${dotenv.env['API_BASE_URL']}process-query'),
+        Uri.parse('http://159.65.116.13:3000/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
