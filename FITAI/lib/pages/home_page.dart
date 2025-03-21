@@ -1,6 +1,6 @@
 import 'package:flutter/material.dart';
-import 'package:firebase_auth/firebase_auth.dart'; // Add this import
-import 'package:cloud_firestore/cloud_firestore.dart'; // Add this import
+import 'package:firebase_auth/firebase_auth.dart';
+import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/quotes_service.dart';
 import 'workout_page.dart';
 import 'meal_page.dart';
@@ -14,21 +14,22 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final QuotesService _quotesService = QuotesService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Add Firestore instance
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance; // Add Firestore instance
   final FirebaseAuth _auth = FirebaseAuth.instance; // Add auth instance
-  
+
   String _currentQuote = 'Loading quote...';
   String _userGoal = 'Loading goal...'; // Add goal state variable
   bool _isLoading = true;
-  bool _isLoadingGoal = true; // Add loading state for goal
-  
+  bool _isLoadingGoal = true;
+
   @override
   void initState() {
     super.initState();
     _loadQuote();
     _fetchUserGoal(); // Add goal fetching
   }
-  
+
   Future<void> _loadQuote() async {
     try {
       final quote = await _quotesService.getRandomQuote();
@@ -43,17 +44,18 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
-  
+
   // Add method to fetch user goal
   Future<void> _fetchUserGoal() async {
     setState(() {
       _isLoadingGoal = true;
     });
-    
+
     try {
       String userId = _auth.currentUser?.uid ?? 'anonymous_user';
-      DocumentSnapshot doc = await _firestore.collection('users').doc(userId).get();
-      
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(userId).get();
+
       if (doc.exists) {
         Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
         String goal = userData['goal'] ?? '10.000 steps';
@@ -88,7 +90,6 @@ class _MyHomePageState extends State<MyHomePage> {
         scrolledUnderElevation: 0,
         elevation: 0,
         title: Text('FitAi'),
-        
       ),
       body: SingleChildScrollView(
         child: Padding(
@@ -108,7 +109,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
                 height: 220,
-                
+
                 width: double.infinity,
                 child: Stack(
                   children: [
@@ -116,38 +117,41 @@ class _MyHomePageState extends State<MyHomePage> {
                       top: 8,
                       left: 8,
                       child: Row(
-
                         children: [
                           Icon(
-                            Icons.format_quote,  // Quote icon
-                            color: Colors.deepPurple,  // Changed from theme.colorScheme.secondary
+                            Icons.format_quote, // Quote icon
+                            color:
+                                Colors
+                                    .deepPurple, // Changed from theme.colorScheme.secondary
                             size: 20,
                           ),
                           SizedBox(width: 4),
                           Text(
                             'Quote',
                             style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.deepPurple,  // Changed from theme.colorScheme.secondary
+                              color:
+                                  Colors
+                                      .deepPurple, // Changed from theme.colorScheme.secondary
                             ),
                           ),
                         ],
                       ),
                     ),
 
-                      Center(
-                        
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          
-                          child: _isLoading
-                            ? CircularProgressIndicator()
-                            : Text(
-                                _currentQuote,
-                                style: theme.textTheme.bodyLarge,
-                                textAlign: TextAlign.center,
-                              ),
-                        ),
+                    Center(
+                      child: Padding(
+                        padding: const EdgeInsets.all(16.0),
+
+                        child:
+                            _isLoading
+                                ? CircularProgressIndicator()
+                                : Text(
+                                  _currentQuote,
+                                  style: theme.textTheme.bodyLarge,
+                                  textAlign: TextAlign.center,
+                                ),
                       ),
+                    ),
                   ],
                 ),
               ),
@@ -166,7 +170,6 @@ class _MyHomePageState extends State<MyHomePage> {
                 child: Stack(
                   children: [
                     Positioned(
-
                       top: 8,
                       left: 8,
                       child: Row(
@@ -191,15 +194,15 @@ class _MyHomePageState extends State<MyHomePage> {
                         mainAxisAlignment: MainAxisAlignment.center,
                         children: [
                           SizedBox(height: 8),
-                          _isLoadingGoal 
-                            ? SizedBox(
+                          _isLoadingGoal
+                              ? SizedBox(
                                 height: 24,
                                 width: 24,
                                 child: CircularProgressIndicator(
                                   strokeWidth: 2,
                                 ),
                               )
-                            : Text(
+                              : Text(
                                 _userGoal,
                                 style: theme.textTheme.headlineLarge?.copyWith(
                                   fontSize: 28,
@@ -211,15 +214,17 @@ class _MyHomePageState extends State<MyHomePage> {
                   ],
                 ),
               ),
+
               // Text between containers
-              
               SizedBox(height: 16),
-              
+
               InkWell(
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const WorkoutPage()),
+                    MaterialPageRoute(
+                      builder: (context) => const WorkoutPage(),
+                    ),
                   );
                 },
                 borderRadius: BorderRadius.circular(16),
@@ -242,15 +247,19 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Row(
                           children: [
                             Icon(
-                              Icons.fitness_center,  // Workout/fitness icon
-                              color: theme.hintColor,  // Changed from theme.colorScheme.secondary
+                              Icons.fitness_center, // Workout/fitness icon
+                              color:
+                                  theme
+                                      .hintColor, // Changed from theme.colorScheme.secondary
                               size: 20,
                             ),
                             SizedBox(width: 4),
                             Text(
                               'Workout',
                               style: theme.textTheme.bodyLarge?.copyWith(
-                                color: theme.hintColor,  // Changed from theme.colorScheme.secondary
+                                color:
+                                    theme
+                                        .hintColor, // Changed from theme.colorScheme.secondary
                               ),
                             ),
                           ],
@@ -295,7 +304,7 @@ class _MyHomePageState extends State<MyHomePage> {
                         child: Row(
                           children: [
                             Icon(
-                              Icons.restaurant,  // Food/meal icon
+                              Icons.restaurant, // Food/meal icon
                               color: Colors.greenAccent,
                               size: 20,
                             ),
@@ -319,6 +328,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
+              SizedBox(height: 16),
             ],
           ),
         ),

@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hk11/navigation/app_shell.dart';
-import 'package:hk11/pages/profile_page_.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'view.dart';
 import 'package:hk11/pages/onboarding.dart'; // Import the onboarding screen
 
@@ -15,12 +13,6 @@ class LoginOrSignupPage extends StatefulWidget {
 
 class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
   final _auth = AuthService();
-
-  // Check if onboarding is complete
-  Future<bool> _isOnboardingComplete() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('onboardingComplete') ?? false;
-  }
 
   // Add this function to your _LoginOrSignupPageState class
   Future<void> checkOnboardingAndNavigate(String userId) async {
