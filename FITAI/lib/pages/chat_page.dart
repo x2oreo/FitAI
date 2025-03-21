@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import '../config/api_config.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -427,7 +426,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     try {
       // Call the processQuery function through the API endpoint we set up
       var response = await http.post(
-        Uri.parse('${dotenv.env['API_BASE_URL']}process-query'),
+        Uri.parse('${ApiConfig.baseUrl}/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
