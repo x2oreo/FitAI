@@ -44,6 +44,7 @@ dependencies:
   flutter_dotenv: ^5.2.1
   flutter_markdown: ^0.7.6+2
   stroke_text: ^1.0.0
+  googleapis: ^14.0.0
 
 dev_dependencies:
   flutter_test:
