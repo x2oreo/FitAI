@@ -1,7 +1,10 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:provider/provider.dart';
+import '../theme/theme_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/quotes_service.dart';
+import '../theme/theme.dart'; // Ensure the theme import is present
 import 'workout_page.dart';
 import 'meal_page.dart';
 
@@ -81,143 +84,161 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
+    var isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
     final theme = Theme.of(context);
 
     return Scaffold(
-      appBar: AppBar(
-        backgroundColor: theme.appBarTheme.backgroundColor,
-        automaticallyImplyLeading: false,
-        scrolledUnderElevation: 0,
-        elevation: 0,
-        title: Text('FitAi'),
-      ),
-      body: SingleChildScrollView(
+      
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: RadialGradient(
+            center: isDarkMode ? Alignment.topLeft : Alignment.topRight,
+            radius: 1.3,
+            colors: isDarkMode 
+              ? [
+                  Color.fromARGB(255, 27, 105, 48), // Light green
+                  Color.fromARGB(255, 15, 28, 33), // Dark green/blue
+                ]
+              : [
+                  Color.fromARGB(255, 61, 238, 135), // Light green
+                  Color.fromARGB(255, 142, 224, 209), // Dark green/blue
+                ],
+            stops: [0.3, 1.0],
+          ),
+        ),
+        child: SingleChildScrollView(
         child: Padding(
           padding: const EdgeInsets.all(16.0),
           child: Column(
             mainAxisAlignment: MainAxisAlignment.start,
             children: [
               SizedBox(height: 16),
-              // First container with quote from Firebase
-              Container(
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: theme.hintColor.withOpacity(0.5),
-                    width: 1,
+              
+              // Quote container with blur
+              BlurTheme.applyBlur(
+                context: context,
+                child: Container(
+                  height: 220,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1,
+                    ),
                   ),
-                ),
-                height: 220,
-
-                width: double.infinity,
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.format_quote, // Quote icon
-                            color:
-                                Colors
-                                    .deepPurple, // Changed from theme.colorScheme.secondary
-                            size: 20,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Quote',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color:
-                                  Colors
-                                      .deepPurple, // Changed from theme.colorScheme.secondary
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.format_quote,
+                              color: Colors.blue,
+                              size: 20,
                             ),
-                          ),
-                        ],
-                      ),
-                    ),
-
-                    Center(
-                      child: Padding(
-                        padding: const EdgeInsets.all(16.0),
-
-                        child:
-                            _isLoading
-                                ? CircularProgressIndicator()
-                                : Text(
-                                  _currentQuote,
-                                  style: theme.textTheme.bodyLarge,
-                                  textAlign: TextAlign.center,
-                                ),
-                      ),
-                    ),
-                  ],
-                ),
-              ),
-              SizedBox(height: 16),
-              Container(
-                height: 100,
-                width: double.infinity,
-                decoration: BoxDecoration(
-                  color: theme.colorScheme.primary.withOpacity(0.3),
-                  borderRadius: BorderRadius.circular(16),
-                  border: Border.all(
-                    color: theme.hintColor.withOpacity(0.5),
-                    width: 1,
-                  ),
-                ),
-                child: Stack(
-                  children: [
-                    Positioned(
-                      top: 8,
-                      left: 8,
-                      child: Row(
-                        children: [
-                          Icon(
-                            Icons.flag, // Goal/target icon
-                            color: Colors.orange,
-                            size: 20,
-                          ),
-                          SizedBox(width: 4),
-                          Text(
-                            'Goal',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.orange,
-                            ),
-                          ),
-                        ],
-                      ),
-                    ),
-                    Center(
-                      child: Column(
-                        mainAxisAlignment: MainAxisAlignment.center,
-                        children: [
-                          SizedBox(height: 8),
-                          _isLoadingGoal
-                              ? SizedBox(
-                                height: 24,
-                                width: 24,
-                                child: CircularProgressIndicator(
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : Text(
-                                _userGoal,
-                                style: theme.textTheme.headlineLarge?.copyWith(
-                                  fontSize: 28,
-                                ),
+                            SizedBox(width: 4),
+                            Text(
+                              'Quote',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: Colors.blue,
+                                
                               ),
-                        ],
+                              
+                            ),
+                          ],
+                        ),
                       ),
-                    ),
-                  ],
+                      Center(
+                        child: Padding(
+                          padding: const EdgeInsets.all(16.0),
+                          child: _isLoading
+                            ? CircularProgressIndicator()
+                            : Text(
+                                _currentQuote,
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  fontSize: 28,
+                                  color: Colors.white,
+                                ),
+                                textAlign: TextAlign.center,
+                              ),
+                        ),
+                      ),
+                    ],
+                  ),
                 ),
               ),
-
-              // Text between containers
+              
               SizedBox(height: 16),
-
+              
+              // Goal container with blur
+              BlurTheme.applyBlur(
+                context: context,
+                child: Container(
+                  height: 100,
+                  width: double.infinity,
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    border: Border.all(
+                      color: Colors.white,
+                      width: 1,
+                    ),
+                  ),
+                  child: Stack(
+                    children: [
+                      Positioned(
+                        top: 8,
+                        left: 8,
+                        child: Row(
+                          children: [
+                            Icon(
+                              Icons.flag,
+                              color: Colors.orange,
+                              size: 20,
+                            ),
+                            SizedBox(width: 4),
+                            Text(
+                              'Goal',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: Colors.orange,
+                              ),
+                            ),
+                          ],
+                        ),
+                      ),
+                      Center(
+                        child: Column(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          children: [
+                            SizedBox(height: 8),
+                            _isLoadingGoal 
+                              ? SizedBox(
+                                  height: 24,
+                                  width: 24,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                              : Text(
+                                  _userGoal,
+                                  style: theme.textTheme.headlineLarge?.copyWith(
+                                    fontSize: 28,
+                                    color: Colors.white,
+                                  ),
+                                ),
+                          ],
+                        ),
+                      ),
+                    ],
+                  ),
+                ),
+              ),
+              
+              SizedBox(height: 16),
+              
+              // Workout container with blur
               InkWell(
                 onTap: () {
                   Navigator.push(
@@ -228,55 +249,58 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: theme.hintColor.withOpacity(0.5),
-                      width: 1,
+                child: BlurTheme.applyBlur(
+                  context: context,
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.fitness_center, // Workout/fitness icon
-                              color:
-                                  theme
-                                      .hintColor, // Changed from theme.colorScheme.secondary
-                              size: 20,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'Workout',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color:
-                                    theme
-                                        .hintColor, // Changed from theme.colorScheme.secondary
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.fitness_center,
+                                color: theme.hintColor,
+                                size: 20,
                               ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Workout',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: theme.hintColor,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            'Workout Routine',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: Colors.white,
+                              fontSize: 28
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                      Center(
-                        child: Text(
-                          'Workout Routine',
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
 
               SizedBox(height: 16),
+              
+              // Meal plan container with blur
               InkWell(
                 onTap: () {
                   Navigator.push(
@@ -285,46 +309,51 @@ class _MyHomePageState extends State<MyHomePage> {
                   );
                 },
                 borderRadius: BorderRadius.circular(16),
-                child: Container(
-                  height: 150,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    color: theme.colorScheme.primary.withOpacity(0.3),
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: theme.hintColor.withOpacity(0.5),
-                      width: 1,
+                child: BlurTheme.applyBlur(
+                  context: context,
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(
+                        color: Colors.white,
+                        width: 1,
+                      ),
                     ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.restaurant, // Food/meal icon
-                              color: Colors.greenAccent,
-                              size: 20,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'Meal',
-                              style: theme.textTheme.bodyLarge?.copyWith(
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Row(
+                            children: [
+                              Icon(
+                                Icons.restaurant,
                                 color: Colors.greenAccent,
+                                size: 20,
                               ),
+                              SizedBox(width: 4),
+                              Text(
+                                'Meal',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: Colors.greenAccent,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Center(
+                          child: Text(
+                            'Meal Plan',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              color: Colors.white,
+                              fontSize: 28
                             ),
-                          ],
+                          ),
                         ),
-                      ),
-                      Center(
-                        child: Text(
-                          'Meal Plan',
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
                 ),
               ),
@@ -333,6 +362,6 @@ class _MyHomePageState extends State<MyHomePage> {
           ),
         ),
       ),
-    );
+    ));
   }
 }

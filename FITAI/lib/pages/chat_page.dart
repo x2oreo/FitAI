@@ -192,7 +192,6 @@ class _ChatPageState extends State<ChatPage> {
                   hintStyle: TextStyle(color: Colors.grey.shade400),
                   filled: true,
                   fillColor: theme.colorScheme.primary.withOpacity(0.3),
-
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,
