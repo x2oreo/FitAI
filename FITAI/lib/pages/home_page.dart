@@ -2,7 +2,6 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
-import 'package:stroke_text/stroke_text.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import '../services/quotes_service.dart';
 import '../theme/theme.dart'; // Ensure the theme import is present
