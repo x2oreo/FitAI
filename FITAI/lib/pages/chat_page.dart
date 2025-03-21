@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -122,7 +123,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('http://172.20.10.2:3000/process-query'),
+        Uri.parse('http://10.1.170.174:3000/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
@@ -161,47 +162,34 @@ class _ChatPageState extends State<ChatPage> {
 
   @override
   Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+
     return Scaffold(
       appBar: AppBar(
+        automaticallyImplyLeading: false,
         title: const Text(
           'Chats',
           style: TextStyle(fontWeight: FontWeight.bold),
         ),
         elevation: 0,
-        backgroundColor: Theme.of(context).scaffoldBackgroundColor,
-        foregroundColor: Theme.of(context).textTheme.bodyLarge?.color,
       ),
       body: Column(
         children: [
+          
           // New message input field
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: Container(
-              decoration: BoxDecoration(
-                color: Theme.of(context).cardColor,
-                borderRadius: BorderRadius.circular(24),
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, 5),
-                  ),
-                ],
-              ),
+              width: 460,
               child: TextField(
                 controller: _messageController,
-                style: const TextStyle(
-                  color: Colors.black,
-                ), // Add black text color
+                // Add black text color
                 decoration: InputDecoration(
                   hintText: 'Ask me anything...',
                   hintStyle: TextStyle(color: Colors.grey.shade400),
                   filled: true,
-                  fillColor: Colors.transparent,
-                  border: OutlineInputBorder(
-                    borderRadius: BorderRadius.circular(24.0),
-                    borderSide: BorderSide.none,
-                  ),
+                  fillColor: theme.colorScheme.primary.withOpacity(0.3),
+                  
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,
@@ -218,7 +206,7 @@ class _ChatPageState extends State<ChatPage> {
                           : IconButton(
                             icon: Icon(
                               Icons.send_rounded,
-                              color: Theme.of(context).primaryColor,
+                              color: theme.colorScheme.secondary,
                             ),
                             onPressed: () {
                               _createNewChat(_messageController.text);
@@ -259,21 +247,19 @@ class _ChatPageState extends State<ChatPage> {
                         Icon(
                           Icons.chat_bubble_outline,
                           size: 80,
-                          color: Colors.grey.shade300,
+                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No chats yet',
-                          style: TextStyle(
-                            fontSize: 18,
+                          style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            color: Colors.grey.shade600,
-                          ),
+                            ),
                         ),
                         const SizedBox(height: 8),
                         Text(
                           'Start a new conversation above!',
-                          style: TextStyle(color: Colors.grey.shade500),
+                          style: theme.textTheme.bodyMedium,
                         ),
                       ],
                     ),
@@ -300,31 +286,35 @@ class _ChatPageState extends State<ChatPage> {
 
                     return Card(
                       elevation: 0,
+                      
+                      color: theme.colorScheme.primary.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                        side: BorderSide(color: Colors.grey.shade200),
+                      borderRadius: BorderRadius.circular(24),
+                      side: BorderSide(
+                        color: Colors.black,
+                      ),
                       ),
                       child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16,
-                          vertical: 8,
-                        ),
-                        title: Text(
-                          chatTitle,
-                          style: const TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                        subtitle: Text(
-                          timeAgo,
-                          style: TextStyle(color: Colors.grey.shade600),
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: Colors.grey.shade400,
-                        ),
-                        onTap: () {
-                          _navigateToChatDetail(context, chatDoc.id, chatTitle);
-                        },
+                      contentPadding: const EdgeInsets.symmetric(
+                        horizontal: 20,
+                        vertical: 16,
+                      ),
+                      title: Text(
+                        chatTitle,
+                        style: theme.textTheme.bodyLarge,
+                      ),
+                      subtitle: Text(
+                        timeAgo,
+                        style: theme.textTheme.bodySmall,
+                      ),
+                      trailing: Icon(
+                        Icons.arrow_forward_ios,
+                        size: 16,
+                        color: theme.colorScheme.secondary,
+                      ),
+                      onTap: () {
+                        _navigateToChatDetail(context, chatDoc.id, chatTitle);
+                      },
                       ),
                     );
                   },
@@ -434,7 +424,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     try {
       // Call the processQuery function through the API endpoint we set up
       var response = await http.post(
-        Uri.parse('http://172.20.10.2:3000/process-query'),
+        Uri.parse('http://10.1.170.174:3000/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
@@ -459,16 +449,12 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
 
     return Scaffold(
       appBar: AppBar(
         title: Text(
           widget.chatTitle,
-          style: TextStyle(
-            fontWeight: FontWeight.bold,
-            color: theme.textTheme.bodyLarge?.color,
-          ),
+          style: theme.textTheme.headlineLarge,
         ),
         elevation: 0,
         backgroundColor: theme.scaffoldBackgroundColor,
@@ -507,10 +493,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                         Icon(
                           Icons.chat_bubble_outline,
                           size: 80,
-                          color:
-                              isDarkMode
-                                  ? Colors.white24
-                                  : Colors.grey.shade300,
+                          color: theme.colorScheme.onSurface.withOpacity(0.2),
                         ),
                         const SizedBox(height: 16),
                         Text(
@@ -573,20 +556,22 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                               vertical: 12.0,
                             ),
                             decoration: BoxDecoration(
-                              color:
-                                  isUser
-                                      ? theme.primaryColor
-                                      : isDarkMode
-                                      ? Colors.grey[800]
-                                      : Colors.grey[200],
+                              color: isUser
+                                  ? theme.colorScheme.onSecondary
+                                  : theme.colorScheme.onPrimary,
+                              border: Border.all(
+                                color: theme.colorScheme.surface,
+                              ),
                               borderRadius: BorderRadius.circular(
                                 20.0,
                               ).copyWith(
+                                
                                 bottomRight:
                                     isUser ? const Radius.circular(0) : null,
                                 bottomLeft:
                                     !isUser ? const Radius.circular(0) : null,
                               ),
+                              
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.05),
@@ -595,17 +580,52 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                 ),
                               ],
                             ),
-                            child: Text(
-                              messageText,
-                              style: TextStyle(
-                                color:
-                                    isUser
-                                        ? Colors.white
-                                        : Colors
-                                            .black, // Changed to always be black for assistant
-                                fontSize: 16,
-                              ),
-                            ),
+                            child: isUser 
+                                ? Text(
+                                    messageText,
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      color: Colors.white,
+                                    ),
+                                  )
+                                : MarkdownBody(
+                                    data: messageText,
+                                    styleSheet: MarkdownStyleSheet(
+                                      p: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                      strong: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 16,
+                                      ),
+                                      em: TextStyle(
+                                        color: Colors.black,
+                                        fontStyle: FontStyle.italic,
+                                        fontSize: 16,
+                                      ),
+                                      h1: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 24,
+                                      ),
+                                      h2: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 20,
+                                      ),
+                                      h3: TextStyle(
+                                        color: Colors.black,
+                                        fontWeight: FontWeight.bold,
+                                        fontSize: 18,
+                                      ),
+                                      listBullet: TextStyle(
+                                        color: Colors.black,
+                                        fontSize: 16,
+                                      ),
+                                    ),
+                                    softLineBreak: true,
+                                  ),
                           ),
                           if (time.isNotEmpty)
                             Padding(
@@ -618,10 +638,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                 time,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color:
-                                      isDarkMode
-                                          ? Colors.white54
-                                          : Colors.black54,
+                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
                                 ),
                               ),
                             ),
@@ -651,29 +668,16 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               children: [
                 Expanded(
                   child: Container(
-                    decoration: BoxDecoration(
-                      color:
-                          isDarkMode
-                              ? Colors.white.withOpacity(0.05)
-                              : Colors.grey.shade100,
-                      borderRadius: BorderRadius.circular(24.0),
-                      border: Border.all(
-                        color:
-                            isDarkMode ? Colors.white30 : Colors.grey.shade300,
-                      ),
-                    ),
+                    
                     child: TextField(
                       controller: _messageController,
-                      style: const TextStyle(
-                        color: Colors.black, // Changed to always be black
-                      ),
+                      style: theme.textTheme.bodyMedium,
                       decoration: InputDecoration(
+                        filled: true,
+                        fillColor: theme.colorScheme.primary.withOpacity(0.3),
                         hintText: 'Type a message...',
                         hintStyle: TextStyle(
-                          color:
-                              isDarkMode
-                                  ? Colors.white54
-                                  : Colors.grey.shade500,
+                          color: Colors.grey.shade400,
                         ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
@@ -714,7 +718,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                               : Icon(
                                 Icons.send_rounded,
                                 color: Colors.white,
-                                size: 24,
+                                size: 18,
                               ),
                     ),
                   ),
