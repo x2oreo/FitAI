@@ -7,11 +7,11 @@ final lightTheme = ThemeData(
         colorScheme: ColorScheme(
           primary: const Color.fromARGB(255, 255, 255, 255),
           secondary: const Color.fromARGB(255, 52, 211, 153),
-          surface: const Color.fromARGB(255, 249, 250, 251),
+          surface: const Color.fromARGB(255, 120, 180, 240),
           background: const Color.fromARGB(255, 249, 250, 251),
           error: const Color.fromARGB(255, 252, 75, 5),
           onPrimary: const Color.fromARGB(255, 252, 252, 252),
-          onSecondary: const Color.fromARGB(255, 17, 24, 39),
+          onSecondary: const Color.fromARGB(255, 78, 127, 234),
           onSurface: const Color.fromARGB(255, 17, 24, 39),
           onBackground: const Color.fromARGB(255, 17, 24, 39),
           onError: const Color.fromARGB(255, 252, 252, 252),
@@ -30,7 +30,7 @@ final lightTheme = ThemeData(
             iconTheme: IconThemeData(color: const Color.fromARGB(255, 17, 24, 39)),
             titleTextStyle: TextStyle(
                 color: const Color.fromARGB(255, 17, 24, 39),
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Inter',
             )
@@ -137,7 +137,7 @@ final darktheme = ThemeData(
         colorScheme: ColorScheme(
           primary: const Color.fromARGB(255, 70, 70, 73),
           secondary: const Color.fromARGB(255, 52, 211, 153),
-          surface: const Color.fromARGB(255, 249, 250, 251),
+          surface: const Color.fromARGB(255, 70, 70, 73),
           background: const Color.fromARGB(255, 249, 250, 251),
           error: const Color.fromARGB(255, 252, 75, 5),
           onPrimary: const Color.fromARGB(255, 252, 252, 252),
@@ -159,7 +159,7 @@ final darktheme = ThemeData(
             iconTheme: IconThemeData(color: const Color.fromARGB(255, 229, 231, 235)),
             titleTextStyle: TextStyle(
                 color: const Color.fromARGB(255, 229, 231, 235),
-                fontSize: 22,
+                fontSize: 26,
                 fontWeight: FontWeight.w700,
                 fontFamily: 'Inter',
             )
