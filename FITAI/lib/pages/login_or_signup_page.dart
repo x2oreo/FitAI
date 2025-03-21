@@ -100,10 +100,10 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                         color: Colors.white.withOpacity(0.1),
                         shape: BoxShape.circle,
                       ),
-                      child: Icon(
-                        Icons.whatshot_rounded,
-                        size: 40,
-                        color: const Color.fromARGB(255, 0, 110, 255),
+                      child: Image.asset(
+                        'assets/logo.png',
+                        height: 10,
+                        width: 10,
                       ),
                     ),
                     const SizedBox(height: 24),
@@ -147,7 +147,7 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                       ),
 
                       child: Image.asset(
-                        'assets/images/icon-google.png',
+                        'assets/icon-google.png',
                         height: 10,
                         width: 10,
                       ),
@@ -184,7 +184,6 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                         );
                       }
                     },
-                    icon: Icon(Icons.email_outlined),
 
                     label: Text('Log In', style: theme.textTheme.bodyMedium),
                   ),

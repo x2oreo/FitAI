@@ -1,12 +1,58 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
+import 'dart:ui';
+
+// Blur effect constants for consistent usage across the app
+class BlurTheme {
+  static const double blurRadius = 30.0;  // Increased from 10.0 to 20.0
+  static const Color lightOverlayColor = Color.fromRGBO(0, 0, 0, 0.362);
+  static const Color darkOverlayColor = Color.fromRGBO(206, 196, 196, 0.2);
+  
+  // Apply blur to any widget
+  static const double defaultLightOpacity = 0.1;  // Default opacity for light theme
+  static const double defaultDarkOpacity = 0.2;   // Default opacity for dark theme
+  
+  // Method to get overlay color with custom opacity
+  static Color getOverlayColor(bool isDark, double? customOpacity) {
+    if (isDark) {
+      return darkOverlayColor.withOpacity(customOpacity ?? defaultDarkOpacity);
+    } else {
+      return lightOverlayColor.withOpacity(customOpacity ?? defaultLightOpacity);
+    }
+  }
+  static Widget applyBlur({
+    required Widget child,
+    required BuildContext context,
+    double? customBlurRadius,
+    Color? customOverlayColor,
+  }) {
+    final bool isDark = Theme.of(context).brightness == Brightness.dark;
+    return ClipRRect(
+      borderRadius: BorderRadius.circular(16),
+      child: BackdropFilter(
+        filter: ImageFilter.blur(
+          sigmaX: customBlurRadius ?? blurRadius,
+          sigmaY: customBlurRadius ?? blurRadius,
+        ),
+        child: Container(
+          decoration: BoxDecoration(
+            color: customOverlayColor ?? 
+                  (isDark ? darkOverlayColor : lightOverlayColor),
+            borderRadius: BorderRadius.circular(16),
+          ),
+          child: child,
+        ),
+      ),
+    );
+  }
+}
 
 final lightTheme = ThemeData(
 
         colorScheme: ColorScheme(
           primary: const Color.fromARGB(255, 255, 255, 255),
-          secondary: const Color.fromARGB(255, 52, 211, 153),
+          secondary: const Color.fromARGB(255, 0, 0, 0),
           surface: const Color.fromARGB(255, 120, 180, 240),
           background: const Color.fromARGB(255, 249, 250, 251),
           error: const Color.fromARGB(255, 252, 75, 5),
@@ -71,6 +117,7 @@ final lightTheme = ThemeData(
             ),
         ),
         inputDecorationTheme: InputDecorationTheme(
+          
             labelStyle: TextStyle(
               color: const Color.fromARGB(255, 17, 24, 39).withOpacity(0.7),
               fontSize: 24,
@@ -87,12 +134,12 @@ final lightTheme = ThemeData(
             suffixIconColor: const Color.fromARGB(255, 17, 24, 39).withOpacity(0.7),
             contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12), enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: const Color.fromARGB(255, 17, 24, 39)),
+                borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
                 ),
                   focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 17, 24, 39), width: 2),
+                  BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -100,7 +147,7 @@ final lightTheme = ThemeData(
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: const Color.fromARGB(255, 17, 24, 39), width: 2),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
                 ),
                 filled: true,
                 fillColor: const Color.fromARGB(255, 17, 24, 39).withOpacity(0.05),
@@ -113,8 +160,8 @@ final lightTheme = ThemeData(
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
                 side: BorderSide(
-                  color: Colors.black,
-                  width: 1,
+                  color: const Color.fromARGB(255, 0, 0, 0),
+                  width: 0.5,
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),
@@ -219,12 +266,12 @@ final darktheme = ThemeData(
             suffixIconColor: const Color.fromARGB(255, 229, 231, 235).withOpacity(0.7),
             contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12), enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
-                borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
+                borderSide: BorderSide(color: Colors.white),
                 ),
                   focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide:
-                  BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
+                  BorderSide(color: Colors.white, width: 2),
                 ),
                 errorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
@@ -232,7 +279,7 @@ final darktheme = ThemeData(
                 ),
                 focusedErrorBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
-                  borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0), width: 2),
+                  borderSide: BorderSide(color: Colors.white, width: 2),
                 ),
                 filled: true,
                 fillColor: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.05),
@@ -241,12 +288,12 @@ final darktheme = ThemeData(
           style: ButtonStyle(
             backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
             foregroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 229, 231, 235)),
-            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 255, 255, 255)),
+            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
                 side: BorderSide(
-                  color: const Color.fromARGB(255, 0, 0, 0),
-                  width: 1,
+                  color: Colors.white,
+                  width: 0.5,
                 ),
                 borderRadius: BorderRadius.circular(12),
               ),

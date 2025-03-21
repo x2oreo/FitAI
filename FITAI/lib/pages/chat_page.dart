@@ -190,6 +190,13 @@ class _ChatPageState extends State<ChatPage> {
                   filled: true,
                   fillColor: theme.colorScheme.primary.withOpacity(0.3),
                   
+                  // border: OutlineInputBorder(
+                  //   borderRadius: BorderRadius.circular(24),
+                  //   borderSide: (BorderSide(
+                  //     color: theme.colorScheme.onSurface.withOpacity(0.3),
+                  //   )),
+                  // ),
+                  
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,
@@ -291,7 +298,7 @@ class _ChatPageState extends State<ChatPage> {
                       shape: RoundedRectangleBorder(
                       borderRadius: BorderRadius.circular(24),
                       side: BorderSide(
-                        color: Colors.black,
+                        color: theme.colorScheme.secondary.withOpacity(0.3),
                       ),
                       ),
                       child: ListTile(
