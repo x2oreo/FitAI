@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hk11/utils/calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
@@ -18,6 +19,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
   int _selectedDay = 1; // Default to day 1 instead of 0
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final CalendarClient calendarClient = CalendarClient();
 
   // Workout information for each day
   Map<String, dynamic> _workoutPlan = {};
@@ -242,6 +244,17 @@ class _WorkoutPageState extends State<WorkoutPage> {
       _isGeneratingGoogleCalendar = true;
     });
 
+    for (int i = 1; i <= 7; i++) {
+      await calendarClient.insert(
+          title: 'Workout - Day $i',
+          description: 'Workout planned by FitAI',
+          location: '',
+          attendeeEmailList: [],
+          shouldNotifyAttendees: false,
+          startTime: DateTime.now().add(Duration(days: i)),
+          endTime: DateTime.now().add(Duration(days: i, hours: 1)),
+        );
+      }
     setState(() {
       _isGeneratingGoogleCalendar = false;
     });
