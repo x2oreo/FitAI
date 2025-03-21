@@ -99,7 +99,7 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                       ),
 
                       child: Image.asset(
-                        'images/icon-google.png',
+                        'assets/images/icon-google.png',
                         height: 10,
                         width: 10,
                       ),
