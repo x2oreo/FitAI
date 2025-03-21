@@ -146,7 +146,7 @@ class _MealPageState extends State<MealPage> {
       // Make API request with detailed logging
       print('Making API request to generate diet plan...');
       var response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/generate-plan'),
+        Uri.parse('${ApiConfig.baseUrl}generate-plan'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'variant': 'diet',

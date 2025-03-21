@@ -3,7 +3,6 @@ import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
-import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
 import '../config/api_config.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
@@ -164,6 +163,44 @@ class _ChatPageState extends State<ChatPage> {
     );
   }
 
+  // Add a new method to create an empty chat (no initial message)
+  Future<void> _createEmptyChat() async {
+    setState(() {
+      _isLoading = true;
+    });
+
+    try {
+      // Create a new chat document with auto-generated ID
+      final chatRef =
+          _firestore
+              .collection('chats')
+              .doc(currentUserId)
+              .collection('chats')
+              .doc();
+
+      // Generate a chat title based on current date
+      final chatTitle = _generateChatTitle('');
+
+      // Create empty chat document
+      await chatRef.set({
+        'chatTitle': chatTitle,
+        'lastVisited': FieldValue.serverTimestamp(),
+        'createdAt': FieldValue.serverTimestamp(),
+      });
+
+      // Navigate to the chat detail page with the newly created chat
+      _navigateToChatDetail(context, chatRef.id, chatTitle);
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(content: Text('Error creating chat: ${e.toString()}')),
+      );
+    } finally {
+      setState(() {
+        _isLoading = false;
+      });
+    }
+  }
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
@@ -179,46 +216,46 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          // New message input field
+          // Replace button action to create empty chat directly
           Padding(
             padding: const EdgeInsets.all(16.0),
-            child: Container(
-              width: 460,
-              child: TextField(
-                controller: _messageController,
-                // Add black text color
-                decoration: InputDecoration(
-                  hintText: 'Ask me anything...',
-                  hintStyle: TextStyle(color: Colors.grey.shade400),
-                  filled: true,
-                  fillColor: theme.colorScheme.primary.withOpacity(0.3),
-                  contentPadding: const EdgeInsets.symmetric(
-                    horizontal: 20,
-                    vertical: 16,
-                  ),
-                  suffixIcon:
-                      _isLoading
-                          ? Padding(
-                            padding: const EdgeInsets.all(12.0),
-                            child: CircularProgressIndicator(
-                              strokeWidth: 2,
-                              color: Theme.of(context).primaryColor,
-                            ),
-                          )
-                          : IconButton(
-                            icon: Icon(
-                              Icons.send_rounded,
-                              color: theme.colorScheme.secondary,
-                            ),
-                            onPressed: () {
-                              _createNewChat(_messageController.text);
-                            },
-                          ),
+            child: ElevatedButton(
+              onPressed: _isLoading ? null : _createEmptyChat,
+              style: ElevatedButton.styleFrom(
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.3),
+                minimumSize: const Size(460, 56),
+                shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(12),
                 ),
-                onSubmitted: (text) {
-                  _createNewChat(text);
-                },
+                elevation: 0,
               ),
+              child:
+                  _isLoading
+                      ? SizedBox(
+                        width: 24,
+                        height: 24,
+                        child: CircularProgressIndicator(
+                          strokeWidth: 2,
+                          color: theme.colorScheme.secondary,
+                        ),
+                      )
+                      : Row(
+                        mainAxisSize: MainAxisSize.min,
+                        children: [
+                          Icon(
+                            Icons.add_circle_outline,
+                            color: theme.colorScheme.secondary,
+                          ),
+                          const SizedBox(width: 12),
+                          Text(
+                            'Start a new chat',
+                            style: TextStyle(
+                              color: Colors.grey.shade700,
+                              fontWeight: FontWeight.w500,
+                            ),
+                          ),
+                        ],
+                      ),
             ),
           ),
 
@@ -328,6 +365,43 @@ class _ChatPageState extends State<ChatPage> {
       ),
     );
   }
+
+  // Add this new method to show a dialog for creating a new chat
+  void _showNewChatDialog(BuildContext context) {
+    _messageController.clear();
+
+    showDialog(
+      context: context,
+      builder:
+          (context) => AlertDialog(
+            title: Text('Start a new chat'),
+            content: TextField(
+              controller: _messageController,
+              decoration: InputDecoration(
+                hintText: 'Ask me anything...',
+                border: OutlineInputBorder(),
+              ),
+              maxLines: 3,
+              autofocus: true,
+            ),
+            actions: [
+              TextButton(
+                onPressed: () => Navigator.pop(context),
+                child: Text('Cancel'),
+              ),
+              ElevatedButton(
+                onPressed: () {
+                  if (_messageController.text.trim().isNotEmpty) {
+                    Navigator.pop(context);
+                    _createNewChat(_messageController.text);
+                  }
+                },
+                child: Text('Start Chat'),
+              ),
+            ],
+          ),
+    );
+  }
 }
 
 // ChatDetailPage class for viewing individual chats
@@ -426,7 +500,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     try {
       // Call the processQuery function through the API endpoint we set up
       var response = await http.post(
-        Uri.parse('${dotenv.env['API_BASE_URL']}process-query'),
+        Uri.parse('${ApiConfig.baseUrl}process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,

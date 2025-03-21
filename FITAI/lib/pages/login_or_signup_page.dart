@@ -85,19 +85,8 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                 margin: const EdgeInsets.only(bottom: 40),
                 child: Column(
                   children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Image.asset(
-                        'assets/logo.png',
-                        height: 10,
-                        width: 10,
-                      ),
-                    ),
+                    Image.asset('assets/logo.png', height: 200, width: 200),
+
                     const SizedBox(height: 24),
                     Text('Welcome!', style: theme.textTheme.bodyLarge),
                     const SizedBox(height: 12),

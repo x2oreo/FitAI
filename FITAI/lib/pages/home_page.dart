@@ -23,6 +23,7 @@ class _MyHomePageState extends State<MyHomePage> {
 
   String _currentQuote = 'Loading quote...';
   String _userGoal = 'Loading goal...'; // Add goal state variable
+  int _currentDayNum = 1; // Add day number state variable
   bool _isLoading = true;
   bool _isLoadingGoal = true;
 
@@ -30,7 +31,7 @@ class _MyHomePageState extends State<MyHomePage> {
   void initState() {
     super.initState();
     _loadQuote();
-    _fetchUserGoal(); // Add goal fetching
+    _fetchUserData(); // Renamed method to fetch all user data
   }
 
   Future<void> _loadQuote() async {
@@ -48,8 +49,8 @@ class _MyHomePageState extends State<MyHomePage> {
     }
   }
 
-  // Add method to fetch user goal
-  Future<void> _fetchUserGoal() async {
+  // Updated method to fetch user data including goal and day number
+  Future<void> _fetchUserData() async {
     setState(() {
       _isLoadingGoal = true;
     });
@@ -61,20 +62,48 @@ class _MyHomePageState extends State<MyHomePage> {
 
       if (doc.exists) {
         Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
+
+        // Get user goal
         String goal = userData['goal'] ?? '10.000 steps';
+
+        // Get created date and calculate day number
+        Timestamp? createdAtTimestamp = userData['createdAt'] as Timestamp?;
+        int storedDayNum = userData['dayNum'] ?? 1;
+
+        // Calculate current day in the 7-day cycle
+        int calculatedDayNum = 1;
+        if (createdAtTimestamp != null) {
+          DateTime createdAt = createdAtTimestamp.toDate();
+          DateTime now = DateTime.now();
+
+          // Calculate days difference
+          int daysDifference = now.difference(createdAt).inDays;
+          calculatedDayNum = (daysDifference % 7) + 1; // Day 1-7 in cycle
+        }
+
+        // Update day number in Firestore if it changed
+        if (calculatedDayNum != storedDayNum) {
+          await _firestore.collection('users').doc(userId).update({
+            'dayNum': calculatedDayNum,
+          });
+        }
+
         setState(() {
           _userGoal = goal;
+          _currentDayNum = calculatedDayNum;
         });
       } else {
         setState(() {
           _userGoal = '10.000 steps'; // Default value if no data
+          _currentDayNum = 1;
         });
       }
     } catch (e) {
       setState(() {
         _userGoal = '10.000 steps'; // Default on error
+        _currentDayNum = 1;
       });
-      print('Error fetching user goal: $e');
+      print('Error fetching user data: $e');
     } finally {
       setState(() {
         _isLoadingGoal = false;
@@ -88,238 +117,41 @@ class _MyHomePageState extends State<MyHomePage> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      
       body: Container(
         decoration: BoxDecoration(
           gradient: RadialGradient(
             center: isDarkMode ? Alignment.topLeft : Alignment.topRight,
             radius: 1.3,
-            colors: isDarkMode 
-              ? [
-                  Color.fromARGB(255, 27, 105, 48), // Light green
-                  Color.fromARGB(255, 15, 28, 33), // Dark green/blue
-                ]
-              : [
-                  Color.fromARGB(255, 61, 238, 135), // Light green
-                  Color.fromARGB(255, 142, 224, 209), // Dark green/blue
-                ],
+            colors:
+                isDarkMode
+                    ? [
+                      Color.fromARGB(255, 27, 105, 48), // Light green
+                      Color.fromARGB(255, 15, 28, 33), // Dark green/blue
+                    ]
+                    : [
+                      Color.fromARGB(255, 61, 238, 135), // Light green
+                      Color.fromARGB(255, 142, 224, 209), // Dark green/blue
+                    ],
             stops: [0.3, 1.0],
           ),
         ),
         child: SingleChildScrollView(
-        child: Padding(
-          padding: const EdgeInsets.all(16.0),
-          child: Column(
-            mainAxisAlignment: MainAxisAlignment.start,
-            children: [
-              SizedBox(height: 16),
-              
-              // Quote container with blur
-              BlurTheme.applyBlur(
-                context: context,
-                child: Container(
-                  height: 220,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1,
-                    ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.format_quote,
-                              color: Colors.blue,
-                              size: 20,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'Quote',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: Colors.blue,
-                                
-                              ),
-                              
-                            ),
-                          ],
-                        ),
-                      ),
-                      Center(
-                        child: Padding(
-                          padding: const EdgeInsets.all(16.0),
-                          child: _isLoading
-                            ? CircularProgressIndicator()
-                            : Text(
-                                _currentQuote,
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  fontSize: 28,
-                                  color: Colors.white,
-                                ),
-                                textAlign: TextAlign.center,
-                              ),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              SizedBox(height: 16),
-              
-              // Goal container with blur
-              BlurTheme.applyBlur(
-                context: context,
-                child: Container(
-                  height: 100,
-                  width: double.infinity,
-                  decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    border: Border.all(
-                      color: Colors.white,
-                      width: 1,
-                    ),
-                  ),
-                  child: Stack(
-                    children: [
-                      Positioned(
-                        top: 8,
-                        left: 8,
-                        child: Row(
-                          children: [
-                            Icon(
-                              Icons.flag,
-                              color: Colors.orange,
-                              size: 20,
-                            ),
-                            SizedBox(width: 4),
-                            Text(
-                              'Goal',
-                              style: theme.textTheme.bodyLarge?.copyWith(
-                                color: Colors.orange,
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-                      Center(
-                        child: Column(
-                          mainAxisAlignment: MainAxisAlignment.center,
-                          children: [
-                            SizedBox(height: 8),
-                            _isLoadingGoal 
-                              ? SizedBox(
-                                  height: 24,
-                                  width: 24,
-                                  child: CircularProgressIndicator(
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                              : Text(
-                                  _userGoal,
-                                  style: theme.textTheme.headlineLarge?.copyWith(
-                                    fontSize: 28,
-                                    color: Colors.white,
-                                  ),
-                                ),
-                          ],
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-              
-              SizedBox(height: 16),
-              
-              // Workout container with blur
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (context) => const WorkoutPage(),
-                    ),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: BlurTheme.applyBlur(
-                  context: context,
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    decoration: BoxDecoration(
-                      borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 1,
-                      ),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.fitness_center,
-                                color: theme.hintColor,
-                                size: 20,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Workout',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: theme.hintColor,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            'Workout Routine',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.white,
-                              fontSize: 28
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-              ),
+          child: Padding(
+            padding: const EdgeInsets.all(16.0),
+            child: Column(
+              mainAxisAlignment: MainAxisAlignment.start,
+              children: [
+                SizedBox(height: 16),
 
-              SizedBox(height: 16),
-              
-              // Meal plan container with blur
-              InkWell(
-                onTap: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(builder: (context) => const MealPage()),
-                  );
-                },
-                borderRadius: BorderRadius.circular(16),
-                child: BlurTheme.applyBlur(
+                // Quote container with blur
+                BlurTheme.applyBlur(
                   context: context,
                   child: Container(
-                    height: 150,
+                    height: 220,
                     width: double.infinity,
                     decoration: BoxDecoration(
                       borderRadius: BorderRadius.circular(16),
-                      border: Border.all(
-                        color: Colors.white,
-                        width: 1,
-                      ),
+                      border: Border.all(color: Colors.white, width: 1),
                     ),
                     child: Stack(
                       children: [
@@ -329,39 +161,222 @@ class _MyHomePageState extends State<MyHomePage> {
                           child: Row(
                             children: [
                               Icon(
-                                Icons.restaurant,
-                                color: Colors.greenAccent,
+                                Icons.format_quote,
+                                color: Colors.blue,
                                 size: 20,
                               ),
                               SizedBox(width: 4),
                               Text(
-                                'Meal',
+                                'Quote',
                                 style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: Colors.greenAccent,
+                                  color: Colors.blue,
                                 ),
                               ),
                             ],
                           ),
                         ),
                         Center(
-                          child: Text(
-                            'Meal Plan',
-                            style: theme.textTheme.bodyLarge?.copyWith(
-                              color: Colors.white,
-                              fontSize: 28
-                            ),
+                          child: Padding(
+                            padding: const EdgeInsets.all(16.0),
+                            child:
+                                _isLoading
+                                    ? CircularProgressIndicator()
+                                    : Text(
+                                      _currentQuote,
+                                      style: theme.textTheme.bodyLarge
+                                          ?.copyWith(
+                                            fontSize: 28,
+                                            color: Colors.white,
+                                          ),
+                                      textAlign: TextAlign.center,
+                                    ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-              ),
-              SizedBox(height: 16),
-            ],
+
+                SizedBox(height: 16),
+
+                // Goal container with blur
+                BlurTheme.applyBlur(
+                  context: context,
+                  child: Container(
+                    height: 100,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
+                      borderRadius: BorderRadius.circular(16),
+                      border: Border.all(color: Colors.white, width: 1),
+                    ),
+                    child: Stack(
+                      children: [
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Row(
+                            children: [
+                              Icon(Icons.flag, color: Colors.orange, size: 20),
+                              SizedBox(width: 4),
+                              Text(
+                                'Goal',
+                                style: theme.textTheme.bodyLarge?.copyWith(
+                                  color: Colors.orange,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        Center(
+                          child: Column(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            children: [
+                              SizedBox(height: 8),
+                              _isLoadingGoal
+                                  ? SizedBox(
+                                    height: 24,
+                                    width: 24,
+                                    child: CircularProgressIndicator(
+                                      strokeWidth: 2,
+                                    ),
+                                  )
+                                  : Text(
+                                    _userGoal,
+                                    style: theme.textTheme.headlineLarge
+                                        ?.copyWith(
+                                          fontSize: 28,
+                                          color: Colors.white,
+                                        ),
+                                  ),
+                            ],
+                          ),
+                        ),
+                      ],
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                // Workout container with blur
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(
+                        builder: (context) => const WorkoutPage(),
+                      ),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: BlurTheme.applyBlur(
+                    context: context,
+                    child: Container(
+                      height: 150,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.fitness_center,
+                                  color: theme.hintColor,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Workout',
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: theme.hintColor,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              'Workout Routine',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: Colors.white,
+                                fontSize: 28,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+
+                SizedBox(height: 16),
+
+                // Meal plan container with blur
+                InkWell(
+                  onTap: () {
+                    Navigator.push(
+                      context,
+                      MaterialPageRoute(builder: (context) => const MealPage()),
+                    );
+                  },
+                  borderRadius: BorderRadius.circular(16),
+                  child: BlurTheme.applyBlur(
+                    context: context,
+                    child: Container(
+                      height: 150,
+                      width: double.infinity,
+                      decoration: BoxDecoration(
+                        borderRadius: BorderRadius.circular(16),
+                        border: Border.all(color: Colors.white, width: 1),
+                      ),
+                      child: Stack(
+                        children: [
+                          Positioned(
+                            top: 8,
+                            left: 8,
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.restaurant,
+                                  color: Colors.greenAccent,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Meal',
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: Colors.greenAccent,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                          Center(
+                            child: Text(
+                              'Meal Plan',
+                              style: theme.textTheme.bodyLarge?.copyWith(
+                                color: Colors.white,
+                                fontSize: 28,
+                              ),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+                ),
+                SizedBox(height: 16),
+              ],
+            ),
           ),
         ),
       ),
-    ));
+    );
   }
 }
