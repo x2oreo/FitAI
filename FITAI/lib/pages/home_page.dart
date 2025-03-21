@@ -18,21 +18,22 @@ class MyHomePage extends StatefulWidget {
 
 class _MyHomePageState extends State<MyHomePage> {
   final QuotesService _quotesService = QuotesService();
-  final FirebaseFirestore _firestore = FirebaseFirestore.instance; // Add Firestore instance
+  final FirebaseFirestore _firestore =
+      FirebaseFirestore.instance; // Add Firestore instance
   final FirebaseAuth _auth = FirebaseAuth.instance; // Add auth instance
-  
+
   String _currentQuote = 'Loading quote...';
   String _userGoal = 'Loading goal...'; // Add goal state variable
   bool _isLoading = true;
-  bool _isLoadingGoal = true; // Add loading state for goal
-  
+  bool _isLoadingGoal = true;
+
   @override
   void initState() {
     super.initState();
     _loadQuote();
     _fetchUserGoal(); // Add goal fetching
   }
-  
+
   Future<void> _loadQuote() async {
     try {
       final quote = await _quotesService.getRandomQuote();
@@ -47,17 +48,18 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
-  
+
   // Add method to fetch user goal
   Future<void> _fetchUserGoal() async {
     setState(() {
       _isLoadingGoal = true;
     });
-    
+
     try {
       String userId = _auth.currentUser?.uid ?? 'anonymous_user';
-      DocumentSnapshot doc = await _firestore.collection('users').doc(userId).get();
-      
+      DocumentSnapshot doc =
+          await _firestore.collection('users').doc(userId).get();
+
       if (doc.exists) {
         Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
         String goal = userData['goal'] ?? '10.000 steps';
@@ -242,7 +244,9 @@ class _MyHomePageState extends State<MyHomePage> {
                 onTap: () {
                   Navigator.push(
                     context,
-                    MaterialPageRoute(builder: (context) => const WorkoutPage()),
+                    MaterialPageRoute(
+                      builder: (context) => const WorkoutPage(),
+                    ),
                   );
                 },
                 borderRadius: BorderRadius.circular(16),
@@ -354,6 +358,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                 ),
               ),
+              SizedBox(height: 16),
             ],
           ),
         ),
