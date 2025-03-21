@@ -2,19 +2,20 @@ import 'package:firebase_auth/firebase_auth.dart';
 import 'package:google_sign_in/google_sign_in.dart';
 
 class AuthService {
-  
   final _auth = FirebaseAuth.instance;
 
   Future<UserCredential?> loginWithGoogle() async {
     try {
       final GoogleSignIn googleSignIn = GoogleSignIn(
-        clientId: "914180725286-7opicuf0nhplgsi7fd8luk82f0a69oca.apps.googleusercontent.com",
+        serverClientId:
+            "914180725286-7opicuf0nhplgsi7fd8luk82f0a69oca.apps.googleusercontent.com",
       );
-      
+
       final GoogleSignInAccount? GoogleUser = await googleSignIn.signIn();
       if (GoogleUser == null) return null;
 
-      final GoogleSignInAuthentication GoogleAuth = await GoogleUser.authentication;
+      final GoogleSignInAuthentication GoogleAuth =
+          await GoogleUser.authentication;
 
       final AuthCredential cred = GoogleAuthProvider.credential(
         accessToken: GoogleAuth.accessToken,
@@ -27,33 +28,34 @@ class AuthService {
       return null;
     }
   }
-  
-  Future<UserCredential?> login({required String email, required String password}) async {
+
+  Future<UserCredential?> login({
+    required String email,
+    required String password,
+  }) async {
     try {
       return await _auth.signInWithEmailAndPassword(
         email: email,
         password: password,
       );
     } on FirebaseAuthException catch (e) {
-      throw e; 
+      throw e;
     }
   }
-  
+
   Future<UserCredential> signup({
-    required String email, 
+    required String email,
     required String password,
-    String? displayName
+    String? displayName,
   }) async {
     try {
-      UserCredential userCredential = await _auth.createUserWithEmailAndPassword(
-        email: email,
-        password: password,
-      );
-      
+      UserCredential userCredential = await _auth
+          .createUserWithEmailAndPassword(email: email, password: password);
+
       if (displayName != null && displayName.isNotEmpty) {
         await userCredential.user?.updateDisplayName(displayName);
       }
-      
+
       return userCredential;
     } on FirebaseAuthException catch (e) {
       throw e;

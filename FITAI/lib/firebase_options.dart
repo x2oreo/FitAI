@@ -64,7 +64,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '914180725286',
     projectId: 'double-oreo',
     storageBucket: 'double-oreo.firebasestorage.app',
-    iosBundleId: 'com.example.bomji',
+    iosBundleId: 'com.x2oreo.fitai',
   );
 
   static const FirebaseOptions macos = FirebaseOptions(
@@ -73,7 +73,7 @@ class DefaultFirebaseOptions {
     messagingSenderId: '914180725286',
     projectId: 'double-oreo',
     storageBucket: 'double-oreo.firebasestorage.app',
-    iosBundleId: 'com.example.bomji',
+    iosBundleId: 'com.x2oreo.fitai',
   );
 
   static const FirebaseOptions windows = FirebaseOptions(

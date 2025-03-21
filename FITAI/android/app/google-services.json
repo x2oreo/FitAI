@@ -1,0 +1,55 @@
+{
+  "project_info": {
+    "project_number": "914180725286",
+    "firebase_url": "https://double-oreo-default-rtdb.europe-west1.firebasedatabase.app",
+    "project_id": "double-oreo",
+    "storage_bucket": "double-oreo.firebasestorage.app"
+  },
+  "client": [
+    {
+      "client_info": {
+        "mobilesdk_app_id": "1:914180725286:android:5d3121dd10d7d3e7df24e7",
+        "android_client_info": {
+          "package_name": "com.x2oreo.fitai"
+        }
+      },
+      "oauth_client": [
+        {
+          "client_id": "914180725286-2q8avrlrd6ev1de1vaj5gtqoe22lnuga.apps.googleusercontent.com",
+          "client_type": 1,
+          "android_info": {
+            "package_name": "com.x2oreo.fitai",
+            "certificate_hash": "aeaf4c491a6df3d36f58069abc6cd608028757e5"
+          }
+        },
+        {
+          "client_id": "914180725286-7opicuf0nhplgsi7fd8luk82f0a69oca.apps.googleusercontent.com",
+          "client_type": 3
+        }
+      ],
+      "api_key": [
+        {
+          "current_key": "AIzaSyAEMk-P3ag7hccjSOhP2EtZrwyV5bY3V-4"
+        }
+      ],
+      "services": {
+        "appinvite_service": {
+          "other_platform_oauth_client": [
+            {
+              "client_id": "914180725286-7opicuf0nhplgsi7fd8luk82f0a69oca.apps.googleusercontent.com",
+              "client_type": 3
+            },
+            {
+              "client_id": "914180725286-o7vesol166u9jbtu33cqo0pfup6sf2dg.apps.googleusercontent.com",
+              "client_type": 2,
+              "ios_info": {
+                "bundle_id": "com.example.bomji"
+              }
+            }
+          ]
+        }
+      }
+    }
+  ],
+  "configuration_version": "1"
+}

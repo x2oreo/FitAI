@@ -127,7 +127,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/process-query'),
+        Uri.parse('${ApiConfig.baseUrl}process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
