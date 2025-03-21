@@ -199,56 +199,91 @@ class _ProfileScreenState extends State<ProfileScreen> {
       ),
       body:
           _isLoading
-              ? Center(child: CircularProgressIndicator())
+              ? Center(
+                child: Column(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  children: [
+                    CircularProgressIndicator(color: theme.primaryColor),
+                    SizedBox(height: 16),
+                    Text(
+                      'Loading your profile...',
+                      style: theme.textTheme.bodyMedium,
+                    ),
+                  ],
+                ),
+              )
               : SafeArea(
                 child: SingleChildScrollView(
                   padding: EdgeInsets.all(16.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.center,
                     children: [
-                      // Profile picture
-                      CircleAvatar(
-                        radius: 60,
-                        backgroundColor: theme.dividerColor,
-                        child: Icon(
-                          Icons.person,
-                          size: 60,
-                          color: theme.primaryColor,
+                      // Profile picture with enhanced styling
+                      Container(
+                        padding: EdgeInsets.all(4),
+                        decoration: BoxDecoration(
+                          shape: BoxShape.circle,
+                          border: Border.all(
+                            color: theme.primaryColor,
+                            width: 2,
+                          ),
+                        ),
+                        child: CircleAvatar(
+                          radius: 60,
+                          backgroundColor: theme.primaryColor.withOpacity(0.1),
+                          child: Icon(
+                            Icons.person,
+                            size: 60,
+                            color: theme.primaryColor,
+                          ),
                         ),
                       ),
                       SizedBox(height: 24),
 
-                      // User name
+                      // User name with enhanced styling
                       Text(
                         user?.displayName ?? 'User',
-                        style: theme.textTheme.bodyLarge,
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.bold,
+                        ),
                         textAlign: TextAlign.center,
                       ),
 
                       SizedBox(height: 16),
 
-                      // Email
+                      // Email with enhanced card styling
                       Container(
                         padding: const EdgeInsets.all(16),
                         decoration: BoxDecoration(
                           color: theme.scaffoldBackgroundColor,
-                          border: Border.all(color: theme.dividerColor),
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.dividerColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.shadowColor.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
                         ),
                         child: Column(
                           children: [
                             ListTile(
                               leading: Icon(
                                 Icons.email,
-                                color: theme.listTileTheme.iconColor,
+                                color: theme.primaryColor,
                               ),
                               title: Text(
                                 'Email',
-                                style: theme.textTheme.bodyMedium,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontWeight: FontWeight.bold,
+                                ),
                               ),
                               subtitle: Text(
                                 user?.email ?? 'Not provided',
-                                style: theme.textTheme.bodySmall,
+                                style: theme.textTheme.bodyMedium?.copyWith(
+                                  fontSize: 16,
+                                ),
                               ),
                             ),
                           ],
@@ -257,12 +292,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       SizedBox(height: 24),
 
-                      // Profile data section
+                      // Profile data section with enhanced styling
                       Container(
                         decoration: BoxDecoration(
                           color: theme.scaffoldBackgroundColor,
-                          border: Border.all(color: theme.dividerColor),
                           borderRadius: BorderRadius.circular(12),
+                          border: Border.all(color: theme.dividerColor),
+                          boxShadow: [
+                            BoxShadow(
+                              color: theme.shadowColor.withOpacity(0.1),
+                              blurRadius: 10,
+                              offset: Offset(0, 5),
+                            ),
+                          ],
                         ),
                         child: Column(
                           crossAxisAlignment: CrossAxisAlignment.start,
@@ -275,7 +317,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                 children: [
                                   Text(
                                     'Fitness Profile',
-                                    style: theme.textTheme.headlineLarge,
+                                    style: theme.textTheme.headlineLarge
+                                        ?.copyWith(fontWeight: FontWeight.bold),
                                   ),
                                   if (!_isEditing)
                                     TextButton.icon(
@@ -284,18 +327,31 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           _isEditing = true;
                                         });
                                       },
-                                      icon: Icon(Icons.edit),
-                                      label: Text('Edit'),
+                                      icon: Icon(
+                                        Icons.edit,
+                                        color: theme.primaryColor,
+                                      ),
+                                      label: Text(
+                                        'Edit',
+                                        style: TextStyle(
+                                          color: theme.primaryColor,
+                                          fontWeight: FontWeight.bold,
+                                        ),
+                                      ),
                                     ),
                                 ],
                               ),
                             ),
-                            Divider(height: 1),
+                            Divider(
+                              height: 1,
+                              thickness: 1,
+                              color: theme.dividerColor,
+                            ),
 
                             // Either display editable form or read-only info
                             _isEditing ? _buildEditForm() : _buildProfileInfo(),
 
-                            // Edit/Save buttons
+                            // Edit/Save buttons with improved styling
                             if (_isEditing)
                               Padding(
                                 padding: const EdgeInsets.all(16.0),
@@ -314,10 +370,19 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                     _populateFormFields();
                                                   });
                                                 },
-                                        child: Text('Cancel'),
                                         style: OutlinedButton.styleFrom(
+                                          side: BorderSide(
+                                            color: theme.primaryColor,
+                                          ),
                                           padding: EdgeInsets.symmetric(
                                             vertical: 12,
+                                          ),
+                                        ),
+                                        child: Text(
+                                          'Cancel',
+                                          style: TextStyle(
+                                            color: theme.primaryColor,
+                                            fontWeight: FontWeight.bold,
                                           ),
                                         ),
                                       ),
@@ -327,6 +392,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                       child: ElevatedButton(
                                         onPressed:
                                             _isSaving ? null : _saveUserData,
+                                        style: ElevatedButton.styleFrom(
+                                          backgroundColor: theme.primaryColor,
+                                          foregroundColor:
+                                              theme.colorScheme.onPrimary,
+                                          padding: EdgeInsets.symmetric(
+                                            vertical: 12,
+                                          ),
+                                        ),
                                         child:
                                             _isSaving
                                                 ? SizedBox(
@@ -335,15 +408,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   child:
                                                       CircularProgressIndicator(
                                                         strokeWidth: 2,
-                                                        color: Colors.white,
+                                                        color:
+                                                            theme
+                                                                .colorScheme
+                                                                .onPrimary,
                                                       ),
                                                 )
-                                                : Text('Save'),
-                                        style: ElevatedButton.styleFrom(
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
-                                        ),
+                                                : Text(
+                                                  'Save',
+                                                  style: TextStyle(
+                                                    fontWeight: FontWeight.bold,
+                                                  ),
+                                                ),
                                       ),
                                     ),
                                   ],
@@ -355,8 +431,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                       SizedBox(height: 24),
 
-                      // Sign out button
-                      ElevatedButton(
+                      // Sign out button with improved styling
+                      ElevatedButton.icon(
                         onPressed: () async {
                           await FirebaseAuth.instance.signOut();
                           Navigator.of(context).pushReplacement(
@@ -365,8 +441,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
                             ),
                           );
                         },
-                        style: theme.elevatedButtonTheme.style,
-                        child: Text('Sign Out'),
+                        style: ElevatedButton.styleFrom(
+                          backgroundColor: theme.colorScheme.error.withOpacity(
+                            0.1,
+                          ),
+                          foregroundColor: theme.colorScheme.error,
+                          elevation: 0,
+                          side: BorderSide(
+                            color: theme.colorScheme.error.withOpacity(0.5),
+                          ),
+                        ),
+                        icon: Icon(Icons.logout),
+                        label: Text(
+                          'Sign Out',
+                          style: TextStyle(fontWeight: FontWeight.bold),
+                        ),
                       ),
                     ],
                   ),
@@ -393,33 +482,51 @@ class _ProfileScreenState extends State<ProfileScreen> {
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
+          // Enhanced profile info items with consistent spacing and dividers
           _buildInfoItem('Goal', userData!['goal'] ?? 'Not specified'),
+          _buildDivider(),
+
           _buildInfoItem(
             'Current Weight',
             '${userData!['current_weight'] ?? '--'} ${userData!['weight_unit'] ?? 'kg'}',
           ),
+          _buildDivider(),
+
           _buildInfoItem(
             'Target Weight',
             '${userData!['desired_weight'] ?? '--'} ${userData!['weight_unit'] ?? 'kg'}',
           ),
+          _buildDivider(),
+
           _buildInfoItem(
             'Height',
             '${userData!['height'] ?? '--'} ${userData!['height_unit'] ?? 'cm'}',
           ),
+          _buildDivider(),
+
           _buildInfoItem('Age', '${userData!['age'] ?? '--'} years'),
+          _buildDivider(),
+
           _buildInfoItem('Gender', userData!['gender'] ?? 'Not specified'),
+          _buildDivider(),
+
           _buildInfoItem(
             'Activity Level',
             userData!['activity_level'] ?? 'Not specified',
           ),
+          _buildDivider(),
+
           _buildInfoItem(
             'Weekly Workout Time',
             '${userData!['workout_time_weekly'] ?? '--'} hours',
           ),
+          _buildDivider(),
+
           _buildInfoItem(
             'Monthly Budget',
             '\$${userData!['monthly_budget'] ?? '--'}',
           ),
+          _buildDivider(),
 
           SizedBox(height: 8),
           Text(
@@ -428,11 +535,22 @@ class _ProfileScreenState extends State<ProfileScreen> {
               fontWeight: FontWeight.bold,
             ),
           ),
-          SizedBox(height: 4),
+          SizedBox(height: 8),
           if (userData!['dietary_preferences'] != null)
             ...(_getDietaryPreferencesText()),
         ],
       ),
+    );
+  }
+
+  // Helper to create consistent dividers between info items
+  Widget _buildDivider() {
+    return Divider(
+      height: 20,
+      thickness: 1,
+      indent: 10,
+      endIndent: 10,
+      color: Theme.of(context).dividerColor.withOpacity(0.3),
     );
   }
 
@@ -473,7 +591,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
     final theme = Theme.of(context);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 12.0),
+      padding: const EdgeInsets.symmetric(vertical: 6.0),
       child: Row(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -483,10 +601,20 @@ class _ProfileScreenState extends State<ProfileScreen> {
               label + ':',
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
+                color: theme.primaryColor,
+                fontSize: 16,
               ),
             ),
           ),
-          Expanded(child: Text(value, style: theme.textTheme.bodyMedium)),
+          Expanded(
+            child: Text(
+              value,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                fontSize: 16,
+                fontWeight: FontWeight.w500,
+              ),
+            ),
+          ),
         ],
       ),
     );
@@ -495,20 +623,53 @@ class _ProfileScreenState extends State<ProfileScreen> {
   Widget _buildEditForm() {
     final theme = Theme.of(context);
 
-    // Updated dropdown decoration to better match theme colors
+    // Enhanced dropdown decoration
     final dropdownDecoration = InputDecoration(
-      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 8),
+      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
       filled: true,
-      fillColor:
-          theme
-              .scaffoldBackgroundColor, // Ensure this matches the page background
+      fillColor: theme.scaffoldBackgroundColor,
       enabledBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
         borderSide: BorderSide(color: theme.dividerColor),
       ),
       focusedBorder: OutlineInputBorder(
         borderRadius: BorderRadius.circular(8),
-        borderSide: BorderSide(color: theme.primaryColor),
+        borderSide: BorderSide(color: theme.primaryColor, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.colorScheme.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
+      ),
+    );
+
+    // Enhanced text field decoration
+    final textFieldDecoration = InputDecoration(
+      contentPadding: EdgeInsets.symmetric(horizontal: 12, vertical: 12),
+      filled: true,
+      fillColor: theme.scaffoldBackgroundColor,
+      hintStyle: TextStyle(
+        color: theme.textTheme.bodySmall?.color,
+        fontSize: 16,
+      ),
+      enabledBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.dividerColor),
+      ),
+      focusedBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.primaryColor, width: 2),
+      ),
+      errorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.colorScheme.error),
+      ),
+      focusedErrorBorder: OutlineInputBorder(
+        borderRadius: BorderRadius.circular(8),
+        borderSide: BorderSide(color: theme.colorScheme.error, width: 2),
       ),
     );
 
@@ -522,8 +683,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
             'Goal',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedGoal,
             decoration: dropdownDecoration,
@@ -553,22 +716,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
           ),
+
           SizedBox(height: 16),
 
-          // Current Weight
+          // Current Weight with improved UI
           Text(
             'Current Weight',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _currentWeightController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(hintText: '50-300'),
+                  decoration: textFieldDecoration.copyWith(
+                    hintText: '50-300',
+                    labelText: 'Current Weight',
+                  ),
                 ),
               ),
               SizedBox(width: 8),
@@ -579,22 +748,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }),
             ],
           ),
+
           SizedBox(height: 16),
 
-          // Desired Weight
+          // Desired Weight with improved UI
           Text(
             'Desired Weight',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _desiredWeightController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(hintText: '50-300'),
+                  decoration: textFieldDecoration.copyWith(
+                    hintText: '50-300',
+                    labelText: 'Desired Weight',
+                  ),
                 ),
               ),
               SizedBox(width: 8),
@@ -605,22 +780,28 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }),
             ],
           ),
+
           SizedBox(height: 16),
 
-          // Height
+          // Height with improved UI
           Text(
             'Height',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           Row(
             children: [
               Expanded(
                 child: TextField(
                   controller: _heightController,
                   keyboardType: TextInputType.number,
-                  decoration: InputDecoration(hintText: '100-250'),
+                  decoration: textFieldDecoration.copyWith(
+                    hintText: '100-250',
+                    labelText: 'Height',
+                  ),
                 ),
               ),
               SizedBox(width: 8),
@@ -633,29 +814,38 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }),
             ],
           ),
+
           SizedBox(height: 16),
 
-          // Age
+          // Age with improved UI
           Text(
             'Age',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _ageController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(hintText: '5-110'),
+            decoration: textFieldDecoration.copyWith(
+              hintText: '5-110',
+              labelText: 'Age',
+            ),
           ),
+
           SizedBox(height: 16),
 
-          // Gender
+          // Gender with improved UI
           Text(
             'Gender',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedGender,
             decoration: dropdownDecoration,
@@ -680,15 +870,18 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
           ),
+
           SizedBox(height: 16),
 
-          // Activity Level
+          // Activity Level with improved UI
           Text(
             'Activity Level',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           DropdownButtonFormField<String>(
             value: _selectedActivityLevel,
             decoration: dropdownDecoration,
@@ -713,150 +906,171 @@ class _ProfileScreenState extends State<ProfileScreen> {
               }
             },
           ),
+
           SizedBox(height: 16),
 
-          // Workout time
+          // Weekly Workout Time with improved UI
           Text(
             'Weekly Workout Time (hours)',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _workoutTimeController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(hintText: '1-40'),
+            decoration: textFieldDecoration.copyWith(
+              hintText: '1-40',
+              labelText: 'Weekly Workout Time',
+            ),
           ),
+
           SizedBox(height: 16),
 
-          // Budget
+          // Monthly Fitness Budget with improved UI
           Text(
             'Monthly Fitness Budget (\$)',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
+          SizedBox(height: 8),
           TextField(
             controller: _budgetController,
             keyboardType: TextInputType.number,
-            decoration: InputDecoration(
+            decoration: textFieldDecoration.copyWith(
               hintText: '0-5000',
+              labelText: 'Monthly Fitness Budget',
               prefixIcon: Icon(Icons.attach_money),
             ),
           ),
+
           SizedBox(height: 16),
 
-          // Dietary Preferences
+          // Improved checkbox styling for dietary preferences
           Text(
             'Dietary Preferences',
             style: theme.textTheme.bodyMedium?.copyWith(
               fontWeight: FontWeight.bold,
+              fontSize: 16,
             ),
           ),
-          CheckboxListTile(
-            title: Text(
-              'No dietary restrictions',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
+          SizedBox(height: 8),
+
+          // Add Card wrapper for checkboxes
+          Card(
+            elevation: 0,
+            color: theme.scaffoldBackgroundColor,
+            shape: RoundedRectangleBorder(
+              borderRadius: BorderRadius.circular(8),
+              side: BorderSide(color: theme.dividerColor),
             ),
-            value: _dietaryPreferences['none'] ?? false,
-            activeColor: theme.primaryColor,
-            checkColor: theme.scaffoldBackgroundColor,
-            onChanged: (value) {
-              setState(() {
-                if (value == true) {
-                  _dietaryPreferences.forEach(
-                    (key, _) => _dietaryPreferences[key] = false,
-                  );
-                  _dietaryPreferences['none'] = true;
-                } else {
-                  _dietaryPreferences['none'] = false;
-                }
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: Text(
-              'Vegetarian',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
+            child: Column(
+              children: [
+                _buildCheckboxTile('No dietary restrictions', 'none', (value) {
+                  setState(() {
+                    if (value == true) {
+                      _dietaryPreferences.forEach(
+                        (key, _) => _dietaryPreferences[key] = false,
+                      );
+                      _dietaryPreferences['none'] = true;
+                    } else {
+                      _dietaryPreferences['none'] = false;
+                    }
+                  });
+                }),
+
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: theme.dividerColor.withOpacity(0.3),
+                ),
+
+                _buildCheckboxTile('Vegetarian', 'vegetarian', (value) {
+                  setState(() {
+                    if (value == true) {
+                      _dietaryPreferences['none'] = false;
+                      _dietaryPreferences['vegan'] = false;
+                    }
+                    _dietaryPreferences['vegetarian'] = value ?? false;
+                  });
+                }),
+
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: theme.dividerColor.withOpacity(0.3),
+                ),
+
+                _buildCheckboxTile('Vegan', 'vegan', (value) {
+                  setState(() {
+                    if (value == true) {
+                      _dietaryPreferences['none'] = false;
+                      _dietaryPreferences['vegetarian'] = false;
+                    }
+                    _dietaryPreferences['vegan'] = value ?? false;
+                  });
+                }),
+
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: theme.dividerColor.withOpacity(0.3),
+                ),
+
+                _buildCheckboxTile('Gluten-Free', 'glutenFree', (value) {
+                  setState(() {
+                    if (value == true) _dietaryPreferences['none'] = false;
+                    _dietaryPreferences['glutenFree'] = value ?? false;
+                  });
+                }),
+
+                Divider(
+                  height: 1,
+                  thickness: 1,
+                  color: theme.dividerColor.withOpacity(0.3),
+                ),
+
+                _buildCheckboxTile('Keto', 'keto', (value) {
+                  setState(() {
+                    if (value == true) _dietaryPreferences['none'] = false;
+                    _dietaryPreferences['keto'] = value ?? false;
+                  });
+                }),
+              ],
             ),
-            value: _dietaryPreferences['vegetarian'] ?? false,
-            activeColor: theme.primaryColor,
-            checkColor: theme.scaffoldBackgroundColor,
-            onChanged: (value) {
-              setState(() {
-                if (value == true) {
-                  _dietaryPreferences['none'] = false;
-                  _dietaryPreferences['vegan'] = false;
-                }
-                _dietaryPreferences['vegetarian'] = value ?? false;
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: Text(
-              'Vegan',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            value: _dietaryPreferences['vegan'] ?? false,
-            activeColor: theme.primaryColor,
-            checkColor: theme.scaffoldBackgroundColor,
-            onChanged: (value) {
-              setState(() {
-                if (value == true) {
-                  _dietaryPreferences['none'] = false;
-                  _dietaryPreferences['vegetarian'] = false;
-                }
-                _dietaryPreferences['vegan'] = value ?? false;
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: Text(
-              'Gluten-Free',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            value: _dietaryPreferences['glutenFree'] ?? false,
-            activeColor: theme.primaryColor,
-            checkColor: theme.scaffoldBackgroundColor,
-            onChanged: (value) {
-              setState(() {
-                if (value == true) _dietaryPreferences['none'] = false;
-                _dietaryPreferences['glutenFree'] = value ?? false;
-              });
-            },
-          ),
-          CheckboxListTile(
-            title: Text(
-              'Keto',
-              style: theme.textTheme.bodyMedium?.copyWith(
-                fontSize: 16,
-                fontWeight: FontWeight.normal,
-              ),
-            ),
-            value: _dietaryPreferences['keto'] ?? false,
-            activeColor: theme.primaryColor,
-            checkColor: theme.scaffoldBackgroundColor,
-            onChanged: (value) {
-              setState(() {
-                if (value == true) _dietaryPreferences['none'] = false;
-                _dietaryPreferences['keto'] = value ?? false;
-              });
-            },
           ),
         ],
       ),
+    );
+  }
+
+  // Helper method for creating consistent checkbox tiles
+  Widget _buildCheckboxTile(
+    String title,
+    String key,
+    Function(bool?) onChanged,
+  ) {
+    final theme = Theme.of(context);
+
+    return CheckboxListTile(
+      title: Text(
+        title,
+        style: theme.textTheme.bodyMedium?.copyWith(
+          fontSize: 16,
+          fontWeight: FontWeight.normal,
+        ),
+      ),
+      value: _dietaryPreferences[key] ?? false,
+      activeColor: theme.primaryColor,
+      checkColor: theme.colorScheme.onPrimary,
+      contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
+      dense: true,
+      controlAffinity: ListTileControlAffinity.trailing,
+      onChanged: onChanged,
     );
   }
 
@@ -869,24 +1083,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Container(
       decoration: BoxDecoration(
-        // Make this match the surrounding theme more consistently
         color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
         border: Border.all(color: theme.dividerColor),
       ),
-      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+      padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: DropdownButton<String>(
         value: currentValue,
         icon: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
         underline: Container(height: 0),
-        elevation: 0,
+        elevation: 2,
         borderRadius: BorderRadius.circular(8),
         dropdownColor: theme.scaffoldBackgroundColor,
         isDense: true,
-        // Ensure the text color matches the theme text color
         style: theme.textTheme.bodyMedium?.copyWith(
           fontSize: 16,
           fontWeight: FontWeight.w500,
+          color: theme.primaryColor,
         ),
         items:
             options.map((unit) {

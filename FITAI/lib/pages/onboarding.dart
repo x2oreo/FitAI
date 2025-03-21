@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:hk11/navigation/app_shell.dart';
+import 'package:hk11/pages/login_or_signup_page.dart';
 
 class OnboardingPage extends StatefulWidget {
   @override
@@ -12,6 +13,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   // Add current step tracking
   int _currentStep = 0;
   final int _totalSteps = 9; // Increased from 8 to 9 steps
+
+  // Add this flag for loading state during initial check
+  bool _isChecking = true;
 
   // Changed late variables to nullable types with default values to prevent null issues
   String selectedGoal = 'Lose Weight'; // Initialize with a default value
@@ -39,6 +43,95 @@ class _OnboardingPageState extends State<OnboardingPage> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
   bool _isSaving = false; // Track when we're saving data
+
+  // Text editing controllers for form inputs
+  late TextEditingController _currentWeightController;
+  late TextEditingController _desiredWeightController;
+  late TextEditingController _heightController;
+  late TextEditingController _ageController;
+  late TextEditingController _workoutTimeController;
+  late TextEditingController _budgetController;
+
+  @override
+  void initState() {
+    super.initState();
+    // Initialize controllers with empty strings
+    _currentWeightController = TextEditingController();
+    _desiredWeightController = TextEditingController();
+    _heightController = TextEditingController();
+    _ageController = TextEditingController();
+    _workoutTimeController = TextEditingController();
+    _budgetController = TextEditingController();
+
+    // Check if onboarding is needed as soon as the page is created
+    _checkIfOnboardingNeeded();
+  }
+
+  @override
+  void dispose() {
+    // Clean up controllers
+    _currentWeightController.dispose();
+    _desiredWeightController.dispose();
+    _heightController.dispose();
+    _ageController.dispose();
+    _workoutTimeController.dispose();
+    _budgetController.dispose();
+    super.dispose();
+  }
+
+  // Add this method to check if onboarding is needed
+  Future<void> _checkIfOnboardingNeeded() async {
+    try {
+      setState(() {
+        _isChecking = true; // Set loading state
+      });
+
+      // Get current user
+      final User? user = _auth.currentUser;
+
+      // If no user is logged in, return to login page
+      if (user == null) {
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => LoginOrSignupPage()),
+        );
+        return;
+      }
+
+      // Check if the user has completed onboarding
+      final userDoc = await _firestore.collection('users').doc(user.uid).get();
+
+      // Check if onboardingComplete exists and is true
+      final bool onboardingComplete =
+          userDoc.exists &&
+          userDoc.data()?.containsKey('onboardingComplete') == true &&
+          userDoc.data()?['onboardingComplete'] == true;
+
+      // If onboarding is already complete, skip to app shell
+      if (onboardingComplete) {
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (context) => AppShell()));
+        return;
+      }
+
+      // Otherwise, show the onboarding screens
+      setState(() {
+        _isChecking = false; // Turn off loading state
+      });
+    } catch (e) {
+      // Handle any errors
+      setState(() {
+        _isChecking = false; // Turn off loading state
+      });
+
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error checking onboarding status: ${e.toString()}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+    }
+  }
 
   bool _isCurrentStepValid() {
     switch (_currentStep) {
@@ -181,10 +274,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
     // Age must be between 5 and 110
     if (parsedValue < 5 || parsedValue > 110) return null;
 
+    _ageController.text = parsedValue.toString();
     return parsedValue;
   }
 
-  int? validateWeight(String value) {
+  int? validateWeight(String value, TextEditingController controller) {
     if (value.isEmpty) return null;
 
     final parsedValue = int.tryParse(value);
@@ -196,6 +290,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
     if (parsedValue < minWeight || parsedValue > maxWeight) return null;
 
+    controller.text = parsedValue.toString();
     return parsedValue;
   }
 
@@ -211,6 +306,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
     if (parsedValue < minHeight || parsedValue > maxHeight) return null;
 
+    _heightController.text = parsedValue.toString();
     return parsedValue;
   }
 
@@ -223,6 +319,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     // Workout time must be between 1 and 40 hours per week
     if (parsedValue < 1 || parsedValue > 40) return null;
 
+    _workoutTimeController.text = parsedValue.toString();
     return parsedValue;
   }
 
@@ -235,6 +332,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
     // Budget must be between 0 and 5000
     if (parsedValue < 0 || parsedValue > 5000) return null;
 
+    _budgetController.text = parsedValue.toString();
     return parsedValue;
   }
 
@@ -242,6 +340,26 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
 
+    // Show loading spinner while checking onboarding status
+    if (_isChecking) {
+      return Scaffold(
+        body: Center(
+          child: Column(
+            mainAxisAlignment: MainAxisAlignment.center,
+            children: [
+              CircularProgressIndicator(),
+              SizedBox(height: 16),
+              Text(
+                'Checking profile status...',
+                style: theme.textTheme.bodyMedium,
+              ),
+            ],
+          ),
+        ),
+      );
+    }
+
+    // Show regular onboarding UI once the check is complete
     return Scaffold(
       appBar: AppBar(title: Text('Onboarding')),
       body: Padding(
@@ -312,8 +430,8 @@ class _OnboardingPageState extends State<OnboardingPage> {
                         child:
                             _isSaving
                                 ? SizedBox(
-                                  height: 20,
-                                  width: 20,
+                                  height: 30,
+                                  width: 30,
                                   child: CircularProgressIndicator(
                                     color: theme.primaryColorLight,
                                     strokeWidth: 2,
@@ -401,19 +519,50 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget _buildGoalOption(String title, String description, IconData icon) {
     final theme = Theme.of(context);
 
-    return ListTile(
-      leading: Icon(icon, color: theme.listTileTheme.iconColor),
-      title: Text(title, style: theme.textTheme.bodyMedium),
-      subtitle: Text(description, style: theme.textTheme.bodySmall),
-      trailing: Radio<String>(
-        value: title,
-        groupValue: selectedGoal,
-        activeColor: theme.primaryColor,
-        onChanged: (value) {
-          setState(() {
-            selectedGoal = value!; // Non-nullable since value won't be null
-          });
-        },
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedGoal = title;
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      splashColor: theme.primaryColor.withOpacity(0.2),
+      highlightColor: theme.primaryColor.withOpacity(0.1),
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color:
+                selectedGoal == title ? theme.primaryColor : theme.dividerColor,
+            width: 1,
+          ),
+          color:
+              selectedGoal == title
+                  ? theme.primaryColor.withOpacity(0.1)
+                  : theme.scaffoldBackgroundColor,
+        ),
+        child: ListTile(
+          leading: Icon(
+            icon,
+            color:
+                selectedGoal == title
+                    ? theme.primaryColor
+                    : theme.listTileTheme.iconColor,
+          ),
+          title: Text(title, style: theme.textTheme.bodyMedium),
+          subtitle: Text(description, style: theme.textTheme.bodySmall),
+          trailing: Radio<String>(
+            value: title,
+            groupValue: selectedGoal,
+            activeColor: theme.primaryColor,
+            onChanged: (value) {
+              setState(() {
+                selectedGoal = value!; // Non-nullable since value won't be null
+              });
+            },
+          ),
+        ),
       ),
     );
   }
@@ -424,6 +573,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
     // Define min/max values based on unit
     final minWeight = selectedUnitWeight == 'kg' ? 20 : 44;
     final maxWeight = selectedUnitWeight == 'kg' ? 300 : 660;
+
+    // Set controller values if they're empty but state values exist
+    if (_currentWeightController.text.isEmpty && currentWeight != null) {
+      _currentWeightController.text = currentWeight.toString();
+    }
+    if (_desiredWeightController.text.isEmpty && desiredWeight != null) {
+      _desiredWeightController.text = desiredWeight.toString();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -440,18 +597,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.65,
               child: TextField(
+                controller: _currentWeightController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Current Weight',
                   hintText: '$minWeight-$maxWeight',
                   hintStyle: TextStyle(
-                    color: theme.hintColor.withOpacity(0.6),
-                    fontSize: 14,
+                    color: theme.textTheme.bodySmall?.color,
+                    fontSize: 18,
                   ),
                 ),
                 onChanged: (value) {
                   setState(() {
-                    currentWeight = validateWeight(value);
+                    currentWeight = validateWeight(
+                      value,
+                      _currentWeightController,
+                    );
                   });
                 },
               ),
@@ -462,8 +623,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
               decoration: BoxDecoration(
                 color: theme.primaryColor.withOpacity(0.1),
                 borderRadius: BorderRadius.circular(8),
-                // Eliminate any border
-                border: Border.all(color: Colors.transparent),
+                border: Border.all(color: theme.dividerColor, width: 1),
               ),
               padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
               child: _buildUnitToggle(['kg', 'lbs'], selectedUnitWeight, (
@@ -473,11 +633,17 @@ class _OnboardingPageState extends State<OnboardingPage> {
                   selectedUnitWeight = value!;
                   if (currentWeight != null) {
                     final currentValue = currentWeight.toString();
-                    currentWeight = validateWeight(currentValue);
+                    currentWeight = validateWeight(
+                      currentValue,
+                      _currentWeightController,
+                    );
                   }
                   if (desiredWeight != null) {
                     final desiredValue = desiredWeight.toString();
-                    desiredWeight = validateWeight(desiredValue);
+                    desiredWeight = validateWeight(
+                      desiredValue,
+                      _desiredWeightController,
+                    );
                   }
                 });
               }),
@@ -496,18 +662,22 @@ class _OnboardingPageState extends State<OnboardingPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.65,
               child: TextField(
+                controller: _desiredWeightController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Desired Weight',
                   hintText: '$minWeight-$maxWeight',
                   hintStyle: TextStyle(
-                    color: theme.hintColor.withOpacity(0.6),
-                    fontSize: 14,
+                    color: theme.textTheme.bodySmall?.color,
+                    fontSize: 18,
                   ),
                 ),
                 onChanged: (value) {
                   setState(() {
-                    desiredWeight = validateWeight(value);
+                    desiredWeight = validateWeight(
+                      value,
+                      _desiredWeightController,
+                    );
                   });
                 },
               ),
@@ -543,6 +713,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
     final minHeight = selectedUnitHeight == 'cm' ? 50 : 20;
     final maxHeight = selectedUnitHeight == 'cm' ? 250 : 98;
 
+    // Set controller value if it's empty but state value exists
+    if (_heightController.text.isEmpty && height != null) {
+      _heightController.text = height.toString();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -557,13 +732,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
             SizedBox(
               width: MediaQuery.of(context).size.width * 0.65,
               child: TextField(
+                controller: _heightController,
                 keyboardType: TextInputType.number,
                 decoration: InputDecoration(
                   labelText: 'Height',
                   hintText: '$minHeight-$maxHeight',
                   hintStyle: TextStyle(
-                    color: theme.hintColor.withOpacity(0.6),
-                    fontSize: 14,
+                    color: theme.textTheme.bodySmall?.color,
+                    fontSize: 18,
                   ),
                 ),
                 onChanged: (value) {
@@ -604,6 +780,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
   Widget _buildAgeInput() {
     final theme = Theme.of(context);
 
+    // Set controller value if it's empty but state value exists
+    if (_ageController.text.isEmpty && age != null) {
+      _ageController.text = age.toString();
+    }
+
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
       children: [
@@ -614,10 +795,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
         ),
         TextField(
+          controller: _ageController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: 'Age',
             hintText: 'Range: 5-110',
+            hintStyle: TextStyle(
+              color: theme.textTheme.bodySmall?.color,
+              fontSize: 18,
+            ),
             errorText:
                 age == null
                     ? null
@@ -645,49 +831,145 @@ class _OnboardingPageState extends State<OnboardingPage> {
             fontWeight: FontWeight.bold,
           ),
         ),
-        ListTile(
-          leading: Icon(Icons.male, color: Colors.blue),
-          title: Text('Male', style: theme.textTheme.bodyMedium),
-          trailing: Radio<String>(
-            value: 'Male',
-            groupValue: selectedGender,
-            activeColor: theme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                selectedGender =
-                    value!; // Non-nullable since value won't be null
-              });
-            },
+        InkWell(
+          onTap: () {
+            setState(() {
+              selectedGender = 'Male';
+            });
+          },
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    selectedGender == 'Male'
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  selectedGender == 'Male'
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.male,
+                color:
+                    selectedGender == 'Male'
+                        ? Colors.blue
+                        : Colors.blue.withOpacity(0.6),
+              ),
+              title: Text('Male', style: theme.textTheme.bodyMedium),
+              trailing: Radio<String>(
+                value: 'Male',
+                groupValue: selectedGender,
+                activeColor: theme.primaryColor,
+                onChanged: (value) {
+                  setState(() {
+                    selectedGender = value!;
+                  });
+                },
+              ),
+            ),
           ),
         ),
-        ListTile(
-          leading: Icon(Icons.female, color: Colors.pink),
-          title: Text('Female', style: theme.textTheme.bodyMedium),
-          trailing: Radio<String>(
-            value: 'Female',
-            groupValue: selectedGender,
-            activeColor: theme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                selectedGender =
-                    value!; // Non-nullable since value won't be null
-              });
-            },
+        InkWell(
+          onTap: () {
+            setState(() {
+              selectedGender = 'Female';
+            });
+          },
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    selectedGender == 'Female'
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  selectedGender == 'Female'
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.female,
+                color:
+                    selectedGender == 'Female'
+                        ? Colors.pink
+                        : Colors.pink.withOpacity(0.6),
+              ),
+              title: Text('Female', style: theme.textTheme.bodyMedium),
+              trailing: Radio<String>(
+                value: 'Female',
+                groupValue: selectedGender,
+                activeColor: theme.primaryColor,
+                onChanged: (value) {
+                  setState(() {
+                    selectedGender = value!;
+                  });
+                },
+              ),
+            ),
           ),
         ),
-        ListTile(
-          leading: Icon(Icons.transgender, color: theme.colorScheme.secondary),
-          title: Text('Other', style: theme.textTheme.bodyMedium),
-          trailing: Radio<String>(
-            value: 'Other',
-            groupValue: selectedGender,
-            activeColor: theme.primaryColor,
-            onChanged: (value) {
-              setState(() {
-                selectedGender =
-                    value!; // Non-nullable since value won't be null
-              });
-            },
+        InkWell(
+          onTap: () {
+            setState(() {
+              selectedGender = 'Other';
+            });
+          },
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    selectedGender == 'Other'
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  selectedGender == 'Other'
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: ListTile(
+              leading: Icon(
+                Icons.transgender,
+                color:
+                    selectedGender == 'Other'
+                        ? theme.colorScheme.secondary
+                        : theme.colorScheme.secondary.withOpacity(0.6),
+              ),
+              title: Text('Other', style: theme.textTheme.bodyMedium),
+              trailing: Radio<String>(
+                value: 'Other',
+                groupValue: selectedGender,
+                activeColor: theme.primaryColor,
+                onChanged: (value) {
+                  setState(() {
+                    selectedGender = value!;
+                  });
+                },
+              ),
+            ),
           ),
         ),
       ],
@@ -732,26 +1014,64 @@ class _OnboardingPageState extends State<OnboardingPage> {
   ) {
     final theme = Theme.of(context);
 
-    return ListTile(
-      leading: Icon(icon, color: theme.listTileTheme.iconColor),
-      title: Text(title, style: theme.textTheme.bodyMedium),
-      subtitle: Text(description, style: theme.textTheme.bodySmall),
-      trailing: Radio<String>(
-        value: title,
-        groupValue: selectedActivityLevel,
-        activeColor: theme.primaryColor,
-        onChanged: (value) {
-          setState(() {
-            selectedActivityLevel =
-                value!; // Non-nullable since value won't be null
-          });
-        },
+    return InkWell(
+      onTap: () {
+        setState(() {
+          selectedActivityLevel = title;
+        });
+      },
+      borderRadius: BorderRadius.circular(8),
+      splashColor: theme.primaryColor.withOpacity(0.2),
+      highlightColor: theme.primaryColor.withOpacity(0.1),
+      child: Container(
+        margin: EdgeInsets.symmetric(vertical: 4),
+        decoration: BoxDecoration(
+          borderRadius: BorderRadius.circular(8),
+          border: Border.all(
+            color:
+                selectedActivityLevel == title
+                    ? theme.primaryColor
+                    : theme.dividerColor,
+            width: 1,
+          ),
+          color:
+              selectedActivityLevel == title
+                  ? theme.primaryColor.withOpacity(0.1)
+                  : theme.scaffoldBackgroundColor,
+        ),
+        child: ListTile(
+          leading: Icon(
+            icon,
+            color:
+                selectedActivityLevel == title
+                    ? theme.primaryColor
+                    : theme.listTileTheme.iconColor,
+          ),
+          title: Text(title, style: theme.textTheme.bodyMedium),
+          subtitle: Text(description, style: theme.textTheme.bodySmall),
+          trailing: Radio<String>(
+            value: title,
+            groupValue: selectedActivityLevel,
+            activeColor: theme.primaryColor,
+            onChanged: (value) {
+              setState(() {
+                selectedActivityLevel =
+                    value!; // Non-nullable since value won't be null
+              });
+            },
+          ),
+        ),
       ),
     );
   }
 
   Widget _buildWorkoutTimeInput() {
     final theme = Theme.of(context);
+
+    // Set controller value if it's empty but state value exists
+    if (_workoutTimeController.text.isEmpty && workoutTime != null) {
+      _workoutTimeController.text = workoutTime.toString();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -763,13 +1083,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
           ),
         ),
         TextField(
+          controller: _workoutTimeController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: 'Hours per Week',
             hintText: '1-40 hours',
             hintStyle: TextStyle(
-              color: theme.hintColor.withOpacity(0.6),
-              fontSize: 14,
+              color: theme.textTheme.bodySmall?.color,
+              fontSize: 18,
             ),
           ),
           onChanged: (value) {
@@ -802,136 +1123,294 @@ class _OnboardingPageState extends State<OnboardingPage> {
         SizedBox(height: 20),
 
         // No dietary restrictions option
-        CheckboxListTile(
-          title: Text(
-            'No dietary restrictions',
-            style: theme.textTheme.bodyMedium,
-          ),
-          value: dietaryPreferences['none'] ?? false,
-          activeColor: theme.primaryColor,
-          onChanged: (bool? value) {
+        InkWell(
+          onTap: () {
             setState(() {
               // If selecting "none", unselect all other options
-              if (value == true) {
-                dietaryPreferences.forEach((key, _) {
-                  dietaryPreferences[key] = false;
-                });
-                dietaryPreferences['none'] = true;
-              } else {
-                dietaryPreferences['none'] = false;
-              }
+              dietaryPreferences.forEach((key, _) {
+                dietaryPreferences[key] = false;
+              });
+              dietaryPreferences['none'] = true;
             });
           },
-          secondary: Icon(
-            Icons.remove_circle_outline,
-            color: theme.listTileTheme.iconColor,
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    dietaryPreferences['none'] == true
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  dietaryPreferences['none'] == true
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: CheckboxListTile(
+              title: Text(
+                'No dietary restrictions',
+                style: theme.textTheme.bodyMedium,
+              ),
+              value: dietaryPreferences['none'] ?? false,
+              activeColor: theme.primaryColor,
+              onChanged: (bool? value) {
+                setState(() {
+                  // If selecting "none", unselect all other options
+                  if (value == true) {
+                    dietaryPreferences.forEach((key, _) {
+                      dietaryPreferences[key] = false;
+                    });
+                    dietaryPreferences['none'] = true;
+                  } else {
+                    dietaryPreferences['none'] = false;
+                  }
+                });
+              },
+              secondary: Icon(
+                Icons.remove_circle_outline,
+                color:
+                    dietaryPreferences['none'] == true
+                        ? theme.primaryColor
+                        : theme.listTileTheme.iconColor,
+              ),
+            ),
           ),
         ),
 
         // Vegetarian option - Restored original color
-        CheckboxListTile(
-          title: Text('Vegetarian', style: theme.textTheme.bodyMedium),
-          subtitle: Text(
-            'No meat, but may include dairy and eggs',
-            style: theme.textTheme.bodySmall,
-          ),
-          value: dietaryPreferences['vegetarian'] ?? false,
-          activeColor: theme.primaryColor,
-          onChanged: (bool? value) {
+        InkWell(
+          onTap: () {
             setState(() {
-              if (value == true) {
-                // If selecting vegetarian, unselect "none"
-                dietaryPreferences['none'] = false;
+              // If selecting vegetarian, unselect "none"
+              dietaryPreferences['none'] = false;
 
-                // If selecting vegetarian, unselect vegan (mutual exclusivity)
-                dietaryPreferences['vegan'] = false;
-                dietaryPreferences['vegetarian'] = true;
-              } else {
-                dietaryPreferences['vegetarian'] = false;
-              }
+              // If selecting vegetarian, unselect vegan (mutual exclusivity)
+              dietaryPreferences['vegan'] = false;
+              dietaryPreferences['vegetarian'] =
+                  !dietaryPreferences['vegetarian']!;
             });
           },
-          secondary: Icon(
-            Icons.spa,
-            color: Colors.green,
-          ), // Restored original color
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    dietaryPreferences['vegetarian'] == true
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  dietaryPreferences['vegetarian'] == true
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: CheckboxListTile(
+              title: Text('Vegetarian', style: theme.textTheme.bodyMedium),
+              subtitle: Text(
+                'No meat, but may include dairy and eggs',
+                style: theme.textTheme.bodySmall,
+              ),
+              value: dietaryPreferences['vegetarian'] ?? false,
+              activeColor: theme.primaryColor,
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value == true) {
+                    // If selecting vegetarian, unselect "none"
+                    dietaryPreferences['none'] = false;
+
+                    // If selecting vegetarian, unselect vegan (mutual exclusivity)
+                    dietaryPreferences['vegan'] = false;
+                    dietaryPreferences['vegetarian'] = true;
+                  } else {
+                    dietaryPreferences['vegetarian'] = false;
+                  }
+                });
+              },
+              secondary: Icon(
+                Icons.spa,
+                color: Colors.green,
+              ), // Restored original color
+            ),
+          ),
         ),
 
         // Vegan option - Restored original color
-        CheckboxListTile(
-          title: Text('Vegan', style: theme.textTheme.bodyMedium),
-          subtitle: Text(
-            'No animal products including meat, dairy, eggs, and honey',
-            style: theme.textTheme.bodySmall,
-          ),
-          value: dietaryPreferences['vegan'] ?? false,
-          activeColor: theme.primaryColor,
-          onChanged: (bool? value) {
+        InkWell(
+          onTap: () {
             setState(() {
-              if (value == true) {
-                // If selecting vegan, unselect "none"
-                dietaryPreferences['none'] = false;
+              // If selecting vegan, unselect "none"
+              dietaryPreferences['none'] = false;
 
-                // If selecting vegan, unselect vegetarian (mutual exclusivity)
-                dietaryPreferences['vegetarian'] = false;
-                dietaryPreferences['vegan'] = true;
-              } else {
-                dietaryPreferences['vegan'] = false;
-              }
+              // If selecting vegan, unselect vegetarian (mutual exclusivity)
+              dietaryPreferences['vegetarian'] = false;
+              dietaryPreferences['vegan'] = !dietaryPreferences['vegan']!;
             });
           },
-          secondary: Icon(
-            Icons.eco,
-            color: Colors.green[700],
-          ), // Restored original color
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    dietaryPreferences['vegan'] == true
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  dietaryPreferences['vegan'] == true
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: CheckboxListTile(
+              title: Text('Vegan', style: theme.textTheme.bodyMedium),
+              subtitle: Text(
+                'No animal products including meat, dairy, eggs, and honey',
+                style: theme.textTheme.bodySmall,
+              ),
+              value: dietaryPreferences['vegan'] ?? false,
+              activeColor: theme.primaryColor,
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value == true) {
+                    // If selecting vegan, unselect "none"
+                    dietaryPreferences['none'] = false;
+
+                    // If selecting vegan, unselect vegetarian (mutual exclusivity)
+                    dietaryPreferences['vegetarian'] = false;
+                    dietaryPreferences['vegan'] = true;
+                  } else {
+                    dietaryPreferences['vegan'] = false;
+                  }
+                });
+              },
+              secondary: Icon(
+                Icons.eco,
+                color: Colors.green[700],
+              ), // Restored original color
+            ),
+          ),
         ),
 
         // Gluten-free option - Restored original color
-        CheckboxListTile(
-          title: Text('Gluten-Free', style: theme.textTheme.bodyMedium),
-          subtitle: Text(
-            'No wheat, barley, rye, or their derivatives',
-            style: theme.textTheme.bodySmall,
-          ),
-          value: dietaryPreferences['glutenFree'] ?? false,
-          activeColor: theme.primaryColor,
-          onChanged: (bool? value) {
+        InkWell(
+          onTap: () {
             setState(() {
-              if (value == true) {
-                // If selecting any option, unselect "none"
-                dietaryPreferences['none'] = false;
-              }
-              dietaryPreferences['glutenFree'] = value ?? false;
+              // If selecting any option, unselect "none"
+              dietaryPreferences['none'] = false;
+              dietaryPreferences['glutenFree'] =
+                  !dietaryPreferences['glutenFree']!;
             });
           },
-          secondary: Icon(
-            Icons.grain_outlined,
-            color: Colors.amber,
-          ), // Restored original color
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    dietaryPreferences['glutenFree'] == true
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  dietaryPreferences['glutenFree'] == true
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: CheckboxListTile(
+              title: Text('Gluten-Free', style: theme.textTheme.bodyMedium),
+              subtitle: Text(
+                'No wheat, barley, rye, or their derivatives',
+                style: theme.textTheme.bodySmall,
+              ),
+              value: dietaryPreferences['glutenFree'] ?? false,
+              activeColor: theme.primaryColor,
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value == true) {
+                    // If selecting any option, unselect "none"
+                    dietaryPreferences['none'] = false;
+                  }
+                  dietaryPreferences['glutenFree'] = value ?? false;
+                });
+              },
+              secondary: Icon(
+                Icons.grain_outlined,
+                color: Colors.amber,
+              ), // Restored original color
+            ),
+          ),
         ),
 
         // Keto option - Restored original color
-        CheckboxListTile(
-          title: Text('Keto', style: theme.textTheme.bodyMedium),
-          subtitle: Text(
-            'Low carb, high fat diet',
-            style: theme.textTheme.bodySmall,
-          ),
-          value: dietaryPreferences['keto'] ?? false,
-          activeColor: theme.primaryColor,
-          onChanged: (bool? value) {
+        InkWell(
+          onTap: () {
             setState(() {
-              if (value == true) {
-                // If selecting any option, unselect "none"
-                dietaryPreferences['none'] = false;
-              }
-              dietaryPreferences['keto'] = value ?? false;
+              // If selecting any option, unselect "none"
+              dietaryPreferences['none'] = false;
+              dietaryPreferences['keto'] = !dietaryPreferences['keto']!;
             });
           },
-          secondary: Icon(
-            Icons.local_dining,
-            color: Colors.red,
-          ), // Restored original color
+          borderRadius: BorderRadius.circular(8),
+          splashColor: theme.primaryColor.withOpacity(0.2),
+          highlightColor: theme.primaryColor.withOpacity(0.1),
+          child: Container(
+            margin: EdgeInsets.symmetric(vertical: 4),
+            decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(8),
+              border: Border.all(
+                color:
+                    dietaryPreferences['keto'] == true
+                        ? theme.primaryColor
+                        : theme.dividerColor,
+                width: 1,
+              ),
+              color:
+                  dietaryPreferences['keto'] == true
+                      ? theme.primaryColor.withOpacity(0.1)
+                      : theme.scaffoldBackgroundColor,
+            ),
+            child: CheckboxListTile(
+              title: Text('Keto', style: theme.textTheme.bodyMedium),
+              subtitle: Text(
+                'Low carb, high fat diet',
+                style: theme.textTheme.bodySmall,
+              ),
+              value: dietaryPreferences['keto'] ?? false,
+              activeColor: theme.primaryColor,
+              onChanged: (bool? value) {
+                setState(() {
+                  if (value == true) {
+                    // If selecting any option, unselect "none"
+                    dietaryPreferences['none'] = false;
+                  }
+                  dietaryPreferences['keto'] = value ?? false;
+                });
+              },
+              secondary: Icon(
+                Icons.local_dining,
+                color: Colors.red,
+              ), // Restored original color
+            ),
+          ),
         ),
       ],
     );
@@ -939,6 +1418,11 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
   Widget _buildFinancialInput() {
     final theme = Theme.of(context);
+
+    // Set controller value if it's empty but state value exists
+    if (_budgetController.text.isEmpty && monthlyBudget != null) {
+      _budgetController.text = monthlyBudget.toString();
+    }
 
     return Column(
       crossAxisAlignment: CrossAxisAlignment.start,
@@ -956,15 +1440,27 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ),
         SizedBox(height: 20),
         TextField(
+          controller: _budgetController,
           keyboardType: TextInputType.number,
           decoration: InputDecoration(
             labelText: 'Monthly Budget (\$)',
             hintText: '\$0-\$5000',
             hintStyle: TextStyle(
-              color: theme.hintColor.withOpacity(0.6),
-              fontSize: 14,
+              color: theme.textTheme.bodySmall?.color,
+              fontSize: 18,
             ),
-            prefixIcon: Icon(Icons.attach_money),
+            prefixIcon: Icon(
+              Icons.attach_money,
+              color: theme.primaryColor.withOpacity(0.8),
+            ),
+            border: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: theme.dividerColor, width: 1),
+            ),
+            focusedBorder: OutlineInputBorder(
+              borderRadius: BorderRadius.circular(10),
+              borderSide: BorderSide(color: theme.primaryColor, width: 2),
+            ),
           ),
           onChanged: (value) {
             setState(() {
@@ -987,13 +1483,14 @@ class _OnboardingPageState extends State<OnboardingPage> {
       value: selectedUnit,
       icon: Icon(Icons.arrow_drop_down, color: theme.primaryColor),
       underline: Container(height: 0), // Remove the default underline
-      elevation: 0, // Remove shadow
+      elevation: 4, // Add a bit of elevation for better visibility
       borderRadius: BorderRadius.circular(8),
       dropdownColor: theme.scaffoldBackgroundColor,
       isDense: true, // Makes the dropdown more compact
       style: TextStyle(
-        color: theme.textTheme.bodyMedium?.color ?? theme.primaryColor,
+        color: theme.primaryColor,
         fontWeight: FontWeight.w500,
+        fontSize: 16,
       ),
       items:
           units.map((unit) {
@@ -1003,7 +1500,6 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 unit,
                 style: TextStyle(
                   fontSize: 16,
-                  // Use the exact same color as the text theme to ensure consistency
                   color: theme.textTheme.bodyMedium?.color,
                 ),
               ),

@@ -1,4 +1,6 @@
+import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
+import 'package:hk11/navigation/app_shell.dart';
 import 'package:hk11/pages/profile_page_.dart';
 import 'package:shared_preferences/shared_preferences.dart';
 import 'view.dart';
@@ -18,6 +20,60 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
   Future<bool> _isOnboardingComplete() async {
     final prefs = await SharedPreferences.getInstance();
     return prefs.getBool('onboardingComplete') ?? false;
+  }
+
+  // Add this function to your _LoginOrSignupPageState class
+  Future<void> checkOnboardingAndNavigate(String userId) async {
+    try {
+      // Show loading indicator
+      showDialog(
+        context: context,
+        barrierDismissible: false,
+        builder: (context) => Center(child: CircularProgressIndicator()),
+      );
+
+      // Check if the user has completed onboarding
+      final userDoc =
+          await FirebaseFirestore.instance
+              .collection('users')
+              .doc(userId)
+              .get();
+
+      // Close the loading dialog
+      Navigator.pop(context);
+
+      // Check if onboardingComplete exists and is true
+      final bool onboardingComplete =
+          userDoc.exists &&
+          userDoc.data()?.containsKey('onboardingComplete') == true &&
+          userDoc.data()?['onboardingComplete'] == true;
+
+      if (onboardingComplete) {
+        // User has completed onboarding, navigate to AppShell
+        Navigator.of(
+          context,
+        ).pushReplacement(MaterialPageRoute(builder: (context) => AppShell()));
+      } else {
+        // User has not completed onboarding, navigate to OnboardingPage
+        Navigator.of(context).pushReplacement(
+          MaterialPageRoute(builder: (context) => OnboardingPage()),
+        );
+      }
+    } catch (e) {
+      // Handle errors
+      Navigator.pop(context); // Ensure dialog is closed in case of error
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error checking onboarding status: ${e.toString()}'),
+          backgroundColor: Theme.of(context).colorScheme.error,
+        ),
+      );
+
+      // Default to onboarding in case of error
+      Navigator.of(context).pushReplacement(
+        MaterialPageRoute(builder: (context) => OnboardingPage()),
+      );
+    }
   }
 
   @override
@@ -69,26 +125,18 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                   // Google Sign In
                   ElevatedButton.icon(
                     onPressed: () async {
-                      await _auth.loginWithGoogle();
+                      // Try to authenticate with Google
+                      final user = await _auth.loginWithGoogle();
 
-                      // Check onboarding status
-                      bool onboardingComplete = await _isOnboardingComplete();
+                      // If sign-in was cancelled or failed, just return
+                      if (user == null) return;
 
-                      if (onboardingComplete) {
-                        // If onboarding is complete, go to profile
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => ProfileScreen(),
-                          ),
-                        );
-                      } else {
-                        // If onboarding is not complete, go to onboarding
-                        Navigator.of(context).pushReplacement(
-                          MaterialPageRoute(
-                            builder: (context) => OnboardingPage(),
-                          ),
-                        );
-                      }
+                      // Always navigate to onboarding page
+                      Navigator.of(context).pushReplacement(
+                        MaterialPageRoute(
+                          builder: (context) => OnboardingPage(),
+                        ),
+                      );
                     },
                     icon: Container(
                       height: 20,
@@ -121,10 +169,20 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
 
                   // Email login
                   ElevatedButton.icon(
-                    onPressed: () {
-                      Navigator.of(context).push(
+                    onPressed: () async {
+                      // Navigate to login page first
+                      final result = await Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => LoginPage()),
                       );
+
+                      // If login was successful and returned a user
+                      if (result != null) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => OnboardingPage(),
+                          ),
+                        );
+                      }
                     },
                     icon: Icon(Icons.email_outlined),
 
@@ -156,10 +214,20 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
 
                   // Sign up
                   ElevatedButton(
-                    onPressed: () {
-                      Navigator.of(context).push(
+                    onPressed: () async {
+                      // Navigate to signup page first
+                      final result = await Navigator.of(context).push(
                         MaterialPageRoute(builder: (context) => SignupPage()),
                       );
+
+                      // If signup was successful and returned a user
+                      if (result != null) {
+                        Navigator.of(context).pushReplacement(
+                          MaterialPageRoute(
+                            builder: (context) => OnboardingPage(),
+                          ),
+                        );
+                      }
                     },
 
                     child: Text(
