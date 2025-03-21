@@ -1,14 +1,14 @@
 import 'package:flutter/material.dart';
 import 'package:hk11/utils/calendar.dart';
 
-class CreateScreen extends StatefulWidget {
-  const CreateScreen({super.key});
+class CalendarPage extends StatefulWidget {
+  const CalendarPage({super.key});
 
   @override
-  State<CreateScreen> createState() => _CreateScreenState();
+  State<CalendarPage> createState() => _CalendarPageState();
 }
 
-class _CreateScreenState extends State<CreateScreen> {
+class _CalendarPageState extends State<CalendarPage> {
   CalendarClient calendarClient = CalendarClient();
   
   @override
@@ -26,9 +26,8 @@ class _CreateScreenState extends State<CreateScreen> {
               title: 'Meeting',
               description: 'Discuss the project',
               location: 'Office',
-              attendeeEmailList: [''],
+              attendeeEmailList: [],
               shouldNotifyAttendees: true,
-              hasConferenceSupport: true,
               startTime: DateTime.now().add(const Duration(days: 1)),
               endTime: DateTime.now().add(const Duration(days: 1, hours: 1)),
             );
