@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+import '../config/api_config.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 
 class ChatPage extends StatefulWidget {
@@ -83,6 +84,9 @@ class _ChatPageState extends State<ChatPage> {
 
       // Clear the message input
       _messageController.clear();
+
+      // Navigate to the chat detail page with the newly created chat
+      _navigateToChatDetail(context, chatRef.id, chatTitle);
     } catch (e) {
       ScaffoldMessenger.of(context).showSnackBar(
         SnackBar(content: Text('Error creating chat: ${e.toString()}')),
@@ -123,7 +127,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('http://10.1.170.174:3000/process-query'),
+        Uri.parse('${ApiConfig.baseUrl}/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
@@ -175,7 +179,6 @@ class _ChatPageState extends State<ChatPage> {
       ),
       body: Column(
         children: [
-          
           // New message input field
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -189,7 +192,7 @@ class _ChatPageState extends State<ChatPage> {
                   hintStyle: TextStyle(color: Colors.grey.shade400),
                   filled: true,
                   fillColor: theme.colorScheme.primary.withOpacity(0.3),
-                  
+
                   contentPadding: const EdgeInsets.symmetric(
                     horizontal: 20,
                     vertical: 16,
@@ -247,14 +250,16 @@ class _ChatPageState extends State<ChatPage> {
                         Icon(
                           Icons.chat_bubble_outline,
                           size: 80,
-                          color: Theme.of(context).colorScheme.onSurface.withOpacity(0.2),
+                          color: Theme.of(
+                            context,
+                          ).colorScheme.onSurface.withOpacity(0.2),
                         ),
                         const SizedBox(height: 16),
                         Text(
                           'No chats yet',
                           style: theme.textTheme.bodyMedium?.copyWith(
                             fontWeight: FontWeight.bold,
-                            ),
+                          ),
                         ),
                         const SizedBox(height: 8),
                         Text(
@@ -286,35 +291,33 @@ class _ChatPageState extends State<ChatPage> {
 
                     return Card(
                       elevation: 0,
-                      
+
                       color: theme.colorScheme.primary.withOpacity(0.3),
                       shape: RoundedRectangleBorder(
-                      borderRadius: BorderRadius.circular(24),
-                      side: BorderSide(
-                        color: Colors.black,
-                      ),
+                        borderRadius: BorderRadius.circular(24),
+                        side: BorderSide(color: Colors.black),
                       ),
                       child: ListTile(
-                      contentPadding: const EdgeInsets.symmetric(
-                        horizontal: 20,
-                        vertical: 16,
-                      ),
-                      title: Text(
-                        chatTitle,
-                        style: theme.textTheme.bodyLarge,
-                      ),
-                      subtitle: Text(
-                        timeAgo,
-                        style: theme.textTheme.bodySmall,
-                      ),
-                      trailing: Icon(
-                        Icons.arrow_forward_ios,
-                        size: 16,
-                        color: theme.colorScheme.secondary,
-                      ),
-                      onTap: () {
-                        _navigateToChatDetail(context, chatDoc.id, chatTitle);
-                      },
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20,
+                          vertical: 16,
+                        ),
+                        title: Text(
+                          chatTitle,
+                          style: theme.textTheme.bodyLarge,
+                        ),
+                        subtitle: Text(
+                          timeAgo,
+                          style: theme.textTheme.bodySmall,
+                        ),
+                        trailing: Icon(
+                          Icons.arrow_forward_ios,
+                          size: 16,
+                          color: theme.colorScheme.secondary,
+                        ),
+                        onTap: () {
+                          _navigateToChatDetail(context, chatDoc.id, chatTitle);
+                        },
                       ),
                     );
                   },
@@ -424,7 +427,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     try {
       // Call the processQuery function through the API endpoint we set up
       var response = await http.post(
-        Uri.parse('http://10.1.170.174:3000/process-query'),
+        Uri.parse('${dotenv.env['API_BASE_URL']}process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
@@ -452,10 +455,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
     return Scaffold(
       appBar: AppBar(
-        title: Text(
-          widget.chatTitle,
-          style: theme.textTheme.headlineLarge,
-        ),
+        title: Text(widget.chatTitle, style: theme.textTheme.headlineLarge),
         elevation: 0,
         backgroundColor: theme.scaffoldBackgroundColor,
         foregroundColor: theme.textTheme.bodyLarge?.color,
@@ -556,22 +556,22 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                               vertical: 12.0,
                             ),
                             decoration: BoxDecoration(
-                              color: isUser
-                                  ? theme.colorScheme.onSecondary
-                                  : theme.colorScheme.onPrimary,
+                              color:
+                                  isUser
+                                      ? theme.colorScheme.onSecondary
+                                      : theme.colorScheme.onPrimary,
                               border: Border.all(
                                 color: theme.colorScheme.surface,
                               ),
                               borderRadius: BorderRadius.circular(
                                 20.0,
                               ).copyWith(
-                                
                                 bottomRight:
                                     isUser ? const Radius.circular(0) : null,
                                 bottomLeft:
                                     !isUser ? const Radius.circular(0) : null,
                               ),
-                              
+
                               boxShadow: [
                                 BoxShadow(
                                   color: Colors.black.withOpacity(0.05),
@@ -580,52 +580,52 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                 ),
                               ],
                             ),
-                            child: isUser 
-                                ? Text(
-                                    messageText,
-                                    style: theme.textTheme.bodyMedium?.copyWith(
-                                      color: Colors.white,
+                            child:
+                                isUser
+                                    ? Text(
+                                      messageText,
+                                      style: theme.textTheme.bodyMedium
+                                          ?.copyWith(color: Colors.white),
+                                    )
+                                    : MarkdownBody(
+                                      data: messageText,
+                                      styleSheet: MarkdownStyleSheet(
+                                        p: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                        strong: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 16,
+                                        ),
+                                        em: TextStyle(
+                                          color: Colors.black,
+                                          fontStyle: FontStyle.italic,
+                                          fontSize: 16,
+                                        ),
+                                        h1: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 24,
+                                        ),
+                                        h2: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 20,
+                                        ),
+                                        h3: TextStyle(
+                                          color: Colors.black,
+                                          fontWeight: FontWeight.bold,
+                                          fontSize: 18,
+                                        ),
+                                        listBullet: TextStyle(
+                                          color: Colors.black,
+                                          fontSize: 16,
+                                        ),
+                                      ),
+                                      softLineBreak: true,
                                     ),
-                                  )
-                                : MarkdownBody(
-                                    data: messageText,
-                                    styleSheet: MarkdownStyleSheet(
-                                      p: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                      ),
-                                      strong: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 16,
-                                      ),
-                                      em: TextStyle(
-                                        color: Colors.black,
-                                        fontStyle: FontStyle.italic,
-                                        fontSize: 16,
-                                      ),
-                                      h1: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 24,
-                                      ),
-                                      h2: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 20,
-                                      ),
-                                      h3: TextStyle(
-                                        color: Colors.black,
-                                        fontWeight: FontWeight.bold,
-                                        fontSize: 18,
-                                      ),
-                                      listBullet: TextStyle(
-                                        color: Colors.black,
-                                        fontSize: 16,
-                                      ),
-                                    ),
-                                    softLineBreak: true,
-                                  ),
                           ),
                           if (time.isNotEmpty)
                             Padding(
@@ -638,7 +638,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                 time,
                                 style: TextStyle(
                                   fontSize: 12,
-                                  color: theme.colorScheme.onSurface.withOpacity(0.6),
+                                  color: theme.colorScheme.onSurface
+                                      .withOpacity(0.6),
                                 ),
                               ),
                             ),
@@ -668,7 +669,6 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
               children: [
                 Expanded(
                   child: Container(
-                    
                     child: TextField(
                       controller: _messageController,
                       style: theme.textTheme.bodyMedium,
@@ -676,9 +676,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                         filled: true,
                         fillColor: theme.colorScheme.primary.withOpacity(0.3),
                         hintText: 'Type a message...',
-                        hintStyle: TextStyle(
-                          color: Colors.grey.shade400,
-                        ),
+                        hintStyle: TextStyle(color: Colors.grey.shade400),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 16.0,
