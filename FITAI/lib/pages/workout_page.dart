@@ -5,6 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+import '../config/api_config.dart';
 
 class WorkoutPage extends StatefulWidget {
   const WorkoutPage({Key? key}) : super(key: key);
@@ -171,7 +172,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
       // Make API request with detailed logging
       print('Making API request to generate workout plan...');
       var response = await http.post(
-        Uri.parse('http://159.65.116.13:3000/generate-plan'),
+        Uri.parse('${ApiConfig.baseUrl}/generate-plan'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'variant': 'workout',

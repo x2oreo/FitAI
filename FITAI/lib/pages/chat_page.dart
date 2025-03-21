@@ -5,6 +5,7 @@ import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'package:flutter_dotenv/flutter_dotenv.dart';
 import 'dart:convert';
+import '../config/api_config.dart';
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -125,7 +126,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('http://159.65.116.13:3000/process-query'),
+        Uri.parse('${ApiConfig.baseUrl}/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,

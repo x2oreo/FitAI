@@ -5,6 +5,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
+import '../config/api_config.dart';
 
 class MealPage extends StatefulWidget {
   const MealPage({Key? key}) : super(key: key);
@@ -145,7 +146,7 @@ class _MealPageState extends State<MealPage> {
       // Make API request with detailed logging
       print('Making API request to generate diet plan...');
       var response = await http.post(
-        Uri.parse('http://159.65.116.13:3000/generate-plan'),
+        Uri.parse('${ApiConfig.baseUrl}/generate-plan'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'variant': 'diet',
