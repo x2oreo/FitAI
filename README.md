@@ -1,17 +1,23 @@
 <p align="center">
-  <img width="256px" src="./docs/logo.png.png" alt="FitAI Logo" />
+  <img width="256px" src="./docs/logo.png" alt="FitAI Logo" />
   <h1 align="center">FitAI</h1>
   <p align="center">
-    [<b><u>FitAI</u></b>]
-    [<a href="https://github.com/x2oreo/FitAI-api">FitAI API</a>]
-    [<a href="https://github.com/x2oreo/FitAI-vscode-extension">VS Code Extension</a>]
+    [ <b><ins>FitAI</ins></b> ] ·
+    [ <a href="https://github.com/x2oreo/FitAI-api">FitAI API</a> ] · 
+    [ <a href="https://github.com/x2oreo/FitAI-vscode-extension">FitAI VS Code Extension</a> ]
   </p>
   <p align="center">
-    FitAI is an innovative ecosystem tailored specifically for developers who face challenges balancing health with their demanding coding schedules. Our solution simplifies achieving fitness goals by providing personalized workout and meal plans, seamlessly fitting into your busy lifestyle.
+    FitAI is an innovative ecosystem tailored specifically for developers who face challenges balancing health with their demanding coding schedules. Our solution simplifies achieving fitness goals by providing personalized workout and meal plans, AI expert advice and integration in the VSCode ecosystem.
   </p>
 </p>
 
 <p align="center">
+    <a href="https://github.com/x2oreo/fitai/releases">
+      <img alt="GitHub Release" src="https://img.shields.io/github/v/release/x2oreo/FitAI?color=88ff0c&style=flat-square">
+    </a>
+    <a href="https://github.com/x2oreo/fitai/releases">
+      <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/x2oreo/fitai?color=88ff0c&style=flat-square">
+    </a>
     <a href="https://github.com/x2oreo/fitai/fork">
         <img src="https://img.shields.io/badge/contributions-welcome-brightgreen.svg?color=88ff0c&style=flat-square" alt="Contributions welcome" />
     </a>
@@ -32,21 +38,28 @@ The FitAI ecosystem consists of three primary components:
 
 Each component has detailed setup instructions available in their respective repositories.
 
-## Testing the Mobile Application
+## Download FitAI
 
-Clickable link + QR code
+<p align="center">
+  You may download the latest FitAI release here or via the following QR code:
+</p>
+<p align="center">
+  <img src="./docs/releases-qr.png" alt="Releases page">
+</p>
 
 ## Mobile App Development
 
-App is made on **Flutter (Dart)**, with an **Emulator** (mobile phone simulation) and **Firebase** for the data base.
+App is made on **Flutter (Dart)**, with an **Emulator** (mobile phone simulation) and **Firebase** for the data base. To build it locally, you need to do the following:
 
-1. Download Flutter SDK.
-2. Add and configure Android SDK. You may verify via `flutter doctor`.
-3. Connect an real/emulated Android 7.1 or higher device. You may verify it is available via `flutter devices`.
-4.
+1. Download and install the Flutter SDK.
+2. Add and configure the Android SDK. You may verify its installation via the `flutter doctor` command.
+3. Connect an real/emulated Android 7.1 or higher device. You may verify it is available via the `flutter devices` command.
+4. Start the application by running: `flutter run`.
+   - **Important notice**<br>
+    For Google authentication to properly work, you may need to build the application with development/production signing keys, registered to Firebase account. To view your local keys, you may run `./gradlew signingReport` from within the `/FITAI/android` directory.
+5. **Enjoy! 🎉**
 
 ## Authors
-
 <table width="100%">
   <tr>
     <td align="center">
