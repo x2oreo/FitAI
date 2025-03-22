@@ -76,7 +76,7 @@ App is made on **Flutter (Dart)**, with an **Emulator** (mobile phone simulation
     </td>
     <td align="center">
         <img width="150px" src="https://github.com/krister078.png" alt="Kristiyan Kulekov" />
-        <p><b>Kristiyan Kulekov</b><br/><a href="https://github.com/simo1209/"><img src="https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white" /></a></p>
+        <p><b>Kristiyan Kulekov</b><br/><a href="https://github.com/krister078/"><img src="https://img.shields.io/badge/GitHub-100000?style=flat-square&logo=github&logoColor=white" /></a></p>
     </td>
   </tr>
 </table>
