@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hk11/utils/calendar.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import 'dart:math';
@@ -18,11 +19,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
   int _selectedDay = 1; // Default to day 1 instead of 0
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final CalendarClient calendarClient = CalendarClient();
 
   // Workout information for each day
   Map<String, dynamic> _workoutPlan = {};
   bool _isLoading = true;
   bool _isGeneratingWorkoutPlan = false;
+  bool _isGeneratingGoogleCalendar = false;
   String _errorMessage = '';
 
   @override
@@ -234,6 +237,28 @@ class _WorkoutPageState extends State<WorkoutPage> {
         _isGeneratingWorkoutPlan = false;
       });
     }
+  }
+
+  Future<void> _generateGoogleCalendar() async {
+    setState(() {
+      _isGeneratingGoogleCalendar = true;
+    });
+
+    for (int i = 1; i <= 7; i++) {
+      await calendarClient.insert(
+          title: 'Workout - Day $i',
+          description: 'Workout planned by FitAI',
+          location: '',
+          attendeeEmailList: [],
+          shouldNotifyAttendees: false,
+          startTime: DateTime.now().add(Duration(days: i)),
+          endTime: DateTime.now().add(Duration(days: i, hours: 1)),
+        );
+      }
+    setState(() {
+      _isGeneratingGoogleCalendar = false;
+    });
+
   }
 
   // Get workout info for the selected day
@@ -726,6 +751,68 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 SizedBox(width: 12),
                                 Text(
                                   'Generate Personalized Workout',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            ),
+                  ),
+                ),
+
+                if (!_isLoading)
+                Padding(
+                  padding: const EdgeInsets.only(top: 24.0),
+                  child: ElevatedButton(
+                    onPressed:
+                        _isGeneratingWorkoutPlan ? null : _generateGoogleCalendar,
+                    style: ElevatedButton.styleFrom(
+                      minimumSize: Size(double.infinity, 56),
+                      backgroundColor:
+                          isDarkMode
+                              ? Color(0xFF64B5F6) // Vibrant blue for dark mode
+                              : Colors.blueAccent.shade400,
+                      foregroundColor: Colors.black87,
+                      elevation: 4,
+                      shadowColor:
+                          isDarkMode
+                              ? Color(0xFF64B5F6).withOpacity(0.6)
+                              : Colors.blueAccent.withOpacity(0.5),
+                      shape: RoundedRectangleBorder(
+                        borderRadius: BorderRadius.circular(16),
+                      ),
+                    ),
+                    child:
+                        _isGeneratingGoogleCalendar
+                            ? Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                SizedBox(
+                                  height: 20,
+                                  width: 20,
+                                  child: CircularProgressIndicator(
+                                    strokeWidth: 2,
+                                    color: Colors.black54,
+                                  ),
+                                ),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Filling calendar...',
+                                  style: TextStyle(
+                                    fontWeight: FontWeight.w600,
+                                    fontSize: 16,
+                                  ),
+                                ),
+                              ],
+                            )
+                            : Row(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Icon(Icons.calendar_month, size: 22),
+                                SizedBox(width: 12),
+                                Text(
+                                  'Fill Google Calendar',
                                   style: TextStyle(
                                     fontWeight: FontWeight.w600,
                                     fontSize: 16,
