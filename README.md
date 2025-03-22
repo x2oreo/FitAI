@@ -15,7 +15,7 @@
     <a href="https://github.com/x2oreo/fitai/releases">
       <img alt="GitHub Release" src="https://img.shields.io/github/v/release/x2oreo/FitAI?color=88ff0c&style=flat-square">
     </a>
-    <a href="https://github.com/x2oreo/fitai/releases">
+    <a href="https://github.com/orgs/x2oreo/projects/2">
       <img alt="GitHub Issues or Pull Requests" src="https://img.shields.io/github/issues/x2oreo/fitai?color=88ff0c&style=flat-square">
     </a>
     <a href="https://github.com/x2oreo/fitai/fork">
