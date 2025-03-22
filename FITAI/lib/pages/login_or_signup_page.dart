@@ -1,8 +1,6 @@
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter/material.dart';
 import 'package:hk11/navigation/app_shell.dart';
-import 'package:hk11/pages/profile_page_.dart';
-import 'package:shared_preferences/shared_preferences.dart';
 import 'view.dart';
 import 'package:hk11/pages/onboarding.dart'; // Import the onboarding screen
 
@@ -15,12 +13,6 @@ class LoginOrSignupPage extends StatefulWidget {
 
 class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
   final _auth = AuthService();
-
-  // Check if onboarding is complete
-  Future<bool> _isOnboardingComplete() async {
-    final prefs = await SharedPreferences.getInstance();
-    return prefs.getBool('onboardingComplete') ?? false;
-  }
 
   // Add this function to your _LoginOrSignupPageState class
   Future<void> checkOnboardingAndNavigate(String userId) async {
@@ -93,19 +85,8 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                 margin: const EdgeInsets.only(bottom: 40),
                 child: Column(
                   children: [
-                    Container(
-                      width: 80,
-                      height: 80,
-                      decoration: BoxDecoration(
-                        color: Colors.white.withOpacity(0.1),
-                        shape: BoxShape.circle,
-                      ),
-                      child: Icon(
-                        Icons.whatshot_rounded,
-                        size: 40,
-                        color: const Color.fromARGB(255, 0, 110, 255),
-                      ),
-                    ),
+                    Image.asset('assets/logo.png', height: 200, width: 200),
+
                     const SizedBox(height: 24),
                     Text('Welcome!', style: theme.textTheme.bodyLarge),
                     const SizedBox(height: 12),
@@ -147,7 +128,7 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                       ),
 
                       child: Image.asset(
-                        'assets/images/icon-google.png',
+                        'assets/icon-google.png',
                         height: 10,
                         width: 10,
                       ),
@@ -184,7 +165,6 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                         );
                       }
                     },
-                    icon: Icon(Icons.email_outlined),
 
                     label: Text('Log In', style: theme.textTheme.bodyMedium),
                   ),
