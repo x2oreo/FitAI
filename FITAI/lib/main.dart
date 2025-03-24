@@ -1,4 +1,6 @@
+import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/material.dart';
+import 'package:hk11/navigation/app_shell.dart';
 import 'package:hk11/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:hk11/pages/view.dart';
@@ -7,10 +9,10 @@ import 'firebase_options.dart';
 import 'package:flutter_native_splash/flutter_native_splash.dart';
 
 void main() async {
-  // Ensure Flutter is initialized
-  WidgetsFlutterBinding.ensureInitialized();
+  // Ensure Flutter is initialized only once
   WidgetsBinding widgetsBinding = WidgetsFlutterBinding.ensureInitialized();
   FlutterNativeSplash.preserve(widgetsBinding: widgetsBinding);
+  
   // Initialize Firebase
   await Firebase.initializeApp(options: DefaultFirebaseOptions.currentPlatform);
 
@@ -33,21 +35,21 @@ class _MyAppState extends State<MyApp> {
   @override
   void initState() {
     super.initState();
-    initialization();
+    // Remove splash screen after the first frame is rendered
+    WidgetsBinding.instance.addPostFrameCallback((_) {
+      FlutterNativeSplash.remove();
+    });
   }
 
-  void initialization() async {
-    print("pausing");
-    await Future.delayed(Duration(seconds: 2));
-    print("resuming");
-    FlutterNativeSplash.remove();
-  }
+  @override
   Widget build(BuildContext context) {
     final themeProvider = Provider.of<ThemeProvider>(context);
-
+    
+    User? currentUser = FirebaseAuth.instance.currentUser;
+     
     return MaterialApp(
       theme: themeProvider.theme,
-      home: LoginOrSignupPage(), // Changed from MyHomePage to AppShell
+      home: currentUser != null ? AppShell() : LoginOrSignupPage(),
       debugShowCheckedModeBanner: false,
     );
   }
