@@ -14,7 +14,6 @@ class QuotesService {
       // Add initial motivational fitness quotes
       final List<String> initialQuotes = [
         "The only bad workout is the one that didn't happen.",
-        "Fitness is not about being better than someone else, it's about being better than you used to be.",
         "Take care of your body. It's the only place you have to live.",
         "The hardest lift of all is lifting your butt off the couch.",
         "Your body can stand almost anything. It's your mind that you have to convince.",

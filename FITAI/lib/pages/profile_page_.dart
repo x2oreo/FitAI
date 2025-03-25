@@ -4,6 +4,10 @@ import 'package:flutter/material.dart';
 import 'package:hk11/theme/theme_provider.dart';
 import 'package:provider/provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:image_picker/image_picker.dart';
+import 'package:firebase_storage/firebase_storage.dart';
+import 'dart:io';
+import 'package:path_provider/path_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   const ProfileScreen({super.key});
@@ -15,9 +19,11 @@ class ProfileScreen extends StatefulWidget {
 class _ProfileScreenState extends State<ProfileScreen> {
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  final ImagePicker _picker = ImagePicker();
   bool _isLoading = true;
   bool _isEditing = false;
   bool _isSaving = false;
+  bool _isUploadingImage = false;
   Map<String, dynamic>? userData;
 
   // Form controllers
@@ -176,293 +182,515 @@ class _ProfileScreenState extends State<ProfileScreen> {
     }
   }
 
+  void _showImageSourceActionSheet() {
+    showModalBottomSheet(
+      context: context,
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+      ),
+      builder: (BuildContext context) {
+        return SafeArea(
+          child: Container(
+            decoration: BoxDecoration(
+              color: Theme.of(context).scaffoldBackgroundColor,
+              borderRadius: BorderRadius.vertical(top: Radius.circular(16)),
+            ),
+            child: Column(
+              mainAxisSize: MainAxisSize.min,
+              children: <Widget>[
+                Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 12.0),
+                  child: Text(
+                    'Change Profile Picture',
+
+                    style: Theme.of(context).textTheme.titleLarge?.copyWith(
+                          color: Theme.of(context).textTheme.bodyMedium?.color,
+                          fontWeight: FontWeight.bold,
+                        ),
+                  ),
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.photo_library,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  title: Text(
+                    'Choose from gallery',
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium?.color),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.gallery);
+                  },
+                ),
+                ListTile(
+                  leading: Icon(
+                    Icons.camera_alt,
+                    color: Theme.of(context).colorScheme.secondary,
+                  ),
+                  title: Text(
+                    'Take a photo',
+                    style: TextStyle(
+                        color: Theme.of(context).textTheme.bodyMedium?.color),
+                  ),
+                  onTap: () {
+                    Navigator.pop(context);
+                    _pickImage(ImageSource.camera);
+                  },
+                ),
+                SizedBox(height: 8),
+              ],
+            ),
+          ),
+        );
+      },
+    );
+  }
+
+  Future<void> _pickImage(ImageSource source) async {
+    try {
+      final XFile? pickedFile = await _picker.pickImage(
+        source: source,
+        maxWidth: 500,
+        maxHeight: 500,
+        imageQuality: 85,
+      );
+      
+      if (pickedFile != null) {
+        setState(() {
+          _isUploadingImage = true;
+        });
+        
+        // Get the file path from XFile
+        String imagePath = pickedFile.path;
+        
+        // Update user profile with local path directly
+        User? user = _auth.currentUser;
+        if (user != null) {
+          // Save the image path in Firestore
+          await _firestore.collection('users').doc(user.uid).update({
+            'localImagePath': imagePath,
+          });
+          
+          // Update local userData 
+          setState(() {
+            if (userData != null) {
+              userData!['localImagePath'] = imagePath;
+            }
+          });
+          
+          ScaffoldMessenger.of(context).showSnackBar(
+            SnackBar(
+              content: Text('Profile picture updated successfully'),
+              backgroundColor: Colors.green,
+            ),
+          );
+        }
+      }
+    } catch (e) {
+      ScaffoldMessenger.of(context).showSnackBar(
+        SnackBar(
+          content: Text('Error selecting image: $e'),
+          backgroundColor: Colors.red,
+        ),
+      );
+      print('Image selection error: $e');
+    } finally {
+      setState(() {
+        _isUploadingImage = false;
+      });
+    }
+  }
+
+
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final user = FirebaseAuth.instance.currentUser;
     final themeProvider = Provider.of<ThemeProvider>(context);
+    var isDarkMode = themeProvider.isDarkMode;
 
     return Scaffold(
-      appBar: AppBar(
-        title: Text('Profile'),
-        actions: [
-          IconButton(
-            icon: Icon(
-              themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+      extendBodyBehindAppBar: true, // Allows content to extend to the top
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors:
+                isDarkMode
+                    ? [
+                      Color.fromARGB(255, 0, 177, 0),    // Dark green
+                      Color.fromARGB(255, 0, 171, 0),    // Dark green
+                      Color.fromARGB(255, 0, 132, 0),    // Medium dark green
+                      Color.fromARGB(255, 0, 42, 0),     // Black
+                      Color.fromARGB(255, 0, 1, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 0, 0, 0), // Black 
+                    ]
+                    : [
+                      Color(0xFF4bff60), // Bright green
+                      Color(0xFF4eff64), // Bright green
+                      Color(0xFF60ff7f), // Light green
+                      Color(0xFF8fffb1), // Pastel green
+                      Color(0xFFaeffcc), // Very light green
+                      Color(0xFFb7ffd2), // Very light green
+                      Color(0xFFb7ffd2), // Very light green
+                      Color(0xFFb9fbd1), // Very light green/gray
+                      Color(0xFFc0ebcf), // Light green/gray
+                      Color(0xFFc7d4cc), // Green/gray
+                      Color(0xFFcacbca), // Light gray
+                      Color(0xFFcacaca), // Light gray
+                    ],
+          ),
+        ),
+        child: Stack(
+          children: [
+            // Main content
+            _isLoading
+                ? Center(
+                    child: Column(
+                      mainAxisAlignment: MainAxisAlignment.center,
+                      children: [
+                        CircularProgressIndicator(color: theme.primaryColor),
+                        SizedBox(height: 16),
+                        Text(
+                          'Loading your profile...',
+                          style: theme.textTheme.bodyMedium,
+                        ),
+                      ],
+                    ),
+                  )
+                : SafeArea(
+                    child: SingleChildScrollView(
+                      padding: EdgeInsets.fromLTRB(16, 60, 16, 16), // Extra top padding for the theme button
+                      child: Column(
+                        crossAxisAlignment: CrossAxisAlignment.center,
+                        children: [
+                          // Title text to replace AppBar title
+                          
+                          
+                          // Rest of the content remains the same
+                          // Profile picture with enhanced styling
+                          Stack(
+                            children: [
+                              Container(
+                                padding: EdgeInsets.all(4),
+                                
+                                child: CircleAvatar(
+                                  radius: 60,
+                                  backgroundColor: theme.primaryColor.withOpacity(0.1),
+                                  // Use photoURL from Firestore, then from user account, then default icon
+                                  backgroundImage: userData != null && userData!['localImagePath'] != null
+                                    ? FileImage(File(userData!['localImagePath']))
+                                    : (user?.photoURL != null 
+                                      ? NetworkImage(user!.photoURL!) 
+                                      : null),
+                                  child: (userData == null || userData!['localImagePath'] == null) && user?.photoURL == null 
+                                    ? Icon(
+                                        Icons.person,
+                                        size: 60,
+                                        color: theme.primaryColor,
+                                      ) 
+                                    : null,
+                                ),
+                              ),
+                              
+                              // Change photo button overlay
+                              Positioned(
+                                bottom: 0,
+                                right: 0,
+                                child: InkWell(
+                                  onTap: () => _showImageSourceActionSheet(),
+                                  child: Container(
+                                    padding: EdgeInsets.all(8),
+                                    decoration: BoxDecoration(
+                                      color: theme.primaryColor,
+                                      shape: BoxShape.circle,
+                                      border: Border.all(
+                                        color: theme.colorScheme.primary,
+                                        width: 2,
+                                      ),
+                                      boxShadow: [
+                                        BoxShadow(
+                                          color: Colors.black.withOpacity(0.2),
+                                          blurRadius: 4,
+                                          offset: Offset(0, 2),
+                                        ),
+                                      ],
+                                    ),
+                                    child: _isUploadingImage 
+                                      ? SizedBox(
+                                          height: 20, 
+                                          width: 20, 
+                                          child: CircularProgressIndicator(
+                                            color: Colors.white,
+                                            strokeWidth: 2,
+                                          ))
+                                      : Icon(
+                                          Icons.camera_alt,
+                                          color: theme.colorScheme.primary,
+                                          size: 20,
+                                        ),
+                                  ),
+                                ),
+                              ),
+                            ],
+                          ),
+                          SizedBox(height: 24),
+
+                          // User name with enhanced styling
+                          Text(
+                            user?.displayName ?? 'User',
+                            style: theme.textTheme.bodyLarge?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                            textAlign: TextAlign.center,
+                          ),
+
+                          SizedBox(height: 16),
+
+                          // Email with enhanced card styling
+                          Container(
+                            padding: const EdgeInsets.all(16),
+                            decoration: BoxDecoration(
+                              color: theme.scaffoldBackgroundColor,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: theme.dividerColor),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.shadowColor.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              children: [
+                                ListTile(
+                                  leading: Icon(
+                                    Icons.email,
+                                    color: theme.primaryColor,
+                                  ),
+                                  title: Text(
+                                    'Email',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontWeight: FontWeight.bold,
+                                    ),
+                                  ),
+                                  subtitle: Text(
+                                    user?.email ?? 'Not provided',
+                                    style: theme.textTheme.bodyMedium?.copyWith(
+                                      fontSize: 16,
+                                    ),
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 24),
+
+                          // Profile data section with enhanced styling
+                          Container(
+                            decoration: BoxDecoration(
+                              color: theme.scaffoldBackgroundColor,
+                              borderRadius: BorderRadius.circular(12),
+                              border: Border.all(color: theme.dividerColor),
+                              boxShadow: [
+                                BoxShadow(
+                                  color: theme.shadowColor.withOpacity(0.1),
+                                  blurRadius: 10,
+                                  offset: Offset(0, 5),
+                                ),
+                              ],
+                            ),
+                            child: Column(
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                Padding(
+                                  padding: const EdgeInsets.all(16.0),
+                                  child: Row(
+                                    mainAxisAlignment:
+                                        MainAxisAlignment.spaceBetween,
+                                    children: [
+                                      Text(
+                                        'Fitness Profile',
+                                        style: theme.textTheme.headlineLarge
+                                            ?.copyWith(fontWeight: FontWeight.bold),
+                                      ),
+                                      if (!_isEditing)
+                                        TextButton.icon(
+                                          onPressed: () {
+                                            setState(() {
+                                              _isEditing = true;
+                                            });
+                                          },
+                                          icon: Icon(
+                                            Icons.edit,
+                                            color: theme.primaryColor,
+                                          ),
+                                          label: Text(
+                                            'Edit',
+                                            style: TextStyle(
+                                              color: theme.primaryColor,
+                                              fontWeight: FontWeight.bold,
+                                            ),
+                                          ),
+                                        ),
+                                    ],
+                                  ),
+                                ),
+                                Divider(
+                                  height: 1,
+                                  thickness: 1,
+                                  color: theme.dividerColor,
+                                ),
+
+                                // Either display editable form or read-only info
+                                _isEditing ? _buildEditForm() : _buildProfileInfo(),
+
+                                // Edit/Save buttons with improved styling
+                                if (_isEditing)
+                                  Padding(
+                                    padding: const EdgeInsets.all(16.0),
+                                    child: Row(
+                                      mainAxisAlignment:
+                                          MainAxisAlignment.spaceEvenly,
+                                      children: [
+                                        Expanded(
+                                          child: OutlinedButton(
+                                            onPressed:
+                                                _isSaving
+                                                    ? null
+                                                    : () {
+                                                      setState(() {
+                                                        _isEditing = false;
+                                                        _populateFormFields();
+                                                      });
+                                                    },
+                                            style: OutlinedButton.styleFrom(
+                                              side: BorderSide(
+                                                color: theme.primaryColor,
+                                              ),
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 12,
+                                              ),
+                                            ),
+                                            child: Text(
+                                              'Cancel',
+                                              style: TextStyle(
+                                                color: theme.primaryColor,
+                                                fontWeight: FontWeight.bold,
+                                              ),
+                                            ),
+                                          ),
+                                        ),
+                                        SizedBox(width: 16),
+                                        Expanded(
+                                          child: ElevatedButton(
+                                            onPressed:
+                                                _isSaving ? null : _saveUserData,
+                                            style: ElevatedButton.styleFrom(
+                                              backgroundColor: theme.primaryColor,
+                                              foregroundColor:
+                                                  theme.colorScheme.onPrimary,
+                                              padding: EdgeInsets.symmetric(
+                                                vertical: 12,
+                                              ),
+                                            ),
+                                            child:
+                                                _isSaving
+                                                    ? SizedBox(
+                                                      height: 20,
+                                                      width: 20,
+                                                      child:
+                                                          CircularProgressIndicator(
+                                                            strokeWidth: 2,
+                                                            color:
+                                                                theme
+                                                                    .colorScheme
+                                                                    .onPrimary,
+                                                          ),
+                                                    )
+                                                    : Text(
+                                                      'Save',
+                                                      style: TextStyle(
+                                                        fontWeight: FontWeight.bold,
+                                                      ),
+                                                    ),
+                                          ),
+                                        ),
+                                      ],
+                                    ),
+                                  ),
+                              ],
+                            ),
+                          ),
+
+                          SizedBox(height: 24),
+
+                          // Sign out button with improved styling
+                          ElevatedButton.icon(
+                            onPressed: () async {
+                              await FirebaseAuth.instance.signOut();
+                              Navigator.of(context).pushReplacement(
+                                MaterialPageRoute(
+                                  builder: (context) => const LoginOrSignupPage(),
+                                ),
+                              );
+                            },
+                            style: ElevatedButton.styleFrom(
+                              backgroundColor: theme.colorScheme.error.withOpacity(
+                                0.1,
+                              ),
+                              foregroundColor: theme.colorScheme.error,
+                              elevation: 0,
+                              side: BorderSide(
+                                color: theme.colorScheme.error.withOpacity(0.5),
+                              ),
+                            ),
+                            icon: Icon(Icons.logout),
+                            label: Text(
+                              'Sign Out',
+                              style: TextStyle(fontWeight: FontWeight.bold),
+                            ),
+                          ),
+                        ],
+                      ),
+                    ),
+                  ),
+          // Theme toggle button positioned where the AppBar action would be
+          Positioned(
+            top: 40, // Adjust as needed
+            right: 16,
+            child: Container(
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: Colors.black.withOpacity(0.2),
+              ),
+              child: IconButton(
+                icon: Icon(
+                  themeProvider.isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                  color: Colors.white,
+                ),
+                onPressed: () {
+                  themeProvider.toggleTheme();
+                },
+              ),
             ),
-            onPressed: () {
-              themeProvider.toggleTheme();
-            },
           ),
         ],
-        automaticallyImplyLeading: false,
       ),
-      body:
-          _isLoading
-              ? Center(
-                child: Column(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  children: [
-                    CircularProgressIndicator(color: theme.primaryColor),
-                    SizedBox(height: 16),
-                    Text(
-                      'Loading your profile...',
-                      style: theme.textTheme.bodyMedium,
-                    ),
-                  ],
-                ),
-              )
-              : SafeArea(
-                child: SingleChildScrollView(
-                  padding: EdgeInsets.all(16.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      // Profile picture with enhanced styling
-                      Container(
-                        padding: EdgeInsets.all(4),
-                        decoration: BoxDecoration(
-                          shape: BoxShape.circle,
-                          border: Border.all(
-                            color: theme.primaryColor,
-                            width: 2,
-                          ),
-                        ),
-                        child: CircleAvatar(
-                          radius: 60,
-                          backgroundColor: theme.primaryColor.withOpacity(0.1),
-                          child: Icon(
-                            Icons.person,
-                            size: 60,
-                            color: theme.primaryColor,
-                          ),
-                        ),
-                      ),
-                      SizedBox(height: 24),
-
-                      // User name with enhanced styling
-                      Text(
-                        user?.displayName ?? 'User',
-                        style: theme.textTheme.bodyLarge?.copyWith(
-                          fontWeight: FontWeight.bold,
-                        ),
-                        textAlign: TextAlign.center,
-                      ),
-
-                      SizedBox(height: 16),
-
-                      // Email with enhanced card styling
-                      Container(
-                        padding: const EdgeInsets.all(16),
-                        decoration: BoxDecoration(
-                          color: theme.scaffoldBackgroundColor,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: theme.dividerColor),
-                          boxShadow: [
-                            BoxShadow(
-                              color: theme.shadowColor.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          children: [
-                            ListTile(
-                              leading: Icon(
-                                Icons.email,
-                                color: theme.primaryColor,
-                              ),
-                              title: Text(
-                                'Email',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontWeight: FontWeight.bold,
-                                ),
-                              ),
-                              subtitle: Text(
-                                user?.email ?? 'Not provided',
-                                style: theme.textTheme.bodyMedium?.copyWith(
-                                  fontSize: 16,
-                                ),
-                              ),
-                            ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Profile data section with enhanced styling
-                      Container(
-                        decoration: BoxDecoration(
-                          color: theme.scaffoldBackgroundColor,
-                          borderRadius: BorderRadius.circular(12),
-                          border: Border.all(color: theme.dividerColor),
-                          boxShadow: [
-                            BoxShadow(
-                              color: theme.shadowColor.withOpacity(0.1),
-                              blurRadius: 10,
-                              offset: Offset(0, 5),
-                            ),
-                          ],
-                        ),
-                        child: Column(
-                          crossAxisAlignment: CrossAxisAlignment.start,
-                          children: [
-                            Padding(
-                              padding: const EdgeInsets.all(16.0),
-                              child: Row(
-                                mainAxisAlignment:
-                                    MainAxisAlignment.spaceBetween,
-                                children: [
-                                  Text(
-                                    'Fitness Profile',
-                                    style: theme.textTheme.headlineLarge
-                                        ?.copyWith(fontWeight: FontWeight.bold),
-                                  ),
-                                  if (!_isEditing)
-                                    TextButton.icon(
-                                      onPressed: () {
-                                        setState(() {
-                                          _isEditing = true;
-                                        });
-                                      },
-                                      icon: Icon(
-                                        Icons.edit,
-                                        color: theme.primaryColor,
-                                      ),
-                                      label: Text(
-                                        'Edit',
-                                        style: TextStyle(
-                                          color: theme.primaryColor,
-                                          fontWeight: FontWeight.bold,
-                                        ),
-                                      ),
-                                    ),
-                                ],
-                              ),
-                            ),
-                            Divider(
-                              height: 1,
-                              thickness: 1,
-                              color: theme.dividerColor,
-                            ),
-
-                            // Either display editable form or read-only info
-                            _isEditing ? _buildEditForm() : _buildProfileInfo(),
-
-                            // Edit/Save buttons with improved styling
-                            if (_isEditing)
-                              Padding(
-                                padding: const EdgeInsets.all(16.0),
-                                child: Row(
-                                  mainAxisAlignment:
-                                      MainAxisAlignment.spaceEvenly,
-                                  children: [
-                                    Expanded(
-                                      child: OutlinedButton(
-                                        onPressed:
-                                            _isSaving
-                                                ? null
-                                                : () {
-                                                  setState(() {
-                                                    _isEditing = false;
-                                                    _populateFormFields();
-                                                  });
-                                                },
-                                        style: OutlinedButton.styleFrom(
-                                          side: BorderSide(
-                                            color: theme.primaryColor,
-                                          ),
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
-                                        ),
-                                        child: Text(
-                                          'Cancel',
-                                          style: TextStyle(
-                                            color: theme.primaryColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
-                                        ),
-                                      ),
-                                    ),
-                                    SizedBox(width: 16),
-                                    Expanded(
-                                      child: ElevatedButton(
-                                        onPressed:
-                                            _isSaving ? null : _saveUserData,
-                                        style: ElevatedButton.styleFrom(
-                                          backgroundColor: theme.primaryColor,
-                                          foregroundColor:
-                                              theme.colorScheme.onPrimary,
-                                          padding: EdgeInsets.symmetric(
-                                            vertical: 12,
-                                          ),
-                                        ),
-                                        child:
-                                            _isSaving
-                                                ? SizedBox(
-                                                  height: 20,
-                                                  width: 20,
-                                                  child:
-                                                      CircularProgressIndicator(
-                                                        strokeWidth: 2,
-                                                        color:
-                                                            theme
-                                                                .colorScheme
-                                                                .onPrimary,
-                                                      ),
-                                                )
-                                                : Text(
-                                                  'Save',
-                                                  style: TextStyle(
-                                                    fontWeight: FontWeight.bold,
-                                                  ),
-                                                ),
-                                      ),
-                                    ),
-                                  ],
-                                ),
-                              ),
-                          ],
-                        ),
-                      ),
-
-                      SizedBox(height: 24),
-
-                      // Sign out button with improved styling
-                      ElevatedButton.icon(
-                        onPressed: () async {
-                          await FirebaseAuth.instance.signOut();
-                          Navigator.of(context).pushReplacement(
-                            MaterialPageRoute(
-                              builder: (context) => const LoginOrSignupPage(),
-                            ),
-                          );
-                        },
-                        style: ElevatedButton.styleFrom(
-                          backgroundColor: theme.colorScheme.error.withOpacity(
-                            0.1,
-                          ),
-                          foregroundColor: theme.colorScheme.error,
-                          elevation: 0,
-                          side: BorderSide(
-                            color: theme.colorScheme.error.withOpacity(0.5),
-                          ),
-                        ),
-                        icon: Icon(Icons.logout),
-                        label: Text(
-                          'Sign Out',
-                          style: TextStyle(fontWeight: FontWeight.bold),
-                        ),
-                      ),
-                    ],
-                  ),
-                ),
-              ),
-    );
-  }
+    ),
+  );
+}
 
   Widget _buildProfileInfo() {
     final theme = Theme.of(context);

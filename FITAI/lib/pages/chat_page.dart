@@ -1,11 +1,13 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hk11/theme/theme_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
 import 'dart:convert';
 import '../config/api_config.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:provider/provider.dart' as provider;
 
 class ChatPage extends StatefulWidget {
   const ChatPage({Key? key}) : super(key: key);
@@ -204,18 +206,52 @@ class _ChatPageState extends State<ChatPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    var isDarkMode = provider.Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
-      appBar: AppBar(
-        automaticallyImplyLeading: false,
-        title: const Text(
-          'Chats',
-          style: TextStyle(fontWeight: FontWeight.bold),
+      extendBodyBehindAppBar: true,  // This allows the gradient to extend behind the app bar
+      
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors:
+                isDarkMode
+                    ? [
+                      Color(0xFFb10000),
+                      Color(0xFFab0000),
+                      Color(0xFF840000),
+                      Color(0xFF2a0000),
+                      Color(0xFF010000),
+                      Color(0xFF000000),
+                      Color(0xFF000000),
+                      Color(0xFF000000),
+                      Color(0xFF000000),
+                      Color(0xFF000000),
+                      Color(0xFF000000),
+                      Color(0xFF000000),
+                    ]
+                    : [
+                      Color(0xFF4bff60), // Bright green
+                      Color(0xFF4eff64), // Bright green
+                      Color(0xFF60ff7f), // Light green
+                      Color(0xFF8fffb1), // Pastel green
+                      Color(0xFFaeffcc), // Very light green
+                      Color(0xFFb7ffd2), // Very light green
+                      Color(0xFFb7ffd2), // Very light green
+                      Color(0xFFb9fbd1), // Very light green/gray
+                      Color(0xFFc0ebcf), // Light green/gray
+                      Color(0xFFc7d4cc), // Green/gray
+                      Color(0xFFcacbca), // Light gray
+                      Color(0xFFcacaca), // Light gray
+                    ],
+          ),
         ),
-        elevation: 0,
-      ),
-      body: Column(
+        child: Column(
+        
         children: [
+          
           // Replace button action to create empty chat directly
           Padding(
             padding: const EdgeInsets.all(16.0),
@@ -362,6 +398,7 @@ class _ChatPageState extends State<ChatPage> {
             ),
           ),
         ],
+      ),
       ),
     );
   }
@@ -525,6 +562,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
+    var isDarkMode = provider.Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
       appBar: AppBar(
@@ -533,271 +571,309 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         backgroundColor: theme.scaffoldBackgroundColor,
         foregroundColor: theme.textTheme.bodyLarge?.color,
       ),
-      body: Column(
-        children: [
-          // Messages list
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  _firestore
-                      .collection('chats')
-                      .doc(currentUserId)
-                      .collection('chats')
-                      .doc(widget.chatId)
-                      .collection('messages')
-                      .orderBy('dateSent', descending: false)
-                      .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
+      body: Container(
+        decoration: BoxDecoration(
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors:
+                isDarkMode
+                    ? [
+                      Color.fromARGB(255, 0, 177, 0),    // Dark green
+                      Color.fromARGB(255, 0, 171, 0),    // Dark green
+                      Color.fromARGB(255, 0, 132, 0),    // Medium dark green
+                      Color.fromARGB(255, 0, 42, 0),     // Black
+                      Color.fromARGB(255, 0, 1, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 0, 0, 0),
+                    ]
+                    : [
+                      Color(0xFF4bff60), // Bright green
+                      Color(0xFF4eff64), // Bright green
+                      Color(0xFF60ff7f), // Light green
+                      Color(0xFF8fffb1), // Pastel green
+                      Color(0xFFaeffcc), // Very light green
+                      Color(0xFFb7ffd2), // Very light green
+                      Color(0xFFb7ffd2), // Very light green
+                      Color(0xFFb9fbd1), // Very light green/gray
+                      Color(0xFFc0ebcf), // Light green/gray
+                      Color(0xFFc7d4cc), // Green/gray
+                      Color(0xFFcacbca), // Light gray
+                      Color(0xFFcacaca), // Light gray
+                    ],
+          ),
+        ),
+        child: Column(
+          children: [
+            // Messages list
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    _firestore
+                        .collection('chats')
+                        .doc(currentUserId)
+                        .collection('chats')
+                        .doc(widget.chatId)
+                        .collection('messages')
+                        .orderBy('dateSent', descending: false)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
 
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return Center(
-                    child: CircularProgressIndicator(color: theme.primaryColor),
-                  );
-                }
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return Center(
+                      child: CircularProgressIndicator(color: theme.primaryColor),
+                    );
+                  }
 
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 80,
-                          color: theme.colorScheme.onSurface.withOpacity(0.2),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No messages yet',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Start a new conversation below!',
-                          style: theme.textTheme.bodySmall,
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                // Update scroll position after build
-                WidgetsBinding.instance.addPostFrameCallback((_) {
-                  _scrollToBottom();
-                });
-
-                return ListView.builder(
-                  controller: _scrollController,
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: snapshot.data!.docs.length,
-                  itemBuilder: (context, index) {
-                    var messageDoc = snapshot.data!.docs[index];
-                    var messageData = messageDoc.data() as Map<String, dynamic>;
-                    var isUser = messageData['role'] == 'user';
-                    var messageText = messageData['text'] ?? '';
-
-                    // Get timestamp if available
-                    String time = '';
-                    if (messageData['dateSent'] != null) {
-                      var timestamp = messageData['dateSent'] as Timestamp;
-                      var date = timestamp.toDate();
-                      time = DateFormat.jm().format(date);
-                    }
-
-                    return Align(
-                      alignment:
-                          isUser ? Alignment.centerRight : Alignment.centerLeft,
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
                       child: Column(
-                        crossAxisAlignment:
-                            isUser
-                                ? CrossAxisAlignment.end
-                                : CrossAxisAlignment.start,
+                        mainAxisSize: MainAxisSize.min,
                         children: [
-                          Container(
-                            margin: EdgeInsets.only(
-                              top: 4.0,
-                              bottom: 2.0,
-                              left: isUser ? 64.0 : 0.0,
-                              right: isUser ? 0.0 : 64.0,
-                            ),
-                            padding: const EdgeInsets.symmetric(
-                              horizontal: 16.0,
-                              vertical: 12.0,
-                            ),
-                            decoration: BoxDecoration(
-                              color:
-                                  isUser
-                                      ? theme.colorScheme.onSecondary
-                                      : theme.colorScheme.onPrimary,
-                              border: Border.all(
-                                color: theme.colorScheme.surface,
-                              ),
-                              borderRadius: BorderRadius.circular(
-                                20.0,
-                              ).copyWith(
-                                bottomRight:
-                                    isUser ? const Radius.circular(0) : null,
-                                bottomLeft:
-                                    !isUser ? const Radius.circular(0) : null,
-                              ),
-
-                              boxShadow: [
-                                BoxShadow(
-                                  color: Colors.black.withOpacity(0.05),
-                                  blurRadius: 5,
-                                  offset: const Offset(0, 2),
-                                ),
-                              ],
-                            ),
-                            child:
-                                isUser
-                                    ? Text(
-                                      messageText,
-                                      style: theme.textTheme.bodyMedium
-                                          ?.copyWith(color: Colors.white),
-                                    )
-                                    : MarkdownBody(
-                                      data: messageText,
-                                      styleSheet: MarkdownStyleSheet(
-                                        p: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                        ),
-                                        strong: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 16,
-                                        ),
-                                        em: TextStyle(
-                                          color: Colors.black,
-                                          fontStyle: FontStyle.italic,
-                                          fontSize: 16,
-                                        ),
-                                        h1: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 24,
-                                        ),
-                                        h2: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 20,
-                                        ),
-                                        h3: TextStyle(
-                                          color: Colors.black,
-                                          fontWeight: FontWeight.bold,
-                                          fontSize: 18,
-                                        ),
-                                        listBullet: TextStyle(
-                                          color: Colors.black,
-                                          fontSize: 16,
-                                        ),
-                                      ),
-                                      softLineBreak: true,
-                                    ),
+                          Icon(
+                            Icons.chat_bubble_outline,
+                            size: 80,
+                            color: theme.colorScheme.onSurface.withOpacity(0.2),
                           ),
-                          if (time.isNotEmpty)
-                            Padding(
-                              padding: EdgeInsets.only(
-                                left: isUser ? 0 : 8.0,
-                                right: isUser ? 8.0 : 0,
-                                bottom: 8.0,
-                              ),
-                              child: Text(
-                                time,
-                                style: TextStyle(
-                                  fontSize: 12,
-                                  color: theme.colorScheme.onSurface
-                                      .withOpacity(0.6),
-                                ),
-                              ),
+                          const SizedBox(height: 16),
+                          Text(
+                            'No messages yet',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
                             ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Start a new conversation below!',
+                            style: theme.textTheme.bodySmall,
+                          ),
                         ],
                       ),
                     );
-                  },
-                );
-              },
-            ),
-          ),
+                  }
 
-          // Message input
-          Container(
-            padding: const EdgeInsets.all(16.0),
-            decoration: BoxDecoration(
-              color: theme.scaffoldBackgroundColor,
-              boxShadow: [
-                BoxShadow(
-                  color: Colors.black.withOpacity(0.05),
-                  blurRadius: 10,
-                  offset: const Offset(0, -2),
-                ),
-              ],
-            ),
-            child: Row(
-              children: [
-                Expanded(
-                  child: Container(
-                    child: TextField(
-                      controller: _messageController,
-                      style: theme.textTheme.bodyMedium,
-                      decoration: InputDecoration(
-                        filled: true,
-                        fillColor: theme.colorScheme.primary.withOpacity(0.3),
-                        hintText: 'Type a message...',
-                        hintStyle: TextStyle(color: Colors.grey.shade400),
-                        border: InputBorder.none,
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 16.0,
-                          vertical: 12.0,
-                        ),
-                      ),
-                      minLines: 1,
-                      maxLines: 5,
-                      onSubmitted: (text) {
-                        if (!_isLoading) _sendMessage(text);
-                      },
-                    ),
-                  ),
-                ),
-                const SizedBox(width: 12.0),
-                Material(
-                  color: theme.primaryColor,
-                  borderRadius: BorderRadius.circular(24.0),
-                  child: InkWell(
-                    borderRadius: BorderRadius.circular(24.0),
-                    onTap:
-                        _isLoading
-                            ? null
-                            : () => _sendMessage(_messageController.text),
-                    child: Container(
-                      padding: const EdgeInsets.all(12.0),
-                      child:
-                          _isLoading
-                              ? SizedBox(
-                                width: 24,
-                                height: 24,
-                                child: CircularProgressIndicator(
-                                  color: Colors.white,
-                                  strokeWidth: 2,
-                                ),
-                              )
-                              : Icon(
-                                Icons.send_rounded,
-                                color: Colors.white,
-                                size: 18,
+                  // Update scroll position after build
+                  WidgetsBinding.instance.addPostFrameCallback((_) {
+                    _scrollToBottom();
+                  });
+
+                  return ListView.builder(
+                    controller: _scrollController,
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: snapshot.data!.docs.length,
+                    itemBuilder: (context, index) {
+                      var messageDoc = snapshot.data!.docs[index];
+                      var messageData = messageDoc.data() as Map<String, dynamic>;
+                      var isUser = messageData['role'] == 'user';
+                      var messageText = messageData['text'] ?? '';
+
+                      // Get timestamp if available
+                      String time = '';
+                      if (messageData['dateSent'] != null) {
+                        var timestamp = messageData['dateSent'] as Timestamp;
+                        var date = timestamp.toDate();
+                        time = DateFormat.jm().format(date);
+                      }
+
+                      return Align(
+                        alignment:
+                            isUser ? Alignment.centerRight : Alignment.centerLeft,
+                        child: Column(
+                          crossAxisAlignment:
+                              isUser
+                                  ? CrossAxisAlignment.end
+                                  : CrossAxisAlignment.start,
+                          children: [
+                            Container(
+                              margin: EdgeInsets.only(
+                                top: 4.0,
+                                bottom: 2.0,
+                                left: isUser ? 64.0 : 0.0,
+                                right: isUser ? 0.0 : 64.0,
                               ),
+                              padding: const EdgeInsets.symmetric(
+                                horizontal: 16.0,
+                                vertical: 12.0,
+                              ),
+                              decoration: BoxDecoration(
+                                color:
+                                    isUser
+                                        ? theme.colorScheme.onSecondary
+                                        : theme.colorScheme.onPrimary,
+                                border: Border.all(
+                                  color: theme.colorScheme.surface,
+                                ),
+                                borderRadius: BorderRadius.circular(
+                                  20.0,
+                                ).copyWith(
+                                  bottomRight:
+                                      isUser ? const Radius.circular(0) : null,
+                                  bottomLeft:
+                                      !isUser ? const Radius.circular(0) : null,
+                                ),
+
+                                boxShadow: [
+                                  BoxShadow(
+                                    color: Colors.black.withOpacity(0.05),
+                                    blurRadius: 5,
+                                    offset: const Offset(0, 2),
+                                  ),
+                                ],
+                              ),
+                              child:
+                                  isUser
+                                      ? Text(
+                                        messageText,
+                                        style: theme.textTheme.bodyMedium
+                                            ?.copyWith(color: Colors.white),
+                                      )
+                                      : MarkdownBody(
+                                        data: messageText,
+                                        styleSheet: MarkdownStyleSheet(
+                                          p: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                          strong: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 16,
+                                          ),
+                                          em: TextStyle(
+                                            color: Colors.black,
+                                            fontStyle: FontStyle.italic,
+                                            fontSize: 16,
+                                          ),
+                                          h1: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 24,
+                                          ),
+                                          h2: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 20,
+                                          ),
+                                          h3: TextStyle(
+                                            color: Colors.black,
+                                            fontWeight: FontWeight.bold,
+                                            fontSize: 18,
+                                          ),
+                                          listBullet: TextStyle(
+                                            color: Colors.black,
+                                            fontSize: 16,
+                                          ),
+                                        ),
+                                        softLineBreak: true,
+                                      ),
+                            ),
+                            if (time.isNotEmpty)
+                              Padding(
+                                padding: EdgeInsets.only(
+                                  left: isUser ? 0 : 8.0,
+                                  right: isUser ? 8.0 : 0,
+                                  bottom: 8.0,
+                                ),
+                                child: Text(
+                                  time,
+                                  style: TextStyle(
+                                    fontSize: 12,
+                                    color: theme.colorScheme.onSurface
+                                        .withOpacity(0.6),
+                                  ),
+                                ),
+                              ),
+                          ],
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
+            ),
+
+            // Message input
+            Container(
+              padding: const EdgeInsets.all(16.0),
+              decoration: BoxDecoration(
+                color: theme.scaffoldBackgroundColor,
+                boxShadow: [
+                  BoxShadow(
+                    color: Colors.black.withOpacity(0.05),
+                    blurRadius: 10,
+                    offset: const Offset(0, -2),
+                  ),
+                ],
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    child: Container(
+                      child: TextField(
+                        controller: _messageController,
+                        style: theme.textTheme.bodyMedium,
+                        decoration: InputDecoration(
+                          filled: true,
+                          fillColor: theme.colorScheme.primary.withOpacity(0.3),
+                          hintText: 'Type a message...',
+                          hintStyle: TextStyle(color: Colors.grey.shade400),
+                          border: InputBorder.none,
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 16.0,
+                            vertical: 12.0,
+                          ),
+                        ),
+                        minLines: 1,
+                        maxLines: 5,
+                        onSubmitted: (text) {
+                          if (!_isLoading) _sendMessage(text);
+                        },
+                      ),
                     ),
                   ),
-                ),
-              ],
+                  const SizedBox(width: 12.0),
+                  Material(
+                    color: theme.primaryColor,
+                    borderRadius: BorderRadius.circular(24.0),
+                    child: InkWell(
+                      borderRadius: BorderRadius.circular(24.0),
+                      onTap:
+                          _isLoading
+                              ? null
+                              : () => _sendMessage(_messageController.text),
+                      child: Container(
+                        padding: const EdgeInsets.all(12.0),
+                        child:
+                            _isLoading
+                                ? SizedBox(
+                                  width: 24,
+                                  height: 24,
+                                  child: CircularProgressIndicator(
+                                    color: Colors.white,
+                                    strokeWidth: 2,
+                                  ),
+                                )
+                                : Icon(
+                                  Icons.send_rounded,
+                                  color: theme.colorScheme.primary,
+                                  size: 18,
+                                ),
+                      ),
+                    ),
+                  ),
+                ],
+              ),
             ),
-          ),
-        ],
+          ],
+        ),
       ),
     );
   }
