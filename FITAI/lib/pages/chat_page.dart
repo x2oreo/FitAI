@@ -219,18 +219,18 @@ class _ChatPageState extends State<ChatPage> {
             colors:
                 isDarkMode
                     ? [
-                      Color(0xFFb10000),
-                      Color(0xFFab0000),
-                      Color(0xFF840000),
-                      Color(0xFF2a0000),
-                      Color(0xFF010000),
-                      Color(0xFF000000),
-                      Color(0xFF000000),
-                      Color(0xFF000000),
-                      Color(0xFF000000),
-                      Color(0xFF000000),
-                      Color(0xFF000000),
-                      Color(0xFF000000),
+                      Color.fromARGB(255, 0, 177, 0),    // Dark green
+                      Color.fromARGB(255, 0, 171, 0),    // Dark green
+                      Color.fromARGB(255, 0, 132, 0),    // Medium dark green
+                      Color.fromARGB(255, 0, 42, 0),     // Black
+                      Color.fromARGB(255, 0, 1, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),     // Black
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 0, 0, 0),
+                      Color.fromARGB(255, 0, 0, 0),
                     ]
                     : [
                       Color(0xFF4bff60), // Bright green
@@ -251,19 +251,22 @@ class _ChatPageState extends State<ChatPage> {
         child: Column(
         
         children: [
-          
+          SizedBox(height: MediaQuery.of(context).padding.top),
           // Replace button action to create empty chat directly
           Padding(
             padding: const EdgeInsets.all(16.0),
             child: ElevatedButton(
               onPressed: _isLoading ? null : _createEmptyChat,
               style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary.withOpacity(0.3),
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.5),
+                
                 minimumSize: const Size(460, 56),
                 shape: RoundedRectangleBorder(
                   borderRadius: BorderRadius.circular(12),
+                  side: BorderSide(color: theme.colorScheme.primary, width: 1),
                 ),
                 elevation: 0,
+                
               ),
               child:
                   _isLoading
@@ -274,6 +277,7 @@ class _ChatPageState extends State<ChatPage> {
                           strokeWidth: 2,
                           color: theme.colorScheme.secondary,
                         ),
+                        
                       )
                       : Row(
                         mainAxisSize: MainAxisSize.min,
@@ -285,10 +289,7 @@ class _ChatPageState extends State<ChatPage> {
                           const SizedBox(width: 12),
                           Text(
                             'Start a new chat',
-                            style: TextStyle(
-                              color: Colors.grey.shade700,
-                              fontWeight: FontWeight.w500,
-                            ),
+                            style: theme.textTheme.bodyMedium,
                           ),
                         ],
                       ),
@@ -364,7 +365,7 @@ class _ChatPageState extends State<ChatPage> {
                     return Card(
                       elevation: 0,
 
-                      color: theme.colorScheme.primary.withOpacity(0.3),
+                      color: theme.colorScheme.primary.withOpacity(0.5),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
                         side: BorderSide(color: Colors.black),
@@ -573,40 +574,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors:
-                isDarkMode
-                    ? [
-                      Color.fromARGB(255, 0, 177, 0),    // Dark green
-                      Color.fromARGB(255, 0, 171, 0),    // Dark green
-                      Color.fromARGB(255, 0, 132, 0),    // Medium dark green
-                      Color.fromARGB(255, 0, 42, 0),     // Black
-                      Color.fromARGB(255, 0, 1, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
-                    ]
-                    : [
-                      Color(0xFF4bff60), // Bright green
-                      Color(0xFF4eff64), // Bright green
-                      Color(0xFF60ff7f), // Light green
-                      Color(0xFF8fffb1), // Pastel green
-                      Color(0xFFaeffcc), // Very light green
-                      Color(0xFFb7ffd2), // Very light green
-                      Color(0xFFb7ffd2), // Very light green
-                      Color(0xFFb9fbd1), // Very light green/gray
-                      Color(0xFFc0ebcf), // Light green/gray
-                      Color(0xFFc7d4cc), // Green/gray
-                      Color(0xFFcacbca), // Light gray
-                      Color(0xFFcacaca), // Light gray
-                    ],
-          ),
+          color: theme.colorScheme.primary.withOpacity(0.9),
         ),
         child: Column(
           children: [
@@ -709,7 +677,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                         ? theme.colorScheme.onSecondary
                                         : theme.colorScheme.onPrimary,
                                 border: Border.all(
-                                  color: theme.colorScheme.surface,
+                                  color: theme.primaryColor,
                                 ),
                                 borderRadius: BorderRadius.circular(
                                   20.0,
@@ -803,70 +771,66 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             // Message input
             Container(
               padding: const EdgeInsets.all(16.0),
-              decoration: BoxDecoration(
-                color: theme.scaffoldBackgroundColor,
-                boxShadow: [
-                  BoxShadow(
-                    color: Colors.black.withOpacity(0.05),
-                    blurRadius: 10,
-                    offset: const Offset(0, -2),
-                  ),
-                ],
-              ),
+              
               child: Row(
                 children: [
                   Expanded(
-                    child: Container(
-                      child: TextField(
-                        controller: _messageController,
-                        style: theme.textTheme.bodyMedium,
-                        decoration: InputDecoration(
-                          filled: true,
-                          fillColor: theme.colorScheme.primary.withOpacity(0.3),
-                          hintText: 'Type a message...',
-                          hintStyle: TextStyle(color: Colors.grey.shade400),
-                          border: InputBorder.none,
-                          contentPadding: const EdgeInsets.symmetric(
-                            horizontal: 16.0,
-                            vertical: 12.0,
-                          ),
+                    child: TextField(
+                      controller: _messageController,
+                      style: theme.textTheme.bodyMedium,
+                      decoration: InputDecoration(
+                        enabledBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(32), 
+                          borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
                         ),
-                        minLines: 1,
-                        maxLines: 5,
-                        onSubmitted: (text) {
-                          if (!_isLoading) _sendMessage(text);
-                        },
-                      ),
-                    ),
-                  ),
-                  const SizedBox(width: 12.0),
-                  Material(
-                    color: theme.primaryColor,
-                    borderRadius: BorderRadius.circular(24.0),
-                    child: InkWell(
-                      borderRadius: BorderRadius.circular(24.0),
-                      onTap:
-                          _isLoading
-                              ? null
-                              : () => _sendMessage(_messageController.text),
-                      child: Container(
-                        padding: const EdgeInsets.all(12.0),
-                        child:
-                            _isLoading
-                                ? SizedBox(
-                                  width: 24,
-                                  height: 24,
-                                  child: CircularProgressIndicator(
-                                    color: Colors.white,
-                                    strokeWidth: 2,
-                                  ),
-                                )
-                                : Icon(
+                        filled: true,
+                        fillColor: Colors.transparent, // Make transparent since container has color
+                        hintText: 'Type a message...',
+                        hintStyle: TextStyle(color: Colors.grey.shade400),
+                        border: InputBorder.none,
+                        contentPadding: const EdgeInsets.symmetric(
+                          horizontal: 20.0, // Increased padding
+                          vertical: 14.0, // Increased padding
+                        ),
+                        suffixIcon: _isLoading 
+                          ? Padding(
+                              padding: const EdgeInsets.all(10.0),
+                              child: SizedBox(
+                                width: 20,
+                                height: 20,
+                                child: CircularProgressIndicator(
+                                  color: theme.primaryColor,
+                                  strokeWidth: 2,
+                                ),
+                              ),
+                            )
+                          : Container(
+                              margin: EdgeInsets.all(8.0),
+                              decoration: BoxDecoration(
+                                shape: BoxShape.circle,
+                    
+                                color: theme.primaryColor,
+                              ),
+                              
+                              child: IconButton(
+                                
+                                padding: EdgeInsets.zero,
+                                icon: Icon(
                                   Icons.send_rounded,
                                   color: theme.colorScheme.primary,
-                                  size: 18,
+                                  size: 24,
                                 ),
+                                onPressed: () {
+                                  if (!_isLoading) _sendMessage(_messageController.text);
+                                },
+                              ),
+                            ),
                       ),
+                      minLines: 1,
+                      maxLines: 5,
+                      onSubmitted: (text) {
+                        if (!_isLoading) _sendMessage(text);
+                      },
                     ),
                   ),
                 ],

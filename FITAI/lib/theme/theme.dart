@@ -190,7 +190,7 @@ final darktheme = ThemeData(
           background: const Color.fromARGB(255, 249, 250, 251),
           error: const Color.fromARGB(255, 252, 75, 5),
           onPrimary: const Color.fromARGB(255, 252, 252, 252),
-          onSecondary: const Color.fromARGB(255, 17, 24, 39),
+          onSecondary: const Color.fromARGB(255, 0, 0, 0),
           onSurface: const Color.fromARGB(255, 17, 24, 39),
           onBackground: const Color.fromARGB(255, 17, 24, 39),
           onError: const Color.fromARGB(255, 252, 252, 252),
