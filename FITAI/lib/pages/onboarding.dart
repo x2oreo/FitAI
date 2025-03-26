@@ -17,6 +17,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
   // Add this flag for loading state during initial check
   bool _isChecking = true;
 
+  // Add theme state variable
+  bool _isDarkMode = false;
+
   // Changed late variables to nullable types with default values to prevent null issues
   String selectedGoal = 'Lose Weight'; // Initialize with a default value
   String selectedUnitWeight = 'kg';
@@ -361,7 +364,18 @@ class _OnboardingPageState extends State<OnboardingPage> {
 
     // Show regular onboarding UI once the check is complete
     return Scaffold(
-      appBar: AppBar(title: Text('Onboarding')),
+      appBar: AppBar(
+        title: Text('Onboarding'),
+        actions: [
+          // Add theme toggle button
+          IconButton(
+            icon: Icon(_isDarkMode ? Icons.light_mode : Icons.dark_mode),
+            onPressed: _toggleTheme,
+            tooltip:
+                _isDarkMode ? 'Switch to Light Mode' : 'Switch to Dark Mode',
+          ),
+        ],
+      ),
       body: Padding(
         padding: const EdgeInsets.all(16.0),
         child: Column(
@@ -452,6 +466,15 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ),
       ),
     );
+  }
+
+  // Add method to toggle theme
+  void _toggleTheme() {
+    setState(() {
+      _isDarkMode = !_isDarkMode;
+      // Here you would typically use a theme provider to change the app theme
+      // For now, we're just toggling the state variable
+    });
   }
 
   // Method to return the current step widget
@@ -729,8 +752,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
         ),
         Row(
           children: [
+            // Reduce width slightly to prevent overflow
             SizedBox(
-              width: MediaQuery.of(context).size.width * 0.65,
+              width: MediaQuery.of(context).size.width * 0.6,
               child: TextField(
                 controller: _heightController,
                 keyboardType: TextInputType.number,
@@ -758,7 +782,10 @@ class _OnboardingPageState extends State<OnboardingPage> {
                 // Eliminate any border
                 border: Border.all(color: Colors.transparent),
               ),
-              padding: EdgeInsets.symmetric(horizontal: 8, vertical: 4),
+              padding: EdgeInsets.symmetric(
+                horizontal: 4,
+                vertical: 4,
+              ), // Reduced horizontal padding
               child: _buildUnitToggle(['cm', 'inches'], selectedUnitHeight, (
                 value,
               ) {
