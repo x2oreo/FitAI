@@ -322,17 +322,21 @@ class _ProfileScreenState extends State<ProfileScreen> {
             colors:
                 isDarkMode
                     ? [
-                      Color.fromARGB(255, 255, 64, 0), // Dark green
-                      Color.fromARGB(255, 200, 50, 0), // Dark green
-                      Color.fromARGB(255, 150, 25, 0), // Black
-                      Color.fromARGB(255, 1, 0, 0), // Black
-                      Color.fromARGB(255, 0, 0, 0), // Black
-                      Color.fromARGB(255, 0, 0, 0), // Black
-                      Color.fromARGB(255, 0, 0, 0), // Black
-                      Color.fromARGB(255, 0, 0, 0), // Black
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0), // Black
+                      Color(0xFF250050), // Dark purple
+                      Color(0xFF24004e), // Dark purple
+                      Color(0xFF210047), // Dark purple
+                      Color(0xFF1d0040), // Medium dark purple
+                      Color(0xFF1b003d), // Medium dark purple
+                      Color(0xFF190039), // Dark purple
+                      Color(0xFF170036), // Medium dark purple
+                      Color(0xFF160132), // Medium dark purple
+                      Color(0xFF14022d), // Dark purple/indigo
+                      Color(0xFF120327), // Very dark purple with hint of blue
+                      Color(0xFF110325), // Very dark purple
+                      Color(0xFF0e021d), // Very dark purple
+                      Color(0xFF090213), // Almost black with hint of purple
+                      Color(0xFF040109), // Almost black
+                      Color(0xFF000000), // Black 
                     ]
                     : [
                       Color(0xFF4bff60), // Bright green
@@ -346,9 +350,13 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Color(0xFFc0ebcf), // Light green/gray
                       Color(0xFFc7d4cc), // Green/gray
                       Color(0xFFcacbca), // Light gray
-                      Color(0xFFcacaca), // Light gray
+                      Color(0xFFcacaca),
                     ],
+                  stops: isDarkMode
+                    ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
+                    : null,
           ),
+          
         ),
         child: Stack(
           children: [

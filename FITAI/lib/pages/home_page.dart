@@ -114,18 +114,21 @@ class _MyHomePageState extends State<MyHomePage> {
             colors:
                 isDarkMode
                     ? [
-                      Color.fromARGB(255, 0, 177, 0),    // Dark green
-                      Color.fromARGB(255, 0, 171, 0),    // Dark green
-                      Color.fromARGB(255, 0, 132, 0),    // Medium dark green
-                      Color.fromARGB(255, 0, 42, 0),     // Black
-                      Color.fromARGB(255, 0, 1, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
+                      Color(0xFF250050), // Dark purple
+                      Color(0xFF24004e), // Dark purple
+                      Color(0xFF210047), // Dark purple
+                      Color(0xFF1d0040), // Medium dark purple
+                      Color(0xFF1b003d), // Medium dark purple
+                      Color(0xFF190039), // Dark purple
+                      Color(0xFF170036), // Medium dark purple
+                      Color(0xFF160132), // Medium dark purple
+                      Color(0xFF14022d), // Dark purple/indigo
+                      Color(0xFF120327), // Very dark purple with hint of blue
+                      Color(0xFF110325), // Very dark purple
+                      Color(0xFF0e021d), // Very dark purple
+                      Color(0xFF090213), // Almost black with hint of purple
+                      Color(0xFF040109), // Almost black
+                      Color(0xFF000000), // Black 
                     ]
                     : [
                       Color(0xFF4bff60), // Bright green
@@ -141,6 +144,9 @@ class _MyHomePageState extends State<MyHomePage> {
                       Color(0xFFcacbca), // Light gray
                       Color(0xFFcacaca),
                     ],
+                  stops: isDarkMode
+                    ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
+                    : null,
           ),
         ),
         child: SingleChildScrollView(
@@ -171,7 +177,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           right: 10,
                           child: Icon(
                             Icons.format_quote,
-                            color: Colors.blue,
+                            color: Colors.deepPurpleAccent,
                             size: 30,
                           ),
                         ),
@@ -180,7 +186,7 @@ class _MyHomePageState extends State<MyHomePage> {
                           left: 10,
                           child: Icon(
                             Icons.format_quote,
-                            color: Colors.blue,
+                            color: Colors.deepPurple,
                             size: 30,
                           ),
                         ),
@@ -200,7 +206,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 Text(
                                   'Quote',
                                   style: theme.textTheme.bodyLarge?.copyWith(
-                                    color: Colors.blue,
+                                    color: Colors.deepPurple,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),

@@ -219,18 +219,21 @@ class _ChatPageState extends State<ChatPage> {
             colors:
                 isDarkMode
                     ? [
-                      Color.fromARGB(255, 0, 177, 0),    // Dark green
-                      Color.fromARGB(255, 0, 171, 0),    // Dark green
-                      Color.fromARGB(255, 0, 132, 0),    // Medium dark green
-                      Color.fromARGB(255, 0, 42, 0),     // Black
-                      Color.fromARGB(255, 0, 1, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),     // Black
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
-                      Color.fromARGB(255, 0, 0, 0),
+                      Color(0xFF250050), // Dark purple
+                      Color(0xFF24004e), // Dark purple
+                      Color(0xFF210047), // Dark purple
+                      Color(0xFF1d0040), // Medium dark purple
+                      Color(0xFF1b003d), // Medium dark purple
+                      Color(0xFF190039), // Dark purple
+                      Color(0xFF170036), // Medium dark purple
+                      Color(0xFF160132), // Medium dark purple
+                      Color(0xFF14022d), // Dark purple/indigo
+                      Color(0xFF120327), // Very dark purple with hint of blue
+                      Color(0xFF110325), // Very dark purple
+                      Color(0xFF0e021d), // Very dark purple
+                      Color(0xFF090213), // Almost black with hint of purple
+                      Color(0xFF040109), // Almost black
+                      Color(0xFF000000), // Black 
                     ]
                     : [
                       Color(0xFF4bff60), // Bright green
@@ -244,8 +247,11 @@ class _ChatPageState extends State<ChatPage> {
                       Color(0xFFc0ebcf), // Light green/gray
                       Color(0xFFc7d4cc), // Green/gray
                       Color(0xFFcacbca), // Light gray
-                      Color(0xFFcacaca), // Light gray
+                      Color(0xFFcacaca),
                     ],
+                  stops: isDarkMode
+                    ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
+                    : null,
           ),
         ),
         child: Column(
@@ -258,7 +264,7 @@ class _ChatPageState extends State<ChatPage> {
             child: ElevatedButton(
               onPressed: _isLoading ? null : _createEmptyChat,
               style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary.withOpacity(0.5),
+                backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
                 
                 minimumSize: const Size(460, 56),
                 shape: RoundedRectangleBorder(
@@ -365,10 +371,10 @@ class _ChatPageState extends State<ChatPage> {
                     return Card(
                       elevation: 0,
 
-                      color: theme.colorScheme.primary.withOpacity(0.5),
+                      color: theme.colorScheme.primary.withOpacity(0.9),
                       shape: RoundedRectangleBorder(
                         borderRadius: BorderRadius.circular(24),
-                        side: BorderSide(color: Colors.black),
+                        
                       ),
                       child: ListTile(
                         contentPadding: const EdgeInsets.symmetric(
@@ -574,7 +580,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.primary.withOpacity(0.9),
+          color: theme.colorScheme.onSurface.withOpacity(0.9),
         ),
         child: Column(
           children: [
@@ -676,9 +682,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                     isUser
                                         ? theme.colorScheme.onSecondary
                                         : theme.colorScheme.onPrimary,
-                                border: Border.all(
-                                  color: theme.primaryColor,
-                                ),
+                                
                                 borderRadius: BorderRadius.circular(
                                   20.0,
                                 ).copyWith(
@@ -780,13 +784,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       style: theme.textTheme.bodyMedium,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(32), 
+                          borderRadius: BorderRadius.circular(36), 
                           borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
                         ),
                         filled: true,
-                        fillColor: Colors.transparent, // Make transparent since container has color
+                        fillColor: const Color.fromARGB(255, 255, 255, 255), // Make transparent since container has color
                         hintText: 'Type a message...',
-                        hintStyle: TextStyle(color: Colors.grey.shade400),
+                        hintStyle: TextStyle(color: const Color.fromARGB(255, 97, 97, 97)),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20.0, // Increased padding
@@ -809,7 +813,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                               decoration: BoxDecoration(
                                 shape: BoxShape.circle,
                     
-                                color: theme.primaryColor,
+                                color: theme.colorScheme.onSecondary,
                               ),
                               
                               child: IconButton(
@@ -817,7 +821,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                 padding: EdgeInsets.zero,
                                 icon: Icon(
                                   Icons.send_rounded,
-                                  color: theme.colorScheme.primary,
+                                  color: Colors.white,
                                   size: 24,
                                 ),
                                 onPressed: () {
