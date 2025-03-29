@@ -58,14 +58,14 @@ final lightTheme = ThemeData(
           error: const Color.fromARGB(255, 252, 75, 5),
           onPrimary: const Color.fromARGB(255, 252, 252, 252),
           onSecondary: const Color.fromARGB(255, 78, 127, 234),
-          onSurface: const Color.fromARGB(255, 168, 255, 176),
+          onSurface: const Color.fromARGB(255, 187, 187, 187),
           onBackground: const Color.fromARGB(255, 17, 24, 39),
           onError: const Color.fromARGB(255, 252, 252, 252),
           brightness: Brightness.light,
         ),
 
         scaffoldBackgroundColor: const Color.fromARGB(255, 249, 250, 251),
-        primaryColor: const Color.fromARGB(255, 34, 238, 126),
+        primaryColor: Color(0xFF6f6f6f),
         hintColor: const Color.fromARGB(255, 58, 121, 255),
         
         dividerColor: const Color.fromARGB(255, 17, 24, 39).withOpacity(0.1),
@@ -133,7 +133,8 @@ final lightTheme = ThemeData(
             ),
             prefixIconColor: const Color.fromARGB(255, 17, 24, 39).withOpacity(0.7),
             suffixIconColor: const Color.fromARGB(255, 17, 24, 39).withOpacity(0.7),
-            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12), enabledBorder: OutlineInputBorder(
+            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12), 
+                enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: const Color.fromARGB(255, 0, 0, 0)),
                 ),
@@ -293,12 +294,8 @@ final darktheme = ThemeData(
             iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
             shape: MaterialStateProperty.all(
               RoundedRectangleBorder(
-                side: BorderSide(
-                  color: Colors.white,
-                  
-                  width: 0.5,
-                ),
-                borderRadius: BorderRadius.circular(12),
+                
+                borderRadius: BorderRadius.circular(20),
               ),
             ),
             textStyle: MaterialStateProperty.all(

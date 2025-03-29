@@ -339,18 +339,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Color(0xFF000000), // Black 
                     ]
                     : [
-                      Color(0xFF4bff60), // Bright green
-                      Color(0xFF4eff64), // Bright green
-                      Color(0xFF60ff7f), // Light green
-                      Color(0xFF8fffb1), // Pastel green
-                      Color(0xFFaeffcc), // Very light green
-                      Color(0xFFb7ffd2), // Very light green
-                      Color(0xFFb7ffd2), // Very light green
-                      Color(0xFFb9fbd1), // Very light green/gray
-                      Color(0xFFc0ebcf), // Light green/gray
-                      Color(0xFFc7d4cc), // Green/gray
-                      Color(0xFFcacbca), // Light gray
-                      Color(0xFFcacaca),
+                      Color.fromARGB(255, 214, 214, 214), // White
+                      Color.fromARGB(255, 221, 221, 221), // Very light gray
+                      Color.fromARGB(255, 202, 202, 202), // Light gray
+                      Color(0xFFcbcbcb), // Light/medium gray
+                      Color(0xFFb6b6b6), // Medium gray
+                      Color(0xFF9e9e9e), // Medium gray
+                      Color(0xFF868686), // Darker medium gray
+                      Color(0xFF6f6f6f),
                     ],
                   stops: isDarkMode
                     ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]

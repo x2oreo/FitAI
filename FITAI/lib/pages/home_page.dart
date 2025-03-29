@@ -104,49 +104,50 @@ class _MyHomePageState extends State<MyHomePage> {
   Widget build(BuildContext context) {
     var isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
     final theme = Theme.of(context);
+    final screenHeight = MediaQuery.of(context).size.height;
 
     return Scaffold(
+      backgroundColor: Colors.transparent,
+      extendBody: true,
       body: Container(
+        constraints: BoxConstraints(
+          minHeight: screenHeight,
+        ),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors:
-                isDarkMode
-                    ? [
-                      Color(0xFF250050), // Dark purple
-                      Color(0xFF24004e), // Dark purple
-                      Color(0xFF210047), // Dark purple
-                      Color(0xFF1d0040), // Medium dark purple
-                      Color(0xFF1b003d), // Medium dark purple
-                      Color(0xFF190039), // Dark purple
-                      Color(0xFF170036), // Medium dark purple
-                      Color(0xFF160132), // Medium dark purple
-                      Color(0xFF14022d), // Dark purple/indigo
-                      Color(0xFF120327), // Very dark purple with hint of blue
-                      Color(0xFF110325), // Very dark purple
-                      Color(0xFF0e021d), // Very dark purple
-                      Color(0xFF090213), // Almost black with hint of purple
-                      Color(0xFF040109), // Almost black
-                      Color(0xFF000000), // Black 
-                    ]
-                    : [
-                      Color(0xFF4bff60), // Bright green
-                      Color(0xFF4eff64), // Bright green
-                      Color(0xFF60ff7f), // Light green
-                      Color(0xFF8fffb1), // Pastel green
-                      Color(0xFFaeffcc), // Very light green
-                      Color(0xFFb7ffd2), // Very light green
-                      Color(0xFFb7ffd2), // Very light green
-                      Color(0xFFb9fbd1), // Very light green/gray
-                      Color(0xFFc0ebcf), // Light green/gray
-                      Color(0xFFc7d4cc), // Green/gray
-                      Color(0xFFcacbca), // Light gray
-                      Color(0xFFcacaca),
-                    ],
-                  stops: isDarkMode
-                    ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
-                    : null,
+            colors: isDarkMode
+                ? [
+                    Color(0xFF250050), // Dark purple
+                    Color(0xFF24004e), // Dark purple
+                    Color(0xFF210047), // Dark purple
+                    Color(0xFF1d0040), // Medium dark purple
+                    Color(0xFF1b003d), // Medium dark purple
+                    Color(0xFF190039), // Dark purple
+                    Color(0xFF170036), // Medium dark purple
+                    Color(0xFF160132), // Medium dark purple
+                    Color(0xFF14022d), // Dark purple/indigo
+                    Color(0xFF120327), // Very dark purple with hint of blue
+                    Color(0xFF110325), // Very dark purple
+                    Color(0xFF0e021d), // Very dark purple
+                    Color(0xFF090213), // Almost black with hint of purple
+                    Color(0xFF040109), // Almost black
+                    Color(0xFF000000), // Black 
+                  ]
+                : [
+                    Color(0xFFffffff), // White
+                    Color(0xFFeeeeee), // Very light gray
+                    Color(0xFFdcdcdc), // Light gray
+                    Color(0xFFcbcbcb), // Light/medium gray
+                    Color(0xFFb6b6b6), // Medium gray
+                    Color(0xFF9e9e9e), // Medium gray
+                    Color(0xFF868686), // Darker medium gray
+                    Color(0xFF6f6f6f), // Dark gray
+                  ],
+            stops: isDarkMode
+                ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
+                : [0.0, 0.14, 0.28, 0.42, 0.56, 0.7, 0.85, 1.0],
           ),
         ),
         child: SingleChildScrollView(
@@ -344,118 +345,199 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 SizedBox(height: 16),
 
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                        builder: (context) => const WorkoutPage(),
+                // Workout and meal containers in a row
+                Row(
+                  children: [
+                    // Workout container
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const WorkoutPage()),
+                          );
+                        },
+                        child: Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: theme.colorScheme.primary.withOpacity(0.9),
+                          ),
+                          child: Stack(
+                            children: [
+                              Positioned(
+                                top: 8,
+                                left: 20,
+                                child: Row(
+                                  children: [
+                                    Icon(
+                                      Icons.fitness_center,
+                                      color: theme.hintColor,
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      'Workout',
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: theme.hintColor,
+                                      ),
+                                    ),
+                                  ],
+                                ),
+                              ),
+                              Positioned(
+                                top: 40,
+                                left: 55,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Day $_currentDayNum',
+                                      style: theme.textTheme.bodyLarge,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 4),
+                                    
+                                  ],
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
                       ),
-                    );
-                  },
-                  
-                  
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    
-                    decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: theme.colorScheme.primary.withOpacity(0.9),
-                    
                     ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Row(
+                    
+                    SizedBox(width: 16), // Space between containers
+                    
+                    // Meal container
+                    Expanded(
+                      child: InkWell(
+                        onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const MealPage()),
+                          );
+                        },
+                        child: Container(
+                          height: 120,
+                          decoration: BoxDecoration(
+                            borderRadius: BorderRadius.circular(16),
+                            color: theme.colorScheme.primary.withOpacity(0.9),
+                          ),
+                          child: Stack(
                             children: [
-                              Icon(
-                                Icons.fitness_center,
-                                color: theme.hintColor,
-                                size: 20,
+                              Positioned(
+                                top: 8,
+                                left: 40,
+                                child: Row(
+                                  children: [
+                                    
+                                    Icon(
+                                      Icons.restaurant,
+                                      color: const Color.fromARGB(255, 58, 196, 129),
+                                      size: 20,
+                                    ),
+                                    SizedBox(width: 4),
+                                    Text(
+                                      
+                                      'Meal',
+                                      style: theme.textTheme.bodyLarge?.copyWith(
+                                        color: const Color.fromARGB(255, 58, 196, 129),
+                                      ),
+                                    ),
+                                  ],
+                                ),
                               ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Workout',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: theme.hintColor,
+                              Positioned(
+                                top: 40,
+                                left: 55,
+                                child: Column(
+                                  mainAxisAlignment: MainAxisAlignment.center,
+                                  children: [
+                                    Text(
+                                      'Day $_currentDayNum',
+                                      style: theme.textTheme.bodyLarge,
+                                      textAlign: TextAlign.center,
+                                    ),
+                                    SizedBox(height: 4),
+                                    
+                                  ],
                                 ),
                               ),
                             ],
                           ),
                         ),
-                        Center(
-                          child: Text(
-                            'Workout Routine',
-                            style: theme.textTheme.bodyMedium
-                              ?.copyWith(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,                                          
-                              ),
+                      ),
+                    ),
+                  ],
+                ),
+
+                SizedBox(height: 16),
+
+                Container(
+                  decoration: BoxDecoration(
+                    borderRadius: BorderRadius.circular(16),
+                    color: theme.colorScheme.primary.withOpacity(0.9),
+                    
+                  ),
+                  padding: const EdgeInsets.all(2),
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    
+                    child: Stack(
+                      children: [
+                        
+                        Positioned(
+                          top: 8,
+                          left: 8,
+                          child: Container(
+                            padding: const EdgeInsets.symmetric(
+                              horizontal: 8,
+                              vertical: 4,
+                            ),
+                            
+                            child: Row(
+                              children: [
+                                Icon(
+                                  Icons.book,
+                                  color: theme.colorScheme.secondary,
+                                  size: 20,
+                                ),
+                                SizedBox(width: 4),
+                                Text(
+                                  'Journal',
+                                  style: theme.textTheme.bodyLarge?.copyWith(
+                                    color: theme.colorScheme.secondary,
+                                    fontWeight: FontWeight.bold,
+                                  ),
+                                ),
+                              ],
+                            ),
+                          ),
+                        ),
+                        Align(
+                          alignment: Alignment.center,
+                          child: Padding(
+                            padding: const EdgeInsets.fromLTRB(
+                              16.0,
+                              40.0,
+                              16.0,
+                              8.0,
+                            ),
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              crossAxisAlignment: CrossAxisAlignment.start,
+                              children: [
+                                
+                              ],
+                            ),
                           ),
                         ),
                       ],
                     ),
                   ),
                 ),
-
-                SizedBox(height: 16),
-
-                InkWell(
-                  onTap: () {
-                    Navigator.push(
-                      context,
-                      MaterialPageRoute(builder: (context) => const MealPage()),
-                    );
-                  },
-                  borderRadius: BorderRadius.circular(16),
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    
-                    decoration: BoxDecoration(
-                    borderRadius: BorderRadius.circular(16),
-                    color: theme.colorScheme.primary.withOpacity(0.9),
-                    ),
-                    child: Stack(
-                      children: [
-                        Positioned(
-                          top: 8,
-                          left: 8,
-                          child: Row(
-                            children: [
-                              Icon(
-                                Icons.restaurant,
-                                color: Colors.greenAccent,
-                                size: 20,
-                              ),
-                              SizedBox(width: 4),
-                              Text(
-                                'Meal',
-                                style: theme.textTheme.bodyLarge?.copyWith(
-                                  color: Colors.greenAccent,
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
-                        Center(
-                          child: Text(
-                            'Meal Plan',
-                            style: theme.textTheme.bodyMedium
-                              ?.copyWith(
-                                fontSize: 28,
-                                fontWeight: FontWeight.bold,                                          
-                              ),
-                          ),
-                        ),
-                      ],
-                    ),
-                  ),
-                ),
-                SizedBox(height: 16),
               ],
             ),
           ),
