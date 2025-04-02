@@ -2,8 +2,10 @@ import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
+import 'package:hk11/theme/theme_provider.dart';
 import 'package:hk11/utils/calendar.dart';
 import 'package:http/http.dart' as http;
+import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:math';
 import '../config/api_config.dart';
@@ -298,54 +300,29 @@ class _WorkoutPageState extends State<WorkoutPage> {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    final isDarkMode = theme.brightness == Brightness.dark;
+    var isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
-    // Define better colors for dark mode
-    final backgroundColor =
-        isDarkMode
-            ? Color(0xFF1E1E2C) // Dark blue-gray for dark mode
-            : theme.colorScheme.primary.withOpacity(0.05);
-
-    final cardColor =
-        isDarkMode
-            ? Color.fromARGB(
-              255,
-              120,
-              120,
-              172,
-            ) // Slightly lighter than background for dark mode
-            : Color.fromARGB(255, 0, 0, 63); // Light blue-gray for light mode
 
     // Define more visible accent colors
-    final accentColor =
-        isDarkMode
-            ? Color(0xFF85A5FF) // Vibrant blue for dark mode
-            : Color(
-              0xFF3D63B6,
-            ); // Deeper blue for light mode to ensure contrast with white text
+    final accentColor = Color(0xFF8A85FF);
+        // Deeper blue for light mode to ensure contrast with white text
 
-    // Text colors for better visibility
-    final whiteText = Colors.white;
-    final whiteTextWithOpacity = Colors.white.withOpacity(0.9);
-    final darkText = theme.textTheme.bodyLarge?.color ?? Colors.black87;
 
     return Scaffold(
       appBar: AppBar(
-        title: const Text('Weekly Workout Plan'),
+        title: const Text('Weekly Meal Plan'),
         elevation: 0,
+        backgroundColor: isDarkMode ? Color(0xFF250050) : Colors.white,
         centerTitle: true,
       ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors: [
-              isDarkMode
-                  ? Color(0xFF222237) // Deep blue-purple for dark mode
-                  : theme.colorScheme.primary.withOpacity(0.15),
-              backgroundColor,
-            ],
+            colors: isDarkMode
+                ? [Color(0xFF250050), Color.fromARGB(255, 0, 0, 0)]
+                : [Colors.white, const Color(0xFF6f6f6f)],
+            begin: Alignment.topLeft,
+            end: Alignment.bottomRight,
           ),
         ),
         child: Padding(
@@ -371,44 +348,14 @@ class _WorkoutPageState extends State<WorkoutPage> {
                         decoration: BoxDecoration(
                           color:
                               isSelected
-                                  ? (isDarkMode
-                                      ? accentColor
-                                      : Color(
-                                        0xFF3D63B6,
-                                      )) // Darker blue for light mode
+                                  ? (theme.colorScheme.onSecondary)
                                   : isDarkMode
                                   ? Color(
                                     0xFF35354A,
-                                  ) // Lighter shade for dark mode
+                                  ) 
                                   : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          boxShadow:
-                              isSelected
-                                  ? [
-                                    BoxShadow(
-                                      color: (isDarkMode
-                                              ? accentColor
-                                              : Color(0xFF3D63B6))
-                                          .withOpacity(0.6),
-                                      blurRadius: 8,
-                                      offset: Offset(0, 4),
-                                    ),
-                                  ]
-                                  : isDarkMode
-                                  ? [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.3),
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ]
-                                  : [
-                                    BoxShadow(
-                                      color: Colors.black.withOpacity(0.1),
-                                      blurRadius: 4,
-                                      offset: Offset(0, 2),
-                                    ),
-                                  ],
+                          
                           border:
                               !isSelected && !isDarkMode
                                   ? Border.all(
@@ -434,7 +381,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                       isSelected
                                           ? Colors.white
                                           : isDarkMode
-                                          ? whiteText // Changed to pure white
+                                          ? Colors.white.withOpacity(0.8)
                                           : Colors.black87,
                                   fontSize: 12,
                                   fontWeight: FontWeight.w600,
@@ -471,25 +418,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   width: double.infinity,
                   padding: const EdgeInsets.all(20.0),
                   decoration: BoxDecoration(
-                    color: cardColor,
+                    color: theme.colorScheme.primary.withOpacity(0.9),
                     borderRadius: BorderRadius.circular(24),
-                    border:
-                        isDarkMode
-                            ? Border.all(
-                              color: accentColor.withOpacity(0.3),
-                              width: 1.0,
-                            )
-                            : null,
-                    boxShadow: [
-                      BoxShadow(
-                        color:
-                            isDarkMode
-                                ? Colors.black.withOpacity(0.3)
-                                : Colors.black.withOpacity(0.05),
-                        blurRadius: isDarkMode ? 15 : 10,
-                        offset: Offset(0, 5),
-                      ),
-                    ],
                   ),
                   child:
                       _isLoading
@@ -504,7 +434,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   style: TextStyle(
                                     color:
                                         isDarkMode
-                                            ? whiteText // Changed to pure white
+                                            ? Colors.white.withOpacity(0.8)
                                             : theme.hintColor,
                                     fontWeight: FontWeight.w500,
                                   ),
@@ -531,7 +461,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   style: theme.textTheme.titleLarge?.copyWith(
                                     color:
                                         isDarkMode
-                                            ? whiteText // Changed to pure white
+                                            ? Colors.redAccent.shade200
                                             : theme.colorScheme.error,
                                     fontWeight: FontWeight.w600,
                                   ),
@@ -543,7 +473,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   style: TextStyle(
                                     color:
                                         isDarkMode
-                                            ? whiteText // Changed to pure white
+                                            ? Colors.white.withOpacity(0.8) // Changed to pure white
                                             : theme.textTheme.bodyMedium?.color,
                                     fontSize: 16,
                                   ),
@@ -603,8 +533,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color:
-                                          Colors
-                                              .white, // Always white regardless of theme
+                                          Colors.white, // Always white regardless of theme
                                     ),
                                   ),
                                 ],
@@ -613,9 +542,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 height: 32,
                                 color:
                                     isDarkMode
-                                        ? whiteText.withOpacity(
-                                          0.15,
-                                        ) // Changed to use whiteText with opacity
+                                        ? Colors.white.withOpacity(0.8)// Changed to use whiteText with opacity
                                         : theme.dividerColor,
                               ),
                               Expanded(
@@ -698,29 +625,13 @@ class _WorkoutPageState extends State<WorkoutPage> {
                 ),
               ),
 
-              // Add a generate button at the bottom
               if (!_isLoading)
                 Padding(
                   padding: const EdgeInsets.only(top: 24.0),
                   child: ElevatedButton(
                     onPressed:
                         _isGeneratingWorkoutPlan ? null : _generateWorkoutPlan,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56),
-                      backgroundColor:
-                          isDarkMode
-                              ? Color(0xFF64B5F6) // Vibrant blue for dark mode
-                              : Colors.blueAccent.shade400,
-                      foregroundColor: Colors.black87,
-                      elevation: 4,
-                      shadowColor:
-                          isDarkMode
-                              ? Color(0xFF64B5F6).withOpacity(0.6)
-                              : Colors.blueAccent.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                    
                     child:
                         _isGeneratingWorkoutPlan
                             ? Row(
@@ -747,7 +658,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.fitness_center, size: 22),
+                                Icon(Icons.fitness_center, size: 22, color: theme.colorScheme.secondary,),
                                 SizedBox(width: 12),
                                 Text(
                                   'Generate Personalized Workout',
@@ -763,26 +674,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
                 if (!_isLoading)
                 Padding(
-                  padding: const EdgeInsets.only(top: 24.0),
+                  padding: const EdgeInsets.only(top: 18.0),
                   child: ElevatedButton(
                     onPressed:
                         _isGeneratingWorkoutPlan ? null : _generateGoogleCalendar,
-                    style: ElevatedButton.styleFrom(
-                      minimumSize: Size(double.infinity, 56),
-                      backgroundColor:
-                          isDarkMode
-                              ? Color(0xFF64B5F6) // Vibrant blue for dark mode
-                              : Colors.blueAccent.shade400,
-                      foregroundColor: Colors.black87,
-                      elevation: 4,
-                      shadowColor:
-                          isDarkMode
-                              ? Color(0xFF64B5F6).withOpacity(0.6)
-                              : Colors.blueAccent.withOpacity(0.5),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(16),
-                      ),
-                    ),
+                    
                     child:
                         _isGeneratingGoogleCalendar
                             ? Row(
@@ -809,7 +705,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.calendar_month, size: 22),
+                                Icon(Icons.calendar_month, size: 22, color: theme.colorScheme.secondary,),
                                 SizedBox(width: 12),
                                 Text(
                                   'Fill Google Calendar',

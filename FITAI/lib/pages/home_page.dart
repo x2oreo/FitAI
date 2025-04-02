@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:hk11/pages/journal_page.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
@@ -372,21 +373,21 @@ class _MyHomePageState extends State<MyHomePage> {
                                   children: [
                                     Icon(
                                       Icons.fitness_center,
-                                      color: theme.hintColor,
+                                      color: theme.colorScheme.error,
                                       size: 20,
                                     ),
                                     SizedBox(width: 4),
                                     Text(
                                       'Workout',
                                       style: theme.textTheme.bodyLarge?.copyWith(
-                                        color: theme.hintColor,
+                                        color: theme.colorScheme.error,
                                       ),
                                     ),
                                   ],
                                 ),
                               ),
                               Positioned(
-                                top: 40,
+                                top: 45,
                                 left: 55,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -396,7 +397,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       style: theme.textTheme.bodyLarge,
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 4),
                                     
                                   ],
                                 ),
@@ -449,7 +449,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 ),
                               ),
                               Positioned(
-                                top: 40,
+                                top: 45,
                                 left: 55,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
@@ -459,7 +459,6 @@ class _MyHomePageState extends State<MyHomePage> {
                                       style: theme.textTheme.bodyLarge,
                                       textAlign: TextAlign.center,
                                     ),
-                                    SizedBox(height: 4),
                                     
                                   ],
                                 ),
@@ -474,17 +473,23 @@ class _MyHomePageState extends State<MyHomePage> {
 
                 SizedBox(height: 16),
 
-                Container(
-                  decoration: BoxDecoration(
+                InkWell(
+                  onTap: () {
+                          Navigator.push(
+                            context,
+                            MaterialPageRoute(builder: (context) => const JournalPage()),
+                          );
+                        },
+                  
+                  child: Container(
+                    height: 150,
+                    width: double.infinity,
+                    decoration: BoxDecoration(
                     borderRadius: BorderRadius.circular(16),
                     color: theme.colorScheme.primary.withOpacity(0.9),
                     
                   ),
                   padding: const EdgeInsets.all(2),
-                  child: Container(
-                    height: 150,
-                    width: double.infinity,
-                    
                     child: Stack(
                       children: [
                         
@@ -501,21 +506,39 @@ class _MyHomePageState extends State<MyHomePage> {
                               children: [
                                 Icon(
                                   Icons.book,
-                                  color: theme.colorScheme.secondary,
+                                  color: theme.hintColor,
                                   size: 20,
                                 ),
                                 SizedBox(width: 4),
                                 Text(
                                   'Journal',
                                   style: theme.textTheme.bodyLarge?.copyWith(
-                                    color: theme.colorScheme.secondary,
+                                    color: theme.hintColor,
                                     fontWeight: FontWeight.bold,
                                   ),
                                 ),
+                                
                               ],
+                              
                             ),
+                            
                           ),
                         ),
+                        Positioned(
+                          top: 60,
+                          left: 45,
+                            child: Column(
+                              mainAxisAlignment: MainAxisAlignment.center,
+                              children: [
+                                Text(
+                                  'What did you do today?',
+                                  style: theme.textTheme.bodyLarge,
+                                ),
+                                SizedBox(height: 4),
+                                    
+                                ],
+                                ),
+                              ),
                         Align(
                           alignment: Alignment.center,
                           child: Padding(
@@ -532,6 +555,7 @@ class _MyHomePageState extends State<MyHomePage> {
                                 
                               ],
                             ),
+                            
                           ),
                         ),
                       ],

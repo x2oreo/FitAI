@@ -313,7 +313,14 @@ class _ProfileScreenState extends State<ProfileScreen> {
     var isDarkMode = themeProvider.isDarkMode;
 
     return Scaffold(
-      extendBodyBehindAppBar: true, // Allows content to extend to the top
+      extendBodyBehindAppBar: true,
+      // appBar: AppBar(
+      //     backgroundColor: Colors.transparent,
+      //     elevation: 0,
+      //     actions: [
+            
+      //     ],
+      //   ),
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -356,6 +363,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
         child: Stack(
           children: [
+
             // Main content
             _isLoading
                 ? Center(
@@ -373,19 +381,33 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 )
                 : SafeArea(
                   child: SingleChildScrollView(
+                    
                     padding: EdgeInsets.fromLTRB(
                       16,
-                      60,
+                      10,
                       16,
                       16,
-                    ), // Extra top padding for the theme button
+                    ), 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        // Title text to replace AppBar title
-
-                        // Rest of the content remains the same
-                        // Profile picture with enhanced styling
+                        
+                        Row(
+                          mainAxisAlignment: MainAxisAlignment.end,
+                          children: [
+                            IconButton(
+                              icon: Icon(
+                                isDarkMode ? Icons.light_mode : Icons.dark_mode,
+                                color: theme.colorScheme.secondary,
+                              ),
+                              onPressed: () {
+                                themeProvider.toggleTheme();
+                              },
+                            ),
+                          ],
+                        ),
+                        
+                        
                         Stack(
                           children: [
                             Container(
@@ -690,28 +712,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-            // Theme toggle button positioned where the AppBar action would be
-            Positioned(
-              top: 40, // Adjust as needed
-              right: 16,
-              child: Container(
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: Colors.black.withOpacity(0.2),
-                ),
-                child: IconButton(
-                  icon: Icon(
-                    themeProvider.isDarkMode
-                        ? Icons.light_mode
-                        : Icons.dark_mode,
-                    color: Colors.white,
-                  ),
-                  onPressed: () {
-                    themeProvider.toggleTheme();
-                  },
-                ),
-              ),
-            ),
+            
           ],
         ),
       ),
