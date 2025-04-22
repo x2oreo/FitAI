@@ -135,7 +135,7 @@ class _MealPageState extends State<MealPage> {
       }
 
       // Prepare user info for the API request
-      List<String> userInfo = [
+      List<String> userInfoList = [
         "Activity Level - ${userData['activity_level'] ?? 'N/A'}",
         "Age - ${userData['age'] ?? 'N/A'}",
         "Dietary Preferences - ${selectedDiets.join(', ')}",
@@ -145,15 +145,17 @@ class _MealPageState extends State<MealPage> {
         "Monthly Budget - ${userData['monthly_budget'] ?? 'N/A'}",
       ];
 
+      String userInfo = userInfoList.join('\n');
+
       // Make API request with detailed logging
       print('Making API request to generate diet plan...');
       var response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}generate-plan'),
+        Uri.parse('${ApiConfig.baseUrl}/generatePlanV2'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'variant': 'diet',
           'userInfo': userInfo,
-          'pastExperiences': userData['lastWeekExperience'] ?? '',
+          'pastExperiences': "the user has no past experiences",
         }),
       );
 
@@ -165,6 +167,13 @@ class _MealPageState extends State<MealPage> {
           // Parse the JSON response
           Map<String, dynamic> dietPlanResponse = jsonDecode(response.body);
           print('Successfully parsed API response to JSON');
+
+          // Check if the response contains a "plan" key
+          if (dietPlanResponse.containsKey('plan')) {
+            // Extract the diet plan from the "plan" key
+            dietPlanResponse = dietPlanResponse['plan'];
+            print('Diet plan extracted from "plan" key');
+          }
 
           // Log the structure
           print('Diet plan keys: ${dietPlanResponse.keys.join(', ')}');
@@ -294,11 +303,9 @@ class _MealPageState extends State<MealPage> {
     final theme = Theme.of(context);
     var isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
-
     // Define more visible accent colors
     final accentColor = Color(0xFF8A85FF);
-        // Deeper blue for light mode to ensure contrast with white text
-
+    // Deeper blue for light mode to ensure contrast with white text
 
     return Scaffold(
       appBar: AppBar(
@@ -310,9 +317,10 @@ class _MealPageState extends State<MealPage> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isDarkMode
-                ? [Color(0xFF250050), Color.fromARGB(255, 0, 0, 0)]
-                : [Colors.white, const Color(0xFF6f6f6f)],
+            colors:
+                isDarkMode
+                    ? [Color(0xFF250050), Color.fromARGB(255, 0, 0, 0)]
+                    : [Colors.white, const Color(0xFF6f6f6f)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -342,12 +350,10 @@ class _MealPageState extends State<MealPage> {
                               isSelected
                                   ? (theme.colorScheme.onSecondary)
                                   : isDarkMode
-                                  ? Color(
-                                    0xFF35354A,
-                                  ) 
+                                  ? Color(0xFF35354A)
                                   : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          
+
                           border:
                               !isSelected && !isDarkMode
                                   ? Border.all(
@@ -490,7 +496,6 @@ class _MealPageState extends State<MealPage> {
                                               ? accentColor
                                               : Color(0xFF3D63B6),
                                       borderRadius: BorderRadius.circular(12),
-                                      
                                     ),
                                     child: Text(
                                       'DAY ${_selectedDay}',
@@ -507,7 +512,8 @@ class _MealPageState extends State<MealPage> {
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color:
-                                          Colors.white, // Always white regardless of theme
+                                          Colors
+                                              .white, // Always white regardless of theme
                                     ),
                                   ),
                                 ],
@@ -606,7 +612,7 @@ class _MealPageState extends State<MealPage> {
                   padding: const EdgeInsets.only(top: 24.0),
                   child: ElevatedButton(
                     onPressed: _isGeneratingPlan ? null : _generateDietPlan,
-                    
+
                     child:
                         _isGeneratingPlan
                             ? Row(
@@ -633,8 +639,12 @@ class _MealPageState extends State<MealPage> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.restaurant_menu, size: 22, color: theme.colorScheme.secondary,),
-                                
+                                Icon(
+                                  Icons.restaurant_menu,
+                                  size: 22,
+                                  color: theme.colorScheme.secondary,
+                                ),
+
                                 SizedBox(width: 12),
                                 Text(
                                   'Generate Personalized Diet Plan',

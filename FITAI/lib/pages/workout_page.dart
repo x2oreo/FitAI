@@ -128,23 +128,24 @@ class _WorkoutPageState extends State<WorkoutPage> {
       Map<String, dynamic> userData = doc.data() as Map<String, dynamic>;
 
       // Prepare user info for the API request
-      List<String> userInfo = [
+      List<String> userInfoList = [
         "Activity Level - ${userData['activity_level'] ?? 'N/A'}",
         "Age - ${userData['age'] ?? 'N/A'}",
         "Gender - ${userData['gender'] ?? 'N/A'}",
         "Goal - ${userData['goal'] ?? 'N/A'}",
         "Workout Time - ${userData['workout_time_weekly'] ?? 'N/A'}",
       ];
+      String userInfo = userInfoList.join('\n');
 
       // Make API request with detailed logging
       print('Making API request to generate workout plan...');
       var response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}generate-plan'),
+        Uri.parse('${ApiConfig.baseUrl}/generatePlanV2'),
         headers: {'Content-Type': 'application/json'},
         body: jsonEncode({
           'variant': 'workout',
           'userInfo': userInfo,
-          'pastExperiences': userData['lastWeekExperience'] ?? '',
+          'pastExperiences': "the user has no past experiences",
         }),
       );
 
@@ -160,41 +161,57 @@ class _WorkoutPageState extends State<WorkoutPage> {
           // Log the structure
           print('Workout plan keys: ${workoutPlanResponse.keys.join(', ')}');
 
-          // Check if we have the expected structure (day1, day2, etc.)
-          if (workoutPlanResponse.containsKey('day1')) {
-            // Save the data directly to maintain the structure
-            Map<String, dynamic> firestoreData = {
-              'createdAt': FieldValue.serverTimestamp(),
-            };
+          // Extract the workout plan from the nested "plan" object
+          if (workoutPlanResponse.containsKey('plan') &&
+              workoutPlanResponse['plan'] is Map<String, dynamic>) {
+            Map<String, dynamic> plan =
+                workoutPlanResponse['plan'] as Map<String, dynamic>;
 
-            // Add each day's plan to the data
-            for (String key in workoutPlanResponse.keys) {
-              firestoreData[key] = workoutPlanResponse[key];
+            // Check if we have the expected structure (day1, day2, etc.)
+            if (plan.containsKey('day1')) {
+              // Save the data directly to maintain the structure
+              Map<String, dynamic> firestoreData = {
+                'createdAt': FieldValue.serverTimestamp(),
+              };
+
+              // Add each day's plan to the data
+              for (String key in plan.keys) {
+                firestoreData[key] = plan[key];
+              }
+
+              print(
+                'Prepared workout plan data for Firestore: ${firestoreData.keys.join(', ')}',
+              );
+
+              // Store in Firestore
+              await _firestore
+                  .collection('users')
+                  .doc(userId)
+                  .collection('plans')
+                  .doc('workout')
+                  .set(firestoreData);
+
+              print('Successfully stored workout plan in Firestore');
+
+              // Show success message
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(content: Text('Workout plan generated successfully!')),
+              );
+
+              // Refresh the workout plan display
+              _fetchWorkoutPlan();
+            } else {
+              print('Unexpected workout plan structure. Missing day entries.');
+              ScaffoldMessenger.of(context).showSnackBar(
+                SnackBar(
+                  content: Text(
+                    'Generated plan has invalid structure. Please try again.',
+                  ),
+                ),
+              );
             }
-
-            print(
-              'Prepared workout plan data for Firestore: ${firestoreData.keys.join(', ')}',
-            );
-
-            // Store in Firestore
-            await _firestore
-                .collection('users')
-                .doc(userId)
-                .collection('plans')
-                .doc('workout')
-                .set(firestoreData);
-
-            print('Successfully stored workout plan in Firestore');
-
-            // Show success message
-            ScaffoldMessenger.of(context).showSnackBar(
-              SnackBar(content: Text('Workout plan generated successfully!')),
-            );
-
-            // Refresh the workout plan display
-            _fetchWorkoutPlan();
           } else {
-            print('Unexpected workout plan structure. Missing day entries.');
+            print('Workout plan does not contain a valid "plan" object.');
             ScaffoldMessenger.of(context).showSnackBar(
               SnackBar(
                 content: Text(
@@ -248,19 +265,18 @@ class _WorkoutPageState extends State<WorkoutPage> {
 
     for (int i = 1; i <= 7; i++) {
       await calendarClient.insert(
-          title: 'Workout - Day $i',
-          description: 'Workout planned by FitAI',
-          location: '',
-          attendeeEmailList: [],
-          shouldNotifyAttendees: false,
-          startTime: DateTime.now().add(Duration(days: i)),
-          endTime: DateTime.now().add(Duration(days: i, hours: 1)),
-        );
-      }
+        title: 'Workout - Day $i',
+        description: 'Workout planned by FitAI',
+        location: '',
+        attendeeEmailList: [],
+        shouldNotifyAttendees: false,
+        startTime: DateTime.now().add(Duration(days: i)),
+        endTime: DateTime.now().add(Duration(days: i, hours: 1)),
+      );
+    }
     setState(() {
       _isGeneratingGoogleCalendar = false;
     });
-
   }
 
   // Get workout info for the selected day
@@ -302,11 +318,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
     final theme = Theme.of(context);
     var isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
 
-
     // Define more visible accent colors
     final accentColor = Color(0xFF8A85FF);
-        // Deeper blue for light mode to ensure contrast with white text
-
+    // Deeper blue for light mode to ensure contrast with white text
 
     return Scaffold(
       appBar: AppBar(
@@ -318,9 +332,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
-            colors: isDarkMode
-                ? [Color(0xFF250050), Color.fromARGB(255, 0, 0, 0)]
-                : [Colors.white, const Color(0xFF6f6f6f)],
+            colors:
+                isDarkMode
+                    ? [Color(0xFF250050), Color.fromARGB(255, 0, 0, 0)]
+                    : [Colors.white, const Color(0xFF6f6f6f)],
             begin: Alignment.topLeft,
             end: Alignment.bottomRight,
           ),
@@ -350,12 +365,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
                               isSelected
                                   ? (theme.colorScheme.onSecondary)
                                   : isDarkMode
-                                  ? Color(
-                                    0xFF35354A,
-                                  ) 
+                                  ? Color(0xFF35354A)
                                   : Colors.white,
                           borderRadius: BorderRadius.circular(16),
-                          
+
                           border:
                               !isSelected && !isDarkMode
                                   ? Border.all(
@@ -473,7 +486,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                   style: TextStyle(
                                     color:
                                         isDarkMode
-                                            ? Colors.white.withOpacity(0.8) // Changed to pure white
+                                            ? Colors.white.withOpacity(
+                                              0.8,
+                                            ) // Changed to pure white
                                             : theme.textTheme.bodyMedium?.color,
                                     fontSize: 16,
                                   ),
@@ -533,7 +548,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color:
-                                          Colors.white, // Always white regardless of theme
+                                          Colors
+                                              .white, // Always white regardless of theme
                                     ),
                                   ),
                                 ],
@@ -542,7 +558,9 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 height: 32,
                                 color:
                                     isDarkMode
-                                        ? Colors.white.withOpacity(0.8)// Changed to use whiteText with opacity
+                                        ? Colors.white.withOpacity(
+                                          0.8,
+                                        ) // Changed to use whiteText with opacity
                                         : theme.dividerColor,
                               ),
                               Expanded(
@@ -631,7 +649,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   child: ElevatedButton(
                     onPressed:
                         _isGeneratingWorkoutPlan ? null : _generateWorkoutPlan,
-                    
+
                     child:
                         _isGeneratingWorkoutPlan
                             ? Row(
@@ -658,7 +676,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.fitness_center, size: 22, color: theme.colorScheme.secondary,),
+                                Icon(
+                                  Icons.fitness_center,
+                                  size: 22,
+                                  color: theme.colorScheme.secondary,
+                                ),
                                 SizedBox(width: 12),
                                 Text(
                                   'Generate Personalized Workout',
@@ -672,13 +694,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                   ),
                 ),
 
-                if (!_isLoading)
+              if (!_isLoading)
                 Padding(
                   padding: const EdgeInsets.only(top: 18.0),
                   child: ElevatedButton(
                     onPressed:
-                        _isGeneratingWorkoutPlan ? null : _generateGoogleCalendar,
-                    
+                        _isGeneratingWorkoutPlan
+                            ? null
+                            : _generateGoogleCalendar,
+
                     child:
                         _isGeneratingGoogleCalendar
                             ? Row(
@@ -705,7 +729,11 @@ class _WorkoutPageState extends State<WorkoutPage> {
                             : Row(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
-                                Icon(Icons.calendar_month, size: 22, color: theme.colorScheme.secondary,),
+                                Icon(
+                                  Icons.calendar_month,
+                                  size: 22,
+                                  color: theme.colorScheme.secondary,
+                                ),
                                 SizedBox(width: 12),
                                 Text(
                                   'Fill Google Calendar',

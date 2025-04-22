@@ -128,7 +128,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}process-query'),
+        Uri.parse('${ApiConfig.baseUrl}/processQueryV2'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
@@ -209,8 +209,9 @@ class _ChatPageState extends State<ChatPage> {
     var isDarkMode = provider.Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
-      extendBodyBehindAppBar: true,  // This allows the gradient to extend behind the app bar
-      
+      extendBodyBehindAppBar:
+          true, // This allows the gradient to extend behind the app bar
+
       body: Container(
         decoration: BoxDecoration(
           gradient: LinearGradient(
@@ -233,175 +234,195 @@ class _ChatPageState extends State<ChatPage> {
                       Color(0xFF0e021d), // Very dark purple
                       Color(0xFF090213), // Almost black with hint of purple
                       Color(0xFF040109), // Almost black
-                      Color(0xFF000000), // Black 
+                      Color(0xFF000000), // Black
                     ]
                     : [
                       Color.fromARGB(255, 214, 214, 214), // White
                       Color.fromARGB(255, 221, 221, 221), // Very light gray
-                        Color.fromARGB(255, 202, 202, 202), // Light gray
-                        Color(0xFFcbcbcb), // Light/medium gray
-                        Color(0xFFb6b6b6), // Medium gray
-                        Color(0xFF9e9e9e), // Medium gray
-                        Color(0xFF868686), // Darker medium gray
-                        Color(0xFF6f6f6f),
+                      Color.fromARGB(255, 202, 202, 202), // Light gray
+                      Color(0xFFcbcbcb), // Light/medium gray
+                      Color(0xFFb6b6b6), // Medium gray
+                      Color(0xFF9e9e9e), // Medium gray
+                      Color(0xFF868686), // Darker medium gray
+                      Color(0xFF6f6f6f),
                     ],
-                  stops: isDarkMode
-                    ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
+            stops:
+                isDarkMode
+                    ? [
+                      0.0,
+                      0.07,
+                      0.14,
+                      0.21,
+                      0.28,
+                      0.35,
+                      0.42,
+                      0.49,
+                      0.56,
+                      0.63,
+                      0.7,
+                      0.77,
+                      0.84,
+                      0.92,
+                      1.0,
+                    ]
                     : null,
           ),
         ),
         child: Column(
-        
-        children: [
-          SizedBox(height: MediaQuery.of(context).padding.top),
-          // Replace button action to create empty chat directly
-          Padding(
-            padding: const EdgeInsets.all(16.0),
-            child: ElevatedButton(
-              onPressed: _isLoading ? null : _createEmptyChat,
-              style: ElevatedButton.styleFrom(
-                backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
-                
-                minimumSize: const Size(460, 56),
-                shape: RoundedRectangleBorder(
-                  borderRadius: BorderRadius.circular(12),
-                  side: BorderSide(color: theme.colorScheme.primary, width: 1),
+          children: [
+            SizedBox(height: MediaQuery.of(context).padding.top),
+            // Replace button action to create empty chat directly
+            Padding(
+              padding: const EdgeInsets.all(16.0),
+              child: ElevatedButton(
+                onPressed: _isLoading ? null : _createEmptyChat,
+                style: ElevatedButton.styleFrom(
+                  backgroundColor: theme.colorScheme.primary.withOpacity(0.8),
+
+                  minimumSize: const Size(460, 56),
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(12),
+                    side: BorderSide(
+                      color: theme.colorScheme.primary,
+                      width: 1,
+                    ),
+                  ),
+                  elevation: 0,
                 ),
-                elevation: 0,
-                
-              ),
-              child:
-                  _isLoading
-                      ? SizedBox(
-                        width: 24,
-                        height: 24,
-                        child: CircularProgressIndicator(
-                          strokeWidth: 2,
-                          color: theme.colorScheme.secondary,
+                child:
+                    _isLoading
+                        ? SizedBox(
+                          width: 24,
+                          height: 24,
+                          child: CircularProgressIndicator(
+                            strokeWidth: 2,
+                            color: theme.colorScheme.secondary,
+                          ),
+                        )
+                        : Row(
+                          mainAxisSize: MainAxisSize.min,
+                          children: [
+                            Icon(
+                              Icons.add_circle_outline,
+                              color: theme.colorScheme.secondary,
+                            ),
+                            const SizedBox(width: 12),
+                            Text(
+                              'Start a new chat',
+                              style: theme.textTheme.bodyMedium,
+                            ),
+                          ],
                         ),
-                        
-                      )
-                      : Row(
+              ),
+            ),
+
+            // Chat history
+            Expanded(
+              child: StreamBuilder<QuerySnapshot>(
+                stream:
+                    _firestore
+                        .collection('chats')
+                        .doc(currentUserId)
+                        .collection('chats')
+                        .orderBy('lastVisited', descending: true)
+                        .snapshots(),
+                builder: (context, snapshot) {
+                  if (snapshot.hasError) {
+                    return Center(child: Text('Error: ${snapshot.error}'));
+                  }
+
+                  if (snapshot.connectionState == ConnectionState.waiting) {
+                    return const Center(child: CircularProgressIndicator());
+                  }
+
+                  if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
+                    return Center(
+                      child: Column(
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Icon(
-                            Icons.add_circle_outline,
-                            color: theme.colorScheme.secondary,
+                            Icons.chat_bubble_outline,
+                            size: 80,
+                            color: Theme.of(
+                              context,
+                            ).colorScheme.onSurface.withOpacity(0.2),
                           ),
-                          const SizedBox(width: 12),
+                          const SizedBox(height: 16),
                           Text(
-                            'Start a new chat',
+                            'No chats yet',
+                            style: theme.textTheme.bodyMedium?.copyWith(
+                              fontWeight: FontWeight.bold,
+                            ),
+                          ),
+                          const SizedBox(height: 8),
+                          Text(
+                            'Start a new conversation above!',
                             style: theme.textTheme.bodyMedium,
                           ),
                         ],
                       ),
-            ),
-          ),
-
-          // Chat history
-          Expanded(
-            child: StreamBuilder<QuerySnapshot>(
-              stream:
-                  _firestore
-                      .collection('chats')
-                      .doc(currentUserId)
-                      .collection('chats')
-                      .orderBy('lastVisited', descending: true)
-                      .snapshots(),
-              builder: (context, snapshot) {
-                if (snapshot.hasError) {
-                  return Center(child: Text('Error: ${snapshot.error}'));
-                }
-
-                if (snapshot.connectionState == ConnectionState.waiting) {
-                  return const Center(child: CircularProgressIndicator());
-                }
-
-                if (!snapshot.hasData || snapshot.data!.docs.isEmpty) {
-                  return Center(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        Icon(
-                          Icons.chat_bubble_outline,
-                          size: 80,
-                          color: Theme.of(
-                            context,
-                          ).colorScheme.onSurface.withOpacity(0.2),
-                        ),
-                        const SizedBox(height: 16),
-                        Text(
-                          'No chats yet',
-                          style: theme.textTheme.bodyMedium?.copyWith(
-                            fontWeight: FontWeight.bold,
-                          ),
-                        ),
-                        const SizedBox(height: 8),
-                        Text(
-                          'Start a new conversation above!',
-                          style: theme.textTheme.bodyMedium,
-                        ),
-                      ],
-                    ),
-                  );
-                }
-
-                return ListView.separated(
-                  padding: const EdgeInsets.all(16.0),
-                  itemCount: snapshot.data!.docs.length,
-                  separatorBuilder:
-                      (context, index) => const SizedBox(height: 8),
-                  itemBuilder: (context, index) {
-                    var chatDoc = snapshot.data!.docs[index];
-                    var chatData = chatDoc.data() as Map<String, dynamic>;
-                    var chatTitle = chatData['chatTitle'] ?? 'Untitled Chat';
-
-                    // Format timestamp if available
-                    String timeAgo = '';
-                    if (chatData['lastVisited'] != null) {
-                      var timestamp = chatData['lastVisited'] as Timestamp;
-                      var date = timestamp.toDate();
-                      timeAgo = DateFormat.yMMMd().add_jm().format(date);
-                    }
-
-                    return Card(
-                      elevation: 0,
-
-                      color: theme.colorScheme.primary.withOpacity(0.9),
-                      shape: RoundedRectangleBorder(
-                        borderRadius: BorderRadius.circular(24),
-                        
-                      ),
-                      child: ListTile(
-                        contentPadding: const EdgeInsets.symmetric(
-                          horizontal: 20,
-                          vertical: 16,
-                        ),
-                        title: Text(
-                          chatTitle,
-                          style: theme.textTheme.bodyLarge,
-                        ),
-                        subtitle: Text(
-                          timeAgo,
-                          style: theme.textTheme.bodySmall,
-                        ),
-                        trailing: Icon(
-                          Icons.arrow_forward_ios,
-                          size: 16,
-                          color: theme.colorScheme.secondary,
-                        ),
-                        onTap: () {
-                          _navigateToChatDetail(context, chatDoc.id, chatTitle);
-                        },
-                      ),
                     );
-                  },
-                );
-              },
+                  }
+
+                  return ListView.separated(
+                    padding: const EdgeInsets.all(16.0),
+                    itemCount: snapshot.data!.docs.length,
+                    separatorBuilder:
+                        (context, index) => const SizedBox(height: 8),
+                    itemBuilder: (context, index) {
+                      var chatDoc = snapshot.data!.docs[index];
+                      var chatData = chatDoc.data() as Map<String, dynamic>;
+                      var chatTitle = chatData['chatTitle'] ?? 'Untitled Chat';
+
+                      // Format timestamp if available
+                      String timeAgo = '';
+                      if (chatData['lastVisited'] != null) {
+                        var timestamp = chatData['lastVisited'] as Timestamp;
+                        var date = timestamp.toDate();
+                        timeAgo = DateFormat.yMMMd().add_jm().format(date);
+                      }
+
+                      return Card(
+                        elevation: 0,
+
+                        color: theme.colorScheme.primary.withOpacity(0.9),
+                        shape: RoundedRectangleBorder(
+                          borderRadius: BorderRadius.circular(24),
+                        ),
+                        child: ListTile(
+                          contentPadding: const EdgeInsets.symmetric(
+                            horizontal: 20,
+                            vertical: 16,
+                          ),
+                          title: Text(
+                            chatTitle,
+                            style: theme.textTheme.bodyLarge,
+                          ),
+                          subtitle: Text(
+                            timeAgo,
+                            style: theme.textTheme.bodySmall,
+                          ),
+                          trailing: Icon(
+                            Icons.arrow_forward_ios,
+                            size: 16,
+                            color: theme.colorScheme.secondary,
+                          ),
+                          onTap: () {
+                            _navigateToChatDetail(
+                              context,
+                              chatDoc.id,
+                              chatTitle,
+                            );
+                          },
+                        ),
+                      );
+                    },
+                  );
+                },
+              ),
             ),
-          ),
-        ],
-      ),
+          ],
+        ),
       ),
     );
   }
@@ -540,12 +561,13 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     try {
       // Call the processQuery function through the API endpoint we set up
       var response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}process-query'),
+        Uri.parse('${ApiConfig.baseUrl}/processQueryV2'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
-          'nameUser': FirebaseAuth.instance.currentUser?.displayName ?? 'User',
-          'userInfo': '',
+          'nameUser':
+              FirebaseAuth.instance.currentUser?.displayName ?? "friend",
+          'userInfo': "none",
         }),
       );
 
@@ -599,7 +621,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
                   if (snapshot.connectionState == ConnectionState.waiting) {
                     return Center(
-                      child: CircularProgressIndicator(color: theme.primaryColor),
+                      child: CircularProgressIndicator(
+                        color: theme.primaryColor,
+                      ),
                     );
                   }
 
@@ -641,7 +665,8 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                     itemCount: snapshot.data!.docs.length,
                     itemBuilder: (context, index) {
                       var messageDoc = snapshot.data!.docs[index];
-                      var messageData = messageDoc.data() as Map<String, dynamic>;
+                      var messageData =
+                          messageDoc.data() as Map<String, dynamic>;
                       var isUser = messageData['role'] == 'user';
                       var messageText = messageData['text'] ?? '';
 
@@ -655,7 +680,9 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
 
                       return Align(
                         alignment:
-                            isUser ? Alignment.centerRight : Alignment.centerLeft,
+                            isUser
+                                ? Alignment.centerRight
+                                : Alignment.centerLeft,
                         child: Column(
                           crossAxisAlignment:
                               isUser
@@ -678,7 +705,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                     isUser
                                         ? theme.colorScheme.onSecondary
                                         : theme.colorScheme.onPrimary,
-                                
+
                                 borderRadius: BorderRadius.circular(
                                   20.0,
                                 ).copyWith(
@@ -771,7 +798,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
             // Message input
             Container(
               padding: const EdgeInsets.all(16.0),
-              
+
               child: Row(
                 children: [
                   Expanded(
@@ -780,52 +807,62 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       style: theme.textTheme.bodyMedium,
                       decoration: InputDecoration(
                         enabledBorder: OutlineInputBorder(
-                          
-                          borderRadius: BorderRadius.circular(36), 
-                          borderSide: BorderSide(color: theme.colorScheme.secondary, width: 2),
+                          borderRadius: BorderRadius.circular(36),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.secondary,
+                            width: 2,
+                          ),
                         ),
                         filled: true,
-                        fillColor: const Color.fromARGB(255, 255, 255, 255), // Make transparent since container has color
+                        fillColor: const Color.fromARGB(
+                          255,
+                          255,
+                          255,
+                          255,
+                        ), // Make transparent since container has color
                         hintText: 'Type a message...',
-                        hintStyle: TextStyle(color: const Color.fromARGB(255, 97, 97, 97)),
+                        hintStyle: TextStyle(
+                          color: const Color.fromARGB(255, 97, 97, 97),
+                        ),
                         border: InputBorder.none,
                         contentPadding: const EdgeInsets.symmetric(
                           horizontal: 20.0, // Increased padding
                           vertical: 14.0, // Increased padding
                         ),
-                        suffixIcon: _isLoading 
-                          ? Padding(
-                              padding: const EdgeInsets.all(10.0),
-                              child: SizedBox(
-                                width: 20,
-                                height: 20,
-                                child: CircularProgressIndicator(
-                                  color: theme.primaryColor,
-                                  strokeWidth: 2,
+                        suffixIcon:
+                            _isLoading
+                                ? Padding(
+                                  padding: const EdgeInsets.all(10.0),
+                                  child: SizedBox(
+                                    width: 20,
+                                    height: 20,
+                                    child: CircularProgressIndicator(
+                                      color: theme.primaryColor,
+                                      strokeWidth: 2,
+                                    ),
+                                  ),
+                                )
+                                : Container(
+                                  margin: EdgeInsets.all(8.0),
+                                  decoration: BoxDecoration(
+                                    shape: BoxShape.circle,
+
+                                    color: theme.colorScheme.onSecondary,
+                                  ),
+
+                                  child: IconButton(
+                                    padding: EdgeInsets.zero,
+                                    icon: Icon(
+                                      Icons.send_rounded,
+                                      color: Colors.white,
+                                      size: 24,
+                                    ),
+                                    onPressed: () {
+                                      if (!_isLoading)
+                                        _sendMessage(_messageController.text);
+                                    },
+                                  ),
                                 ),
-                              ),
-                            )
-                          : Container(
-                              margin: EdgeInsets.all(8.0),
-                              decoration: BoxDecoration(
-                                shape: BoxShape.circle,
-                    
-                                color: theme.colorScheme.onSecondary,
-                              ),
-                              
-                              child: IconButton(
-                                
-                                padding: EdgeInsets.zero,
-                                icon: Icon(
-                                  Icons.send_rounded,
-                                  color: Colors.white,
-                                  size: 24,
-                                ),
-                                onPressed: () {
-                                  if (!_isLoading) _sendMessage(_messageController.text);
-                                },
-                              ),
-                            ),
                       ),
                       minLines: 1,
                       maxLines: 5,
