@@ -1,12 +1,19 @@
+import 'dart:io';
+
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:health/health.dart';
 import 'package:hk11/pages/journal_page.dart';
+import 'package:permission_handler/permission_handler.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'services/quotes_service.dart';
 import 'workout_page.dart';
 import 'meal_page.dart';
+import 'services/health_service.dart';
+
+final health = Health();
 
 class MyHomePage extends StatefulWidget {
   const MyHomePage({super.key});
@@ -15,22 +22,79 @@ class MyHomePage extends StatefulWidget {
   State<MyHomePage> createState() => _MyHomePageState();
 }
 
+enum AppState {
+  DATA_NOT_FETCHED,
+  FETCHING_DATA,
+  DATA_READY,
+  NO_DATA,
+  AUTHORIZED,
+  AUTH_NOT_GRANTED,
+  DATA_ADDED,
+  DATA_DELETED,
+  DATA_NOT_ADDED,
+  DATA_NOT_DELETED,
+  STEPS_READY,
+  HEALTH_CONNECT_STATUS,
+  PERMISSIONS_REVOKING,
+  PERMISSIONS_REVOKED,
+  PERMISSIONS_NOT_REVOKED,
+}
+
 class _MyHomePageState extends State<MyHomePage> {
   final QuotesService _quotesService = QuotesService();
   final FirebaseFirestore _firestore = FirebaseFirestore.instance;
   final FirebaseAuth _auth = FirebaseAuth.instance;
+  // final HealthService _healthService = HealthService();
+
 
   String _currentQuote = 'Loading quote...';
   String _userGoal = 'Loading goal...';
   int _currentDayNum = 1;
   bool _isLoading = true;
   bool _isLoadingGoal = true;
+  
+
+  List<HealthDataPoint> _healthDataList = [];
+  AppState _state = AppState.DATA_NOT_FETCHED;
+  int _nofSteps = 0;
+  List<RecordingMethod> recordingMethodsToFilter = [];
+
+  static final types = [
+    HealthDataType.WEIGHT,
+    HealthDataType.STEPS,
+    HealthDataType.HEIGHT,
+    HealthDataType.BLOOD_GLUCOSE,
+    HealthDataType.WORKOUT,
+    HealthDataType.BLOOD_PRESSURE_DIASTOLIC,
+    HealthDataType.BLOOD_PRESSURE_SYSTOLIC,
+    // Uncomment this line on iOS - only available on iOS
+    // HealthDataType.AUDIOGRAM
+  ];
+
+  List<HealthDataAccess> get permissions => types
+      .map((type) =>
+          // can only request READ permissions to the following list of types on iOS
+          [
+            HealthDataType.STEPS,
+            HealthDataType.ACTIVE_ENERGY_BURNED,
+          ].contains(type)
+              ? HealthDataAccess.READ
+              : HealthDataAccess.READ_WRITE)
+      .toList();
 
   @override
   void initState() {
-    super.initState();
+    authorize();
+    fetchData();
+    health.configure();
+    health.getHealthConnectSdkStatus();
+    health.installHealthConnect();
+    health.requestHealthDataHistoryAuthorization();
     _loadQuote();
     _fetchUserData();
+    
+    super.initState();
+    // _fetchHealthData();
   }
 
   Future<void> _loadQuote() async {
@@ -47,6 +111,7 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+  
 
   Future<void> _fetchUserData() async {
     setState(() {
@@ -100,6 +165,133 @@ class _MyHomePageState extends State<MyHomePage> {
       });
     }
   }
+
+  Future<void> installHealthConnect() async =>
+      await health.installHealthConnect();
+
+
+  Future<void> authorize() async {
+  await Permission.activityRecognition.request();
+
+  bool? hasPermissions = await health.hasPermissions(types, permissions: permissions);
+
+  bool authorized = false;
+  if (hasPermissions == false) {
+    try {
+      authorized = await health.requestAuthorization(types, permissions: permissions);
+      await health.requestHealthDataHistoryAuthorization();
+    } catch (error) {
+      debugPrint("Exception in authorize: $error");
+    }
+  } else {
+    authorized = true;
+  }
+
+  setState(() => _state = authorized ? AppState.AUTHORIZED : AppState.AUTH_NOT_GRANTED);
+}
+
+
+   Future<void> fetchData() async {
+    setState(() => _state = AppState.FETCHING_DATA);
+
+    final now = DateTime.now();
+    final yesterday = now.subtract(const Duration(hours: 24));
+
+    _healthDataList.clear();
+
+    try {
+      List<HealthDataPoint> healthData = await health.getHealthDataFromTypes(
+        types: types,
+        startTime: yesterday,
+        endTime: now,
+        recordingMethodsToFilter: recordingMethodsToFilter,
+      );
+
+      print('Total number of data points: ${healthData.length}. '
+          '${healthData.length > 100 ? 'Only showing the first 100.' : ''}');
+
+      healthData.sort((a, b) => b.dateTo.compareTo(a.dateTo));
+
+      _healthDataList.addAll(
+          (healthData.length < 100) ? healthData : healthData.sublist(0, 100));
+    } catch (error) {
+      print("Exception in getHealthDataFromTypes: $error");
+    }
+
+    _healthDataList = health.removeDuplicates(_healthDataList);
+
+    
+
+    // update the UI to display the results
+    setState(() {
+      _state = _healthDataList.isEmpty ? AppState.NO_DATA : AppState.DATA_READY;
+    });
+  }
+
+  Future<void> fetchStepData() async {
+    int? steps;
+
+    // get steps for today (i.e., since midnight)
+    final now = DateTime.now();
+    final midnight = DateTime(now.year, now.month, now.day);
+
+    bool stepsPermission =
+        await health.hasPermissions([HealthDataType.STEPS]) ?? false;
+    if (!stepsPermission) {
+      stepsPermission =
+          await health.requestAuthorization([HealthDataType.STEPS]);
+    }
+
+    if (stepsPermission) {
+      try {
+        steps = await health.getTotalStepsInInterval(midnight, now,
+            includeManualEntry:
+                !recordingMethodsToFilter.contains(RecordingMethod.manual));
+      } catch (error) {
+        debugPrint("Exception in getTotalStepsInInterval: $error");
+      }
+
+      print('Total number of steps: $steps');
+      
+      setState(() {
+        _nofSteps = (steps == null) ? 0 : steps;
+        _state = (steps == null) ? AppState.NO_DATA : AppState.STEPS_READY;
+      });
+    } else {
+      debugPrint("Authorization not granted - error in authorization");
+      setState(() => _state = AppState.DATA_NOT_FETCHED);
+    }
+  }
+
+  Future<void> revokeAccess() async {
+    setState(() => _state = AppState.PERMISSIONS_REVOKING);
+
+    bool success = false;
+
+    try {
+      await health.revokePermissions();
+      success = true;
+    } catch (error) {
+      debugPrint("Exception in revokeAccess: $error");
+    }
+
+    setState(() {
+      _state = success
+          ? AppState.PERMISSIONS_REVOKED
+          : AppState.PERMISSIONS_NOT_REVOKED;
+    });
+  }
+
+  // Future<void> _fetchHealthData() async {
+  //   try {
+  //     final healthData = await _healthService.fetchHealthData();
+  //     setState(() {
+  //       _healthData = healthData;
+  //     });
+  //   } catch (e) {
+  //     print('Error fetching health data: $e');
+  //   }
+  // }
 
   @override
   Widget build(BuildContext context) {
@@ -260,7 +452,7 @@ class _MyHomePageState extends State<MyHomePage> {
                   ),
                   padding: const EdgeInsets.all(2),
                   child: Container(
-                    height: 120,
+                    height: 150,
                     width: double.infinity,
                     
                     child: Stack(
@@ -323,17 +515,32 @@ class _MyHomePageState extends State<MyHomePage> {
                                           strokeWidth: 2,
                                         ),
                                       )
-                                    : Text(
-                                        _userGoal,
-                                        style: theme.textTheme.bodyMedium
-                                            ?.copyWith(
-                                              fontSize: 28,
-                                              fontWeight: FontWeight.bold,
-                                              
-                                            ),
-                                        textAlign: TextAlign.left,
-                                        overflow: TextOverflow.ellipsis,
-                                        maxLines: 2,
+                                    : Column(
+                                        crossAxisAlignment: CrossAxisAlignment.start,
+                                        children: [
+                                          SizedBox(height: 8),
+                                          Row(
+                                            children: [
+                                              Icon(Icons.directions_walk, size: 16),
+                                              SizedBox(width: 4),
+                                              Text(
+                                                '${fetchStepData()} steps',
+                                                style: theme.textTheme.bodyMedium,
+                                              ),
+                                            ],
+                                          ),
+                                          SizedBox(height: 4),
+                                          // Row(
+                                          //   children: [
+                                          //     Icon(Icons.local_fire_department, size: 16),
+                                          //     SizedBox(width: 4),
+                                          //     Text(
+                                          //       '${_healthData['calories']} cal',
+                                          //       style: theme.textTheme.bodyMedium,
+                                          //     ),
+                                          //   ],
+                                          // ),
+                                        ],
                                       ),
                               ],
                             ),
