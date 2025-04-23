@@ -204,3 +204,6 @@ $RECYCLE.BIN/
 
 # Windows shortcuts
 *.lnk
+/FITAI/keys
+FITAI/android/app/build.gradle.kts
+FITAI/android/key.properties
