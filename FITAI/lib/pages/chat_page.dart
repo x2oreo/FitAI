@@ -128,7 +128,7 @@ class _ChatPageState extends State<ChatPage> {
 
       // Make the API request
       final response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/processQueryV2'),
+        Uri.parse('http://46.10.181.183:20300/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
@@ -561,7 +561,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     try {
       // Call the processQuery function through the API endpoint we set up
       var response = await http.post(
-        Uri.parse('${ApiConfig.baseUrl}/processQueryV2'),
+        Uri.parse('http://46.10.181.183:20300/process-query'),
         headers: {'Content-Type': 'application/json'},
         body: json.encode({
           'query': query,
