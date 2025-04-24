@@ -1,10 +1,12 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
+import 'package:flutter/services.dart';
 import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:hk11/theme/theme_provider.dart';
 import 'package:hk11/utils/calendar.dart';
 import 'package:http/http.dart' as http;
+import 'package:intl/intl.dart';
 import 'package:provider/provider.dart';
 import 'dart:convert';
 import 'dart:math';
@@ -135,6 +137,45 @@ class _WorkoutPageState extends State<WorkoutPage> {
         "Goal - ${userData['goal'] ?? 'N/A'}",
         "Workout Time - ${userData['workout_time_weekly'] ?? 'N/A'}",
       ];
+      
+      // Fetch recent journal entries (last 3 days)
+      try {
+        print('Fetching recent journal entries...');
+        final now = DateTime.now();
+        final threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+        
+        final journalSnapshot = await _firestore
+            .collection('users')
+            .doc(userId)
+            .collection('journal_entries')
+            .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(threeDaysAgo))
+            .orderBy('date', descending: true)
+            .limit(3)
+            .get();
+            
+        if (journalSnapshot.docs.isNotEmpty) {
+          userInfoList.add("\nRecent Journal Entries:");
+          for (var entry in journalSnapshot.docs) {
+            final data = entry.data();
+            final date = data['date'] as String? ?? 'Unknown date';
+            final content = data['content'] as String? ?? '';
+            
+            if (content.isNotEmpty) {
+              // Add a summary of the journal entry (first 100 characters)
+              final summary = content.length > 100 
+                  ? '${content.substring(0, 100)}...' 
+                  : content;
+              userInfoList.add("[$date] $summary");
+            }
+          }
+        } else {
+          userInfoList.add("\nNo recent journal entries found.");
+        }
+      } catch (e) {
+        print('Error fetching journal entries: $e');
+        userInfoList.add("\nCould not retrieve journal entries.");
+      }
+      
       String userInfo = userInfoList.join('\n');
 
       // Make API request with detailed logging
@@ -323,11 +364,16 @@ class _WorkoutPageState extends State<WorkoutPage> {
     // Deeper blue for light mode to ensure contrast with white text
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
-        title: const Text('Weekly Meal Plan'),
+        title: const Text('Weekly Workout Plan'),
         elevation: 0,
-        backgroundColor: isDarkMode ? Color(0xFF250050) : Colors.white,
-        centerTitle: true,
+        backgroundColor: Colors.transparent,
+        foregroundColor: theme.textTheme.bodyLarge?.color,
+        systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -341,10 +387,12 @@ class _WorkoutPageState extends State<WorkoutPage> {
           ),
         ),
         child: Padding(
-          padding: const EdgeInsets.all(16.0),
+          padding: const EdgeInsets.all(22.0),
           child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                SizedBox(height: AppBar().preferredSize.height + MediaQuery.of(context).padding.top),
+
               // Day selector cards
               Container(
                 height: 80,
@@ -444,13 +492,8 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 SizedBox(height: 16),
                                 Text(
                                   'Loading your workout plan...',
-                                  style: TextStyle(
-                                    color:
-                                        isDarkMode
-                                            ? Colors.white.withOpacity(0.8)
-                                            : theme.hintColor,
-                                    fontWeight: FontWeight.w500,
-                                  ),
+                                  style: theme.textTheme.titleLarge,
+                                  
                                 ),
                               ],
                             ),
@@ -483,15 +526,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 SizedBox(height: 16),
                                 Text(
                                   'Use the button below to create a new workout plan',
-                                  style: TextStyle(
-                                    color:
-                                        isDarkMode
-                                            ? Colors.white.withOpacity(
-                                              0.8,
-                                            ) // Changed to pure white
-                                            : theme.textTheme.bodyMedium?.color,
-                                    fontSize: 16,
-                                  ),
+                                  style: theme.textTheme.bodyLarge,
                                   textAlign: TextAlign.center,
                                 ),
                               ],
@@ -508,10 +543,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                       vertical: 8,
                                     ),
                                     decoration: BoxDecoration(
-                                      color:
-                                          isDarkMode
-                                              ? accentColor
-                                              : Color(0xFF3D63B6),
+                                      color: theme.colorScheme.onSecondary,
                                       borderRadius: BorderRadius.circular(12),
                                       boxShadow:
                                           isDarkMode
@@ -547,21 +579,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                     'Workout Plan',
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
-                                      color:
-                                          Colors
-                                              .white, // Always white regardless of theme
+                                      color: theme.colorScheme.secondary,
+                                          
                                     ),
                                   ),
                                 ],
                               ),
                               Divider(
                                 height: 32,
-                                color:
-                                    isDarkMode
-                                        ? Colors.white.withOpacity(
-                                          0.8,
-                                        ) // Changed to use whiteText with opacity
-                                        : theme.dividerColor,
+                                color: theme.colorScheme.secondary.withOpacity(0.5),
                               ),
                               Expanded(
                                 child: SingleChildScrollView(
@@ -575,63 +601,41 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
                                       styleSheet: MarkdownStyleSheet(
-                                        h1: TextStyle(
+                                        h1: theme.textTheme.bodyMedium?.copyWith(
                                           fontSize: 24,
                                           fontWeight: FontWeight.w700,
-                                          color: Colors.white,
                                         ),
-                                        h2: TextStyle(
+                                        h2: theme.textTheme.bodyMedium?.copyWith(
                                           fontSize: 22,
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.white,
                                         ),
-                                        h3: TextStyle(
+                                        h3: theme.textTheme.bodyMedium?.copyWith(
                                           fontSize: 20,
                                           fontWeight: FontWeight.w500,
-                                          color: Colors.white,
                                         ),
-                                        p: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                        strong: TextStyle(
+                                        p: theme.textTheme.bodyMedium,
+                                        strong: theme.textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.w600,
-                                          color: Colors.white,
                                         ),
-                                        em: TextStyle(
-                                          fontStyle: FontStyle.italic,
-                                          color: Colors.white,
-                                        ),
-                                        blockquote: TextStyle(
-                                          color: Colors.white.withOpacity(0.8),
-                                          fontSize: 16,
+                                        em: theme.textTheme.bodyMedium?.copyWith(
                                           fontStyle: FontStyle.italic,
                                         ),
-                                        code: TextStyle(
-                                          color: Colors.white,
+                                        blockquote: theme.textTheme.bodyMedium?.copyWith(
+                                          fontStyle: FontStyle.italic,
+                                        ),
+                                        code: theme.textTheme.bodyMedium?.copyWith(
                                           backgroundColor: Colors.black38,
-                                          fontSize: 16,
                                           fontFamily: 'monospace',
                                         ),
-                                        a: TextStyle(
-                                          color: Colors.lightBlueAccent,
+                                        a: theme.textTheme.bodyMedium?.copyWith(
                                           decoration: TextDecoration.underline,
                                         ),
-                                        listBullet: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                        checkbox: TextStyle(
-                                          color: Colors.white,
-                                          fontSize: 16,
-                                        ),
-                                        tableHead: TextStyle(
-                                          color: Colors.white,
+                                        listBullet: theme.textTheme.bodyMedium,
+                                        checkbox: theme.textTheme.bodyMedium,
+                                        tableHead: theme.textTheme.bodyMedium?.copyWith(
                                           fontWeight: FontWeight.bold,
                                         ),
-                                        tableBody: TextStyle(
-                                          color: Colors.white,
-                                        ),
+                                        tableBody: theme.textTheme.bodyMedium,
                                         textAlign: WrapAlignment.start,
                                       ),
                                     ),

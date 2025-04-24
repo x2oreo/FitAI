@@ -1,5 +1,6 @@
 import 'package:flutter/material.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:hk11/pages/journal_page.dart';
 import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
@@ -109,7 +110,16 @@ class _MyHomePageState extends State<MyHomePage> {
 
     return Scaffold(
       backgroundColor: Colors.transparent,
-      extendBody: true,
+      extendBodyBehindAppBar: true,
+      appBar: AppBar(
+        elevation: 0,
+        backgroundColor: Colors.transparent,
+        systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      ),
+        
+      ),
       body: Container(
         constraints: BoxConstraints(
           minHeight: screenHeight,
@@ -137,14 +147,14 @@ class _MyHomePageState extends State<MyHomePage> {
                     Color(0xFF000000), // Black 
                   ]
                 : [
-                    Color(0xFFffffff), // White
-                    Color(0xFFeeeeee), // Very light gray
-                    Color(0xFFdcdcdc), // Light gray
-                    Color(0xFFcbcbcb), // Light/medium gray
-                    Color(0xFFb6b6b6), // Medium gray
-                    Color(0xFF9e9e9e), // Medium gray
+                    Color.fromARGB(255, 143, 143, 143), // Dark gray
                     Color(0xFF868686), // Darker medium gray
-                    Color(0xFF6f6f6f), // Dark gray
+                    Color(0xFF9e9e9e), // Medium gray
+                    Color(0xFFb6b6b6), // Medium gray
+                    Color(0xFFcbcbcb), // Light/medium gray
+                    Color(0xFFdcdcdc), // Light gray
+                    Color(0xFFeeeeee), // Very light gray
+                    Color(0xFFffffff), // White
                   ],
             stops: isDarkMode
                 ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
@@ -153,7 +163,7 @@ class _MyHomePageState extends State<MyHomePage> {
         ),
         child: SingleChildScrollView(
           child: Padding(
-            padding: const EdgeInsets.all(16.0),
+            padding: const EdgeInsets.all(22.0),
             child: Column(
               mainAxisAlignment: MainAxisAlignment.start,
               children: [
@@ -368,7 +378,7 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               Positioned(
                                 top: 8,
-                                left: 20,
+                                left: 22,
                                 child: Row(
                                   children: [
                                     Icon(
@@ -428,7 +438,8 @@ class _MyHomePageState extends State<MyHomePage> {
                             children: [
                               Positioned(
                                 top: 8,
-                                left: 40,
+                                left: 45,
+                                
                                 child: Row(
                                   children: [
                                     
@@ -450,7 +461,8 @@ class _MyHomePageState extends State<MyHomePage> {
                               ),
                               Positioned(
                                 top: 45,
-                                left: 55,
+                                left: 0,
+                                right: 0,
                                 child: Column(
                                   mainAxisAlignment: MainAxisAlignment.center,
                                   children: [
@@ -526,10 +538,12 @@ class _MyHomePageState extends State<MyHomePage> {
                         ),
                         Positioned(
                           top: 60,
-                          left: 45,
+                          left: 0,
+                          right: 0,
                             child: Column(
                               mainAxisAlignment: MainAxisAlignment.center,
                               children: [
+                                
                                 Text(
                                   'What did you do today?',
                                   style: theme.textTheme.bodyLarge,

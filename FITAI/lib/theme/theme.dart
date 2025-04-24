@@ -111,10 +111,10 @@ final lightTheme = ThemeData(
         ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           style: ButtonStyle(
-            backgroundColor: MaterialStateProperty.all(Colors.white),
-            foregroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 17, 24, 39)),
-            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
-            shape: MaterialStateProperty.all(
+            backgroundColor: WidgetStateProperty.all(Colors.white),
+            foregroundColor: WidgetStateProperty.all(const Color.fromARGB(255, 17, 24, 39)),
+            iconColor: WidgetStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
+            shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
                 side: BorderSide(
                   color: const Color.fromARGB(255, 0, 0, 0),
@@ -124,7 +124,7 @@ final lightTheme = ThemeData(
               ),
               
             ),
-            textStyle: MaterialStateProperty.all(
+            textStyle: WidgetStateProperty.all(
               TextStyle(
                 color: const Color.fromARGB(255, 252, 252, 252),
                 fontSize: 18,
@@ -132,7 +132,7 @@ final lightTheme = ThemeData(
                 fontWeight: FontWeight.w700,
               ),
             ),
-            minimumSize: MaterialStateProperty.all(Size(double.infinity, 50)),
+            minimumSize: WidgetStateProperty.all(Size(double.infinity, 50)),
           ),
         ),
       );
@@ -146,7 +146,7 @@ final darktheme = ThemeData(
           background: const Color.fromARGB(255, 249, 250, 251),
           error: const Color.fromARGB(255, 252, 75, 5),
           onPrimary: const Color.fromARGB(255, 252, 252, 252),
-          onSecondary: const Color.fromARGB(255, 88, 58, 255),
+          onSecondary: Colors.deepPurple,
           onSurface: const Color.fromARGB(255, 6, 20, 48),
           onBackground: const Color.fromARGB(255, 17, 24, 39),
           onError: const Color.fromARGB(255, 252, 252, 252),
@@ -209,24 +209,25 @@ final darktheme = ThemeData(
 
         inputDecorationTheme: InputDecorationTheme(
             labelStyle: TextStyle(
-              color: const Color.fromARGB(255, 229, 231, 235).withOpacity(0.7),
+              color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.7),
               fontSize: 24,
               fontWeight: FontWeight.w500,
               fontStyle: FontStyle.italic,
             ),   
             floatingLabelStyle: TextStyle(
-              color: const Color.fromARGB(255, 229, 231, 235).withOpacity(0.7),
+              color: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.7),
               fontSize: 16,
               fontWeight: FontWeight.w400,
               fontStyle: FontStyle.italic,
             ),
             prefixIconColor: const Color.fromARGB(255, 229, 231, 235).withOpacity(0.7),
             suffixIconColor: const Color.fromARGB(255, 229, 231, 235).withOpacity(0.7),
-            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12), enabledBorder: OutlineInputBorder(
+            contentPadding: EdgeInsets.symmetric(vertical: 5, horizontal: 12), 
+                enabledBorder: OutlineInputBorder(
                 borderRadius: BorderRadius.circular(12),
                 borderSide: BorderSide(color: Colors.white),
                 ),
-                  focusedBorder: OutlineInputBorder(
+                focusedBorder: OutlineInputBorder(
                   borderRadius: BorderRadius.circular(12),
                   borderSide:
                   BorderSide(color: Colors.white, width: 2),
@@ -241,21 +242,21 @@ final darktheme = ThemeData(
                 ),
                 filled: true,
                 fillColor: const Color.fromARGB(255, 0, 0, 0).withOpacity(0.05),
-        ),
+      ),
         elevatedButtonTheme: ElevatedButtonThemeData(
           
           style: ButtonStyle(
             
-            backgroundColor: MaterialStateProperty.all(Colors.deepPurple),
-            foregroundColor: MaterialStateProperty.all(const Color.fromARGB(255, 229, 231, 235)),
-            iconColor: MaterialStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
-            shape: MaterialStateProperty.all(
+            backgroundColor: WidgetStateProperty.all(Colors.deepPurple),
+            foregroundColor: WidgetStateProperty.all(const Color.fromARGB(255, 229, 231, 235)),
+            iconColor: WidgetStateProperty.all(const Color.fromARGB(255, 0, 0, 0)),
+            shape: WidgetStateProperty.all(
               RoundedRectangleBorder(
                 
                 borderRadius: BorderRadius.circular(20),
               ),
             ),
-            textStyle: MaterialStateProperty.all(
+            textStyle: WidgetStateProperty.all(
               TextStyle(
                 color: const Color.fromARGB(255, 252, 252, 252),
                 fontSize: 18,
@@ -263,7 +264,7 @@ final darktheme = ThemeData(
                 fontWeight: FontWeight.w700,
               ),
             ),
-            minimumSize: MaterialStateProperty.all(Size(double.infinity, 56)),
+            minimumSize: WidgetStateProperty.all(Size(double.infinity, 56)),
           ),
         ),
 );

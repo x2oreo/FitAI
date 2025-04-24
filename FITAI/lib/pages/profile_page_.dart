@@ -346,24 +346,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                       Color(0xFF000000), // Black 
                     ]
                     : [
-                      Color.fromARGB(255, 214, 214, 214), // White
-                      Color.fromARGB(255, 221, 221, 221), // Very light gray
-                      Color.fromARGB(255, 202, 202, 202), // Light gray
-                      Color(0xFFcbcbcb), // Light/medium gray
-                      Color(0xFFb6b6b6), // Medium gray
-                      Color(0xFF9e9e9e), // Medium gray
-                      Color(0xFF868686), // Darker medium gray
-                      Color(0xFF6f6f6f),
+                      Color.fromARGB(255, 143, 143, 143), // Dark gray
+                    Color(0xFF868686), // Darker medium gray
+                    Color(0xFF9e9e9e), // Medium gray
+                    Color(0xFFb6b6b6), // Medium gray
+                    Color(0xFFcbcbcb), // Light/medium gray
+                    Color(0xFFdcdcdc), // Light gray
+                    Color(0xFFeeeeee), // Very light gray
+                    Color(0xFFffffff),
                     ],
-                  stops: isDarkMode
-                    ? [0.0, 0.07, 0.14, 0.21, 0.28, 0.35, 0.42, 0.49, 0.56, 0.63, 0.7, 0.77, 0.84, 0.92, 1.0]
-                    : null,
+                  
           ),
           
         ),
         child: Stack(
+          
           children: [
-
+            
             // Main content
             _isLoading
                 ? Center(
@@ -382,12 +381,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 : SafeArea(
                   child: SingleChildScrollView(
                     
-                    padding: EdgeInsets.fromLTRB(
-                      16,
-                      10,
-                      16,
-                      16,
-                    ), 
+                    padding: EdgeInsets.all(22.0), 
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
@@ -498,44 +492,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
                         SizedBox(height: 16),
 
-                        // Email with enhanced card styling
-                        Container(
-                          padding: const EdgeInsets.all(16),
-                          decoration: BoxDecoration(
-                            color: theme.colorScheme.primary,
-                            borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: theme.dividerColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.shadowColor.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: Offset(0, 5),
-                              ),
-                            ],
-                          ),
-                          child: Column(
-                            children: [
-                              ListTile(
-                                leading: Icon(
-                                  Icons.email,
-                                  color: theme.primaryColor,
-                                ),
-                                title: Text(
-                                  'Email',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontWeight: FontWeight.bold,
-                                  ),
-                                ),
-                                subtitle: Text(
-                                  user?.email ?? 'Not provided',
-                                  style: theme.textTheme.bodyMedium?.copyWith(
-                                    fontSize: 16,
-                                  ),
-                                ),
-                              ),
-                            ],
-                          ),
-                        ),
+                        // Email with enhanced card styling - smaller with centered text
+                        
 
                         SizedBox(height: 24),
 
@@ -695,14 +653,16 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           },
                           style: ElevatedButton.styleFrom(
                             backgroundColor: theme.colorScheme.error
-                                .withOpacity(0.1),
+                                .withOpacity(0.3),
                             foregroundColor: theme.colorScheme.error,
                             elevation: 0,
                             side: BorderSide(
                               color: theme.colorScheme.error.withOpacity(0.5),
                             ),
                           ),
-                          icon: Icon(Icons.logout),
+                          icon: Icon(Icons.logout,
+                            color: theme.colorScheme.secondary,
+                              ),
                           label: Text(
                             'Sign Out',
                             style: TextStyle(fontWeight: FontWeight.bold),

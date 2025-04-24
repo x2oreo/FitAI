@@ -1,6 +1,7 @@
 import 'package:flutter/material.dart';
 import 'package:cloud_firestore/cloud_firestore.dart';
 import 'package:firebase_auth/firebase_auth.dart';
+import 'package:flutter/services.dart';
 import 'package:hk11/theme/theme_provider.dart';
 import 'package:intl/intl.dart';
 import 'package:http/http.dart' as http;
@@ -237,35 +238,16 @@ class _ChatPageState extends State<ChatPage> {
                       Color(0xFF000000), // Black
                     ]
                     : [
-                      Color.fromARGB(255, 214, 214, 214), // White
-                      Color.fromARGB(255, 221, 221, 221), // Very light gray
-                      Color.fromARGB(255, 202, 202, 202), // Light gray
-                      Color(0xFFcbcbcb), // Light/medium gray
-                      Color(0xFFb6b6b6), // Medium gray
-                      Color(0xFF9e9e9e), // Medium gray
-                      Color(0xFF868686), // Darker medium gray
-                      Color(0xFF6f6f6f),
+                      Color.fromARGB(255, 143, 143, 143), // Dark gray
+                    Color(0xFF868686), // Darker medium gray
+                    Color(0xFF9e9e9e), // Medium gray
+                    Color(0xFFb6b6b6), // Medium gray
+                    Color(0xFFcbcbcb), // Light/medium gray
+                    Color(0xFFdcdcdc), // Light gray
+                    Color(0xFFeeeeee), // Very light gray
+                    Color(0xFFffffff),
                     ],
-            stops:
-                isDarkMode
-                    ? [
-                      0.0,
-                      0.07,
-                      0.14,
-                      0.21,
-                      0.28,
-                      0.35,
-                      0.42,
-                      0.49,
-                      0.56,
-                      0.63,
-                      0.7,
-                      0.77,
-                      0.84,
-                      0.92,
-                      1.0,
-                    ]
-                    : null,
+            
           ),
         ),
         child: Column(
@@ -273,7 +255,7 @@ class _ChatPageState extends State<ChatPage> {
             SizedBox(height: MediaQuery.of(context).padding.top),
             // Replace button action to create empty chat directly
             Padding(
-              padding: const EdgeInsets.all(16.0),
+              padding: const EdgeInsets.all(22.0),
               child: ElevatedButton(
                 onPressed: _isLoading ? null : _createEmptyChat,
                 style: ElevatedButton.styleFrom(
@@ -590,18 +572,58 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
     var isDarkMode = provider.Provider.of<ThemeProvider>(context).isDarkMode;
 
     return Scaffold(
+      extendBodyBehindAppBar: true,
       appBar: AppBar(
         title: Text(widget.chatTitle, style: theme.textTheme.headlineLarge),
         elevation: 0,
-        backgroundColor: theme.scaffoldBackgroundColor,
+        backgroundColor: Colors.transparent,
         foregroundColor: theme.textTheme.bodyLarge?.color,
+        systemOverlayStyle: SystemUiOverlayStyle(
+        statusBarColor: Colors.transparent,
+        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
+      ),
       ),
       body: Container(
         decoration: BoxDecoration(
-          color: theme.colorScheme.onSurface.withOpacity(0.9),
+          gradient: LinearGradient(
+            begin: Alignment.topCenter,
+            end: Alignment.bottomCenter,
+            colors:
+                isDarkMode
+                    ? [
+                      Color(0xFF250050), // Dark purple
+                      Color(0xFF24004e), // Dark purple
+                      Color(0xFF210047), // Dark purple
+                      Color(0xFF1d0040), // Medium dark purple
+                      Color(0xFF1b003d), // Medium dark purple
+                      Color(0xFF190039), // Dark purple
+                      Color(0xFF170036), // Medium dark purple
+                      Color(0xFF160132), // Medium dark purple
+                      Color(0xFF14022d), // Dark purple/indigo
+                      Color(0xFF120327), // Very dark purple with hint of blue
+                      Color(0xFF110325), // Very dark purple
+                      Color(0xFF0e021d), // Very dark purple
+                      Color(0xFF090213), // Almost black with hint of purple
+                      Color(0xFF040109), // Almost black
+                      Color(0xFF000000),  // Black
+                    ]
+                    : [
+                      Color.fromARGB(255, 143, 143, 143), // Dark gray
+                    Color(0xFF868686), // Darker medium gray
+                    Color(0xFF9e9e9e), // Medium gray
+                    Color(0xFFb6b6b6), // Medium gray
+                    Color(0xFFcbcbcb), // Light/medium gray
+                    Color(0xFFdcdcdc), // Light gray
+                    Color(0xFFeeeeee), // Very light gray
+                    Color(0xFFffffff),
+                    ],
+            
+          ),
         ),
         child: Column(
           children: [
+            SizedBox(height: AppBar().preferredSize.height + MediaQuery.of(context).padding.top),
+
             // Messages list
             Expanded(
               child: StreamBuilder<QuerySnapshot>(
@@ -803,11 +825,22 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 children: [
                   Expanded(
                     child: TextField(
+                      
                       controller: _messageController,
-                      style: theme.textTheme.bodyMedium,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: Colors.black,
+                      ),
                       decoration: InputDecoration(
+                        
                         enabledBorder: OutlineInputBorder(
-                          borderRadius: BorderRadius.circular(36),
+                          borderRadius: BorderRadius.circular(42),
+                          borderSide: BorderSide(
+                            color: theme.colorScheme.secondary,
+                            width: 2,
+                          ),
+                        ),
+                        focusedBorder: OutlineInputBorder(
+                          borderRadius: BorderRadius.circular(42),
                           borderSide: BorderSide(
                             color: theme.colorScheme.secondary,
                             width: 2,
@@ -853,9 +886,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: Icon(
-                                      Icons.send_rounded,
+                                      
+                                      Icons.arrow_upward_rounded,
                                       color: Colors.white,
-                                      size: 24,
+                                      weight: 1000,
+                                      size: 26,
                                     ),
                                     onPressed: () {
                                       if (!_isLoading)

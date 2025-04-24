@@ -190,7 +190,6 @@ class _JournalPageState extends State<JournalPage> {
                     Color(0xFF868686), // Darker medium gray
                     Color(0xFF6f6f6f), // Dark gray
                   ],
-            stops: [0.0, 0.14, 0.28, 0.42, 0.56, 0.70, 0.85, 1.0],
           ),
         ),
         child: SafeArea(
@@ -201,7 +200,7 @@ class _JournalPageState extends State<JournalPage> {
                   ),
                 )
               : Padding(
-                  padding: const EdgeInsets.all(16.0),
+                  padding: const EdgeInsets.all(22.0),
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
                     children: [
