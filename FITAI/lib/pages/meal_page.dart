@@ -148,17 +148,17 @@ class _MealPageState extends State<MealPage> {
       ];
 
       
-      // Fetch recent journal entries (last 3 days)
+      // Fetch recent journal entries (last 7 days)
       try {
         print('Fetching recent journal entries...');
         final now = DateTime.now();
-        final threeDaysAgo = DateTime.now().subtract(Duration(days: 3));
+        final sevenDaysAgo = DateTime.now().subtract(Duration(days: 7));
         
         final journalSnapshot = await _firestore
             .collection('users')
             .doc(userId)
             .collection('journal_entries')
-            .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(threeDaysAgo))
+            .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(sevenDaysAgo))
             .orderBy('date', descending: true)
             .limit(3)
             .get();

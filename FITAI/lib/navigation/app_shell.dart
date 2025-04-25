@@ -2,7 +2,8 @@
 
 import 'package:flutter/material.dart';
 import 'package:hk11/pages/calendar_page.dart';
-import 'package:hk11/pages/profile_page_.dart';
+// import 'package:hk11/pages/profile_page_.dart'; // Remove or comment this line
+import 'package:hk11/pages/journal_page.dart'; // Add this import
 import '../pages/home_page.dart';
 import '../pages/chat_page.dart';
 
@@ -17,8 +18,8 @@ class _AppShellState extends State<AppShell> {
   int _selectedIndex = 0;
   Widget _currentPage = const MyHomePage();
 
-  // List of main pages to navigate between
-  final List<Widget> _pages = const [MyHomePage(), ChatPage(), ProfileScreen()];
+  // Replace ProfileScreen with JournalPage in the pages list
+  final List<Widget> _pages = const [MyHomePage(), ChatPage(), JournalPage()];
 
   void _onItemTapped(int index) {
     setState(() {
@@ -45,13 +46,11 @@ class _AppShellState extends State<AppShell> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      extendBody: true, // This allows the body to extend behind the navigation bar
       backgroundColor: theme.scaffoldBackgroundColor,
       body: _currentPage,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
           color: Colors.transparent,
-          boxShadow: [], // Remove any shadow
         ),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
@@ -75,9 +74,9 @@ class _AppShellState extends State<AppShell> {
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.person_outline),
-              activeIcon: Icon(Icons.person),
-              label: '',
+              icon: Icon(Icons.book_outlined), // Changed from person_outline to book_outlined
+              activeIcon: Icon(Icons.book), // Changed from person to book
+              label: 'Journal', // Changed from empty to 'Journal'
             ),
           ],
         ),

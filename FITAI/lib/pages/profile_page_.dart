@@ -10,7 +10,9 @@ import 'dart:io';
 import 'package:path_provider/path_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
-  const ProfileScreen({super.key});
+  final ScrollController? scrollController;
+  
+  const ProfileScreen({super.key, this.scrollController});
 
   @override
   State<ProfileScreen> createState() => _ProfileScreenState();
@@ -314,51 +316,44 @@ class _ProfileScreenState extends State<ProfileScreen> {
 
     return Scaffold(
       extendBodyBehindAppBar: true,
-      // appBar: AppBar(
-      //     backgroundColor: Colors.transparent,
-      //     elevation: 0,
-      //     actions: [
-            
-      //     ],
-      //   ),
-      body: Container(
-        decoration: BoxDecoration(
-          gradient: LinearGradient(
-            begin: Alignment.topCenter,
-            end: Alignment.bottomCenter,
-            colors:
-                isDarkMode
-                    ? [
-                      Color(0xFF250050), // Dark purple
-                      Color(0xFF24004e), // Dark purple
-                      Color(0xFF210047), // Dark purple
-                      Color(0xFF1d0040), // Medium dark purple
-                      Color(0xFF1b003d), // Medium dark purple
-                      Color(0xFF190039), // Dark purple
-                      Color(0xFF170036), // Medium dark purple
-                      Color(0xFF160132), // Medium dark purple
-                      Color(0xFF14022d), // Dark purple/indigo
-                      Color(0xFF120327), // Very dark purple with hint of blue
-                      Color(0xFF110325), // Very dark purple
-                      Color(0xFF0e021d), // Very dark purple
-                      Color(0xFF090213), // Almost black with hint of purple
-                      Color(0xFF040109), // Almost black
-                      Color(0xFF000000), // Black 
-                    ]
-                    : [
-                      Color.fromARGB(255, 143, 143, 143), // Dark gray
-                    Color(0xFF868686), // Darker medium gray
-                    Color(0xFF9e9e9e), // Medium gray
-                    Color(0xFFb6b6b6), // Medium gray
-                    Color(0xFFcbcbcb), // Light/medium gray
-                    Color(0xFFdcdcdc), // Light gray
-                    Color(0xFFeeeeee), // Very light gray
-                    Color(0xFFffffff),
-                    ],
-                  
+      appBar: AppBar(
+        backgroundColor: theme.scaffoldBackgroundColor,
+        elevation: 0,
+        automaticallyImplyLeading: false,
+        centerTitle: true,
+        leading: IconButton(
+          padding: EdgeInsets.only(left: 16),
+          icon: Icon(
+            isDarkMode ? Icons.light_mode_rounded : Icons.dark_mode_rounded,
+            color: theme.colorScheme.secondary,
           ),
-          
+          onPressed: () {
+            themeProvider.toggleTheme();
+          },
         ),
+        actions: [
+          TextButton(
+            onPressed: () {
+              Navigator.pop(context);
+            },
+            // Reduce padding to bring it closer to the theme button
+            style: TextButton.styleFrom(
+              padding: EdgeInsets.symmetric(horizontal: 30),
+              minimumSize: Size(50, 36),
+            ),
+            child: Text(
+              'Done',
+              style: TextStyle(
+                color: theme.colorScheme.secondary,
+                fontWeight: FontWeight.w900,
+                fontSize: 20,
+              ),
+            ),
+          ),
+        ],
+      ),
+      body: Container(
+        
         child: Stack(
           
           children: [
@@ -385,23 +380,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-                        
-                        Row(
-                          mainAxisAlignment: MainAxisAlignment.end,
-                          children: [
-                            IconButton(
-                              icon: Icon(
-                                isDarkMode ? Icons.light_mode : Icons.dark_mode,
-                                color: theme.colorScheme.secondary,
-                              ),
-                              onPressed: () {
-                                themeProvider.toggleTheme();
-                              },
-                            ),
-                          ],
-                        ),
-                        
-                        
+  
                         Stack(
                           children: [
                             Container(
@@ -490,7 +469,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           textAlign: TextAlign.center,
                         ),
 
-                        SizedBox(height: 16),
 
                         // Email with enhanced card styling - smaller with centered text
                         
@@ -502,14 +480,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: BoxDecoration(
                             color: theme.colorScheme.primary,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(color: theme.dividerColor),
-                            boxShadow: [
-                              BoxShadow(
-                                color: theme.shadowColor.withOpacity(0.1),
-                                blurRadius: 10,
-                                offset: Offset(0, 5),
-                              ),
-                            ],
+                            border: Border.all(
+                              color: Colors.black,
+                            ),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -540,10 +513,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                         label: Text(
                                           'Edit',
-                                          style: TextStyle(
-                                            color: theme.primaryColor,
-                                            fontWeight: FontWeight.bold,
-                                          ),
+                                          style: theme.textTheme.bodySmall
                                         ),
                                       ),
                                   ],
@@ -589,20 +559,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           ),
                                           child: Text(
                                             'Cancel',
-                                            style: TextStyle(
-                                              color: theme.primaryColor,
-                                              fontWeight: FontWeight.bold,
-                                            ),
+                                            style: theme.textTheme.bodyMedium
+                                                        ?.copyWith(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                           ),
                                         ),
                                       ),
                                       SizedBox(width: 16),
                                       Expanded(
-                                        child: ElevatedButton(
+                                        child: OutlinedButton(
                                           onPressed:
                                               _isSaving ? null : _saveUserData,
                                           style: ElevatedButton.styleFrom(
-                                            backgroundColor: theme.primaryColor,
+                                            backgroundColor: Colors.green,
+                                            
                                             foregroundColor:
                                                 theme.colorScheme.onPrimary,
                                             padding: EdgeInsets.symmetric(
@@ -625,10 +598,12 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   )
                                                   : Text(
                                                     'Save',
-                                                    style: TextStyle(
-                                                      fontWeight:
-                                                          FontWeight.bold,
-                                                    ),
+                                                    style: theme.textTheme.bodyMedium
+                                                        ?.copyWith(
+                                                          fontSize: 14,
+                                                          fontWeight:
+                                                              FontWeight.bold,
+                                                        ),
                                                   ),
                                         ),
                                       ),
@@ -951,7 +926,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   keyboardType: TextInputType.number,
                   decoration: textFieldDecoration.copyWith(
                     hintText: '50-300',
-                    labelText: 'Current Weight',
                   ),
                 ),
               ),
@@ -983,7 +957,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   keyboardType: TextInputType.number,
                   decoration: textFieldDecoration.copyWith(
                     hintText: '50-300',
-                    labelText: 'Desired Weight',
                   ),
                 ),
               ),
@@ -1015,7 +988,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                   keyboardType: TextInputType.number,
                   decoration: textFieldDecoration.copyWith(
                     hintText: '100-250',
-                    labelText: 'Height',
                   ),
                 ),
               ),
@@ -1046,7 +1018,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             keyboardType: TextInputType.number,
             decoration: textFieldDecoration.copyWith(
               hintText: '5-110',
-              labelText: 'Age',
             ),
           ),
 
@@ -1138,7 +1109,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             keyboardType: TextInputType.number,
             decoration: textFieldDecoration.copyWith(
               hintText: '1-40',
-              labelText: 'Weekly Workout Time',
             ),
           ),
 
@@ -1158,7 +1128,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
             keyboardType: TextInputType.number,
             decoration: textFieldDecoration.copyWith(
               hintText: '0-5000',
-              labelText: 'Monthly Fitness Budget',
               prefixIcon: Icon(Icons.attach_money),
             ),
           ),
@@ -1280,8 +1249,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       value: _dietaryPreferences[key] ?? false,
-      activeColor: theme.primaryColor,
-      checkColor: theme.colorScheme.onPrimary,
+      
+      checkColor: theme.colorScheme.primary,
+      fillColor: WidgetStateProperty.all(theme.primaryColor.withOpacity(0.9)),
+      
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       dense: true,
       controlAffinity: ListTileControlAffinity.trailing,
@@ -1300,7 +1271,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
       decoration: BoxDecoration(
         color: theme.scaffoldBackgroundColor,
         borderRadius: BorderRadius.circular(8),
-        border: Border.all(color: theme.dividerColor),
       ),
       padding: EdgeInsets.symmetric(horizontal: 8, vertical: 12),
       child: DropdownButton<String>(
