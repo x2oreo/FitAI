@@ -870,7 +870,7 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                     width: 20,
                                     height: 20,
                                     child: CircularProgressIndicator(
-                                      color: theme.primaryColor,
+                                      color: theme.colorScheme.onSecondary,
                                       strokeWidth: 2,
                                     ),
                                   ),
