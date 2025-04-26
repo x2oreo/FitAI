@@ -46,7 +46,7 @@ class _AppShellState extends State<AppShell> {
     final theme = Theme.of(context);
 
     return Scaffold(
-      backgroundColor: theme.scaffoldBackgroundColor,
+      backgroundColor: Colors.transparent,  
       body: _currentPage,
       bottomNavigationBar: Container(
         decoration: BoxDecoration(
