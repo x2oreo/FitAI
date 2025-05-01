@@ -101,9 +101,6 @@ class _ChatPageState extends State<ChatPage> {
   }
 
   Future<String> _getAssistantResponse(String query) async {
-    
-
-
     try {
       // Get user profile data from Firestore
       final userDoc =
@@ -129,8 +126,6 @@ class _ChatPageState extends State<ChatPage> {
         "Height - ${userData['height'] ?? 'N/A'} ${userData['height_unit'] ?? 'cm'}",
         "Monthly Budget - ${userData['monthly_budget'] ?? 'N/A'}",
       ].join('\n');
-
-      
 
       // Make the API request
       final response = await http.post(
