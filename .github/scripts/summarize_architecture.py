@@ -6,6 +6,10 @@ import glob
 from firebase_client import FirebaseClient
 import anthropic
 
+# Add the scripts directory to the path for importing cost_tracker
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cost_tracker import CostTracker
+
 
 def get_codebase_content(repository_path="."):
     """Collect all relevant source code files from the repository"""
@@ -194,6 +198,25 @@ def main():
             max_tokens=2000,  # Increased for more comprehensive summaries
             messages=[{"role": "user", "content": active_prompt}]
         )
+        
+        # Track cost
+        try:
+            cost_tracker = CostTracker()
+            # Convert anthropic response to dict format for tracking
+            response_dict = {
+                'usage': {
+                    'input_tokens': response.usage.input_tokens,
+                    'output_tokens': response.usage.output_tokens
+                }
+            }
+            cost_tracker.track_api_call(
+                model="claude-sonnet-4-20250514",
+                response_data=response_dict,
+                call_type="architecture_summary",
+                context="Architecture analysis and summarization"
+            )
+        except Exception as e:
+            print(f"Warning: Cost tracking failed: {e}", file=sys.stderr)
         
         architecture_summary = response.content[0].text
         

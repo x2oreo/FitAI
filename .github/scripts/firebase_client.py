@@ -9,17 +9,18 @@ import logging
 
 # Configuration constants
 CHANGES_THRESHOLD = 5
+# Configuration - Firebase service account file
+FIREBASE_SERVICE_ACCOUNT_FILE = "pr-agent-21ba8-firebase-adminsdk-fbsvc-95c716d6e2.json"
 
 class FirebaseClient:
     def __init__(self, service_account_path=None, project_name="test"):
         try:
             if not firebase_admin._apps:
-                # Use provided path or default
+                # Use provided path or default to the JSON file
                 if not service_account_path:
-                    service_account_path = os.path.join(
-                        os.path.dirname(os.path.dirname(os.path.abspath(__file__))), 
-                        "pr-agent-21ba8-firebase-adminsdk-fbsvc-95c716d6e2.json"
-                    )
+                    script_dir = os.path.dirname(os.path.abspath(__file__))
+                    github_dir = os.path.dirname(script_dir)
+                    service_account_path = os.path.join(github_dir, FIREBASE_SERVICE_ACCOUNT_FILE)
                 
                 if not os.path.exists(service_account_path):
                     raise FileNotFoundError(f"Firebase credentials file not found at: {service_account_path}")

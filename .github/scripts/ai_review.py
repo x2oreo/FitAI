@@ -5,6 +5,10 @@ import subprocess
 from typing import List, Dict, Any
 import base64
 
+# Add the scripts directory to the path for importing cost_tracker
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+from cost_tracker import CostTracker
+
 
 def read_architecture_context() -> str:
     """Read the architecture summary file for context."""
@@ -128,6 +132,18 @@ def call_claude_api(api_key: str, payload: Dict[str, Any]) -> str:
 
             return '[]'
 
+        # Track cost before returning
+        try:
+            cost_tracker = CostTracker()
+            cost_tracker.track_api_call(
+                model=payload.get('model', 'claude-sonnet-4-20250514'),
+                response_data=data,
+                call_type="review",
+                context="Code review analysis"
+            )
+        except Exception as e:
+            print(f"Warning: Cost tracking failed: {e}", file=sys.stderr)
+
         if 'content' in data and isinstance(data['content'], list) and len(data['content']) > 0:
             return data['content'][0].get('text', '[]')
         else:
@@ -161,6 +177,18 @@ def call_openai_api(api_key: str, payload: Dict[str, Any]) -> str:
         if 'error' in data:
             print(f'OpenAI API Error: {data["error"]}', file=sys.stderr)
             return '[]'
+
+        # Track cost before returning
+        try:
+            cost_tracker = CostTracker()
+            cost_tracker.track_api_call(
+                model=payload.get('model', 'o3-mini'),
+                response_data=data,
+                call_type="review",
+                context="Code review analysis"
+            )
+        except Exception as e:
+            print(f"Warning: Cost tracking failed: {e}", file=sys.stderr)
 
         return data.get('choices', [{}])[0].get('message', {}).get('content', '[]')
     except Exception as e:
