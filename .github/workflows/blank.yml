@@ -1,0 +1,186 @@
+name: Claude Code Review
+
+on:
+  pull_request_target:
+    types: [opened, synchronize, reopened]
+
+env:
+  LINE_THRESHOLD: 200
+  CHANGES_THRESHOLD: 5
+  IMPORTANT_CHANGE_MARKERS: '#IMPORTANT-CHANGE,#IMPORTANT-CHANGES'
+  IMPORTANT_CHANGE_LABELS: 'important change,important changes'
+
+jobs:
+  claude-review:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    permissions:
+      pull-requests: write
+      contents: read
+    
+    # Skip if PR is from a fork to avoid secrets exposure or if it's a draft
+    if: github.event.pull_request.head.repo.full_name == github.repository && github.event.pull_request.draft == false
+
+    steps:
+      - name: Checkout full repo history
+        uses: actions/checkout@v4
+        with:
+          token: ${{ secrets.PAT_TOKEN }}
+          fetch-depth: 0
+
+      - name: Set up Python and install dependencies
+        run: |
+          python3 -m pip install --upgrade pip > /dev/null 2>&1
+          pip install firebase-admin anthropic openai > /dev/null 2>&1
+
+      - name: Generate diff between base and head (excluding workflow file)
+        id: diff
+        run: |
+          BASE_SHA="${{ github.event.pull_request.base.sha }}"
+          HEAD_SHA="${{ github.event.pull_request.head.sha }}"
+
+          git fetch origin "$BASE_SHA" "$HEAD_SHA"
+
+          DIFF=$(git diff "$BASE_SHA" "$HEAD_SHA" -- . ':(exclude).github/**')
+          echo "diff_b64=$(printf '%s' "$DIFF" | base64 -w0)" >> "$GITHUB_OUTPUT"
+
+          LINE_COUNT=$(echo "$DIFF" | grep -c '^[+-]' || echo "0")
+          echo "line_count=$LINE_COUNT" >> "$GITHUB_OUTPUT"
+
+      - name: Check for important changes
+        id: check-important
+        run: |
+          # Check for important change markers in title
+          HAS_IMPORTANT_TITLE=false
+          if echo '${{ github.event.pull_request.title }}' | grep -q -E '(#IMPORTANT-CHANGE|#IMPORTANT-CHANGES)'; then
+            HAS_IMPORTANT_TITLE=true
+          fi
+          
+          # Check for important change labels
+          HAS_IMPORTANT_LABEL=false
+          if echo '${{ toJSON(github.event.pull_request.labels.*.name) }}' | grep -q -E "(important change|important changes)"; then
+            HAS_IMPORTANT_LABEL=true
+          fi
+          
+          # Determine if this is an important change
+          IS_IMPORTANT_CHANGE=false
+          if [ "$HAS_IMPORTANT_TITLE" = "true" ] || [ "$HAS_IMPORTANT_LABEL" = "true" ]; then
+            IS_IMPORTANT_CHANGE=true
+          fi
+          
+          echo "has_important_title=$HAS_IMPORTANT_TITLE" >> "$GITHUB_OUTPUT"
+          echo "has_important_label=$HAS_IMPORTANT_LABEL" >> "$GITHUB_OUTPUT"
+          echo "is_important_change=$IS_IMPORTANT_CHANGE" >> "$GITHUB_OUTPUT"
+
+      - name: Track architecture changes in Firebase
+        id: track-arch
+        if: steps.check-important.outputs.is_important_change == 'true'
+        continue-on-error: true
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          CHANGES_THRESHOLD: ${{ env.CHANGES_THRESHOLD }}
+          DIFF_B64: ${{ steps.diff.outputs.diff_b64 }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          REPOSITORY: ${{ github.repository }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+          BASE_SHA: ${{ github.event.pull_request.base.sha }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          PR_AUTHOR: ${{ github.event.pull_request.user.login }}
+        run: |
+          python3 .github/scripts/track_architecture.py
+
+      - name: Summarize architecture if needed
+        if: steps.check-important.outputs.is_important_change == 'true' && steps.track-arch.outcome == 'success' && contains(steps.track-arch.outputs.should_summarize, 'true')
+        continue-on-error: true
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          CHANGES_THRESHOLD: ${{ env.CHANGES_THRESHOLD }}
+          REPOSITORY: ${{ github.repository }}
+          SHOULD_SUMMARIZE: 'true'
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 .github/scripts/summarize_architecture.py
+          
+      - name: Fetch architecture context from Firebase
+        id: fetch-context
+        continue-on-error: true
+        env:
+          FIREBASE_PROJECT_ID: ${{ secrets.FIREBASE_PROJECT_ID }}
+          FIREBASE_PRIVATE_KEY: ${{ secrets.FIREBASE_PRIVATE_KEY }}
+          FIREBASE_CLIENT_EMAIL: ${{ secrets.FIREBASE_CLIENT_EMAIL }}
+          CHANGES_THRESHOLD: ${{ env.CHANGES_THRESHOLD }}
+          REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+        run: |
+          python3 .github/scripts/fetch_firebase_context.py
+
+      - name: Choose model based on line count and labels
+        id: choose-model
+        run: |
+          THRESHOLD=${{ env.LINE_THRESHOLD }}
+          LINES=${{ steps.diff.outputs.line_count }}
+          HAS_IMPORTANT_LABEL=${{ steps.check-important.outputs.has_important_label }}
+          HAS_IMPORTANT_TITLE=${{ steps.check-important.outputs.has_important_title }}
+          
+          # Set outputs for use in next steps
+          echo "has_important_label=$HAS_IMPORTANT_LABEL" >> "$GITHUB_OUTPUT"
+          echo "has_important_title=$HAS_IMPORTANT_TITLE" >> "$GITHUB_OUTPUT"
+          echo "line_threshold=$THRESHOLD" >> "$GITHUB_OUTPUT"
+          
+          # Model selection logic:
+          # 1. If has important label or title marker -> use Claude
+          # 2. If no label/title but exceeds threshold -> use Claude
+          # 3. Otherwise -> use o3-mini
+          if [ "$HAS_IMPORTANT_LABEL" = "true" ] || [ "$HAS_IMPORTANT_TITLE" = "true" ]; then
+            echo "model=claude-sonnet-4-20250514" >> "$GITHUB_OUTPUT"
+            echo "model_comment=This response was generated by Claude 4 Sonnet (important changes detected)." >> "$GITHUB_OUTPUT"
+            echo "Using Claude due to important changes (label: $HAS_IMPORTANT_LABEL, title: $HAS_IMPORTANT_TITLE)"
+          elif [ "$LINES" -gt "$THRESHOLD" ]; then
+            echo "model=claude-sonnet-4-20250514" >> "$GITHUB_OUTPUT"
+            echo "model_comment=This response was generated by Claude 4 Sonnet (large diff detected)." >> "$GITHUB_OUTPUT"
+            echo "Using Claude due to large diff ($LINES lines > $THRESHOLD threshold)"
+          else
+            echo "model=o3-mini" >> "$GITHUB_OUTPUT"
+            echo "model_comment=This response was generated by o3 mini." >> "$GITHUB_OUTPUT"
+            echo "Using o3-mini for small diff ($LINES lines <= $THRESHOLD threshold)"
+          fi
+
+      - name: Call AI for code review
+        id: ai-review
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          OPENAI_API_KEY: ${{ secrets.OPENAI_API_KEY }}
+          DIFF_B64: ${{ steps.diff.outputs.diff_b64 }}
+          MODEL: ${{ steps.choose-model.outputs.model }}
+          HAS_IMPORTANT_LABEL: ${{ steps.choose-model.outputs.has_important_label }}
+          LINE_THRESHOLD: ${{ steps.choose-model.outputs.line_threshold }}
+          ARCHITECTURE_CONTEXT_B64: ${{ steps.fetch-context.outputs.context_b64 }}
+        run: |
+          python3 .github/scripts/ai_review.py 2>/tmp/ai_review_debug.log
+
+      - name: Post line-by-line comments on PR
+        env:
+          REVIEW_TEXT: ${{ steps.ai-review.outputs.review_b64 }}
+          MODEL_COMMENT: ${{ steps.choose-model.outputs.model_comment }}
+          GITHUB_TOKEN: ${{ secrets.PAT_TOKEN }}
+          GITHUB_REPOSITORY: ${{ github.repository }}
+          PR_NUMBER: ${{ github.event.pull_request.number }}
+          HEAD_SHA: ${{ github.event.pull_request.head.sha }}
+        run: |
+          python3 .github/scripts/post_comments.py
+
+      - name: Upload AI response as artifact
+        uses: actions/upload-artifact@v4
+        if: always()
+        with:
+          name: ai-response-output
+          path: |
+            /tmp/ai_response.txt
+            /tmp/line_comment.json
+            /tmp/summary_comment.json
+          retention-days: 7
