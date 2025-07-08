@@ -10,7 +10,7 @@ import logging
 # Configuration constants
 CHANGES_THRESHOLD = 5
 # Configuration - Firebase service account file
-FIREBASE_SERVICE_ACCOUNT_FILE = "pr-agent-21ba8-firebase-adminsdk-fbsvc-95c716d6e2.json"
+FIREBASE_SERVICE_ACCOUNT_FILE = "pr-agent-21ba8-firebase-adminsdk-fbsvc-73bedacb8b.json"
 
 class FirebaseClient:
     def __init__(self, service_account_path=None, project_name="test"):

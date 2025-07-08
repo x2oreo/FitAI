@@ -1,7 +1,7 @@
 name: Claude Code Review
 
 # Configuration: Uses service account JSON file for Firebase authentication
-# File: .github/pr-agent-21ba8-firebase-adminsdk-fbsvc-95c716d6e2.json
+# File: .github/pr-agent-21ba8-firebase-adminsdk-fbsvc-73bedacb8b.json
 # Macros are fetched from Firebase Database path: macros/
 
 on:
