@@ -6,7 +6,7 @@ import 'package:provider/provider.dart';
 import '../theme/theme_provider.dart';
 
 class JournalPage extends StatefulWidget {
-  const JournalPage({Key? key}) : super(key: key);
+  const JournalPage({super.key});
 
   @override
   _JournalPageState createState() => _JournalPageState();
@@ -47,13 +47,14 @@ class _JournalPageState extends State<JournalPage> {
         return;
       }
 
-      final querySnapshot = await _firestore
-          .collection('users')
-          .doc(userId)
-          .collection('journal_entries')
-          .where('date', isEqualTo: _currentDate)
-          .limit(1)
-          .get();
+      final querySnapshot =
+          await _firestore
+              .collection('users')
+              .doc(userId)
+              .collection('journal_entries')
+              .where('date', isEqualTo: _currentDate)
+              .limit(1)
+              .get();
 
       if (querySnapshot.docs.isNotEmpty) {
         final doc = querySnapshot.docs.first;
@@ -63,9 +64,9 @@ class _JournalPageState extends State<JournalPage> {
         });
       }
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error loading journal: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error loading journal: $e')));
     } finally {
       setState(() {
         _isLoading = false;
@@ -122,9 +123,9 @@ class _JournalPageState extends State<JournalPage> {
         const SnackBar(content: Text('Journal saved successfully')),
       );
     } catch (e) {
-      ScaffoldMessenger.of(context).showSnackBar(
-        SnackBar(content: Text('Error saving journal: $e')),
-      );
+      ScaffoldMessenger.of(
+        context,
+      ).showSnackBar(SnackBar(content: Text('Error saving journal: $e')));
     } finally {
       setState(() {
         _isLoading = false;
@@ -151,9 +152,7 @@ class _JournalPageState extends State<JournalPage> {
             color: theme.colorScheme.secondary,
           ),
         ),
-        iconTheme: IconThemeData(
-          color: theme.colorScheme.secondary,
-        ),
+        iconTheme: IconThemeData(color: theme.colorScheme.secondary),
         actions: [
           IconButton(
             icon: Icon(Icons.calendar_today),
@@ -162,122 +161,129 @@ class _JournalPageState extends State<JournalPage> {
         ],
       ),
       body: Container(
-        constraints: BoxConstraints(
-          minHeight: screenHeight,
-        ),
+        constraints: BoxConstraints(minHeight: screenHeight),
         decoration: BoxDecoration(
           gradient: LinearGradient(
             begin: Alignment.topCenter,
             end: Alignment.bottomCenter,
-            colors: isDarkMode
-                ? [
-                    Color(0xFF250050), // Dark purple
-                    Color(0xFF24004e), // Dark purple
-                    Color(0xFF1d0040), // Medium dark purple
-                    Color(0xFF190039), // Dark purple
-                    Color(0xFF190038), // Dark purple
-                    Color(0xFF120621), // Very dark purple/indigo
-                    Color(0xFF030203), // Almost black
-                    Color(0xFF000000), // Black
-                  ]
-                : [
-                    Color(0xFFffffff), // White
-                    Color(0xFFeeeeee), // Very light gray
-                    Color(0xFFdcdcdc), // Light gray
-                    Color(0xFFcbcbcb), // Light/medium gray
-                    Color(0xFFb6b6b6), // Medium gray
-                    Color(0xFF9e9e9e), // Medium gray
-                    Color(0xFF868686), // Darker medium gray
-                    Color(0xFF6f6f6f), // Dark gray
-                  ],
+            colors:
+                isDarkMode
+                    ? [
+                      Color(0xFF250050), // Dark purple
+                      Color(0xFF24004e), // Dark purple
+                      Color(0xFF1d0040), // Medium dark purple
+                      Color(0xFF190039), // Dark purple
+                      Color(0xFF190038), // Dark purple
+                      Color(0xFF120621), // Very dark purple/indigo
+                      Color(0xFF030203), // Almost black
+                      Color(0xFF000000), // Black
+                    ]
+                    : [
+                      Color(0xFFffffff), // White
+                      Color(0xFFeeeeee), // Very light gray
+                      Color(0xFFdcdcdc), // Light gray
+                      Color(0xFFcbcbcb), // Light/medium gray
+                      Color(0xFFb6b6b6), // Medium gray
+                      Color(0xFF9e9e9e), // Medium gray
+                      Color(0xFF868686), // Darker medium gray
+                      Color(0xFF6f6f6f), // Dark gray
+                    ],
           ),
         ),
         child: SafeArea(
-          child: _isLoading
-              ? Center(
-                  child: CircularProgressIndicator(
-                    color: theme.colorScheme.primary,
-                  ),
-                )
-              : Padding(
-                  padding: const EdgeInsets.all(22.0),
-                  child: Column(
-                    crossAxisAlignment: CrossAxisAlignment.start,
-                    children: [
-                      // Date display
-                      Container(
-                        padding: const EdgeInsets.all(12),
-                        
-                        child: Row(
-                          mainAxisSize: MainAxisSize.min,
-                          children: [
-                            Icon(
-                              Icons.event_note,
-                              color: theme.colorScheme.secondary,
-                              size: 20,
-                            ),
-                            SizedBox(width: 8),
-                            Text(
-                              DateFormat('EEEE, MMMM d, yyyy')
-                                  .format(DateTime.parse(_currentDate)),
-                              style: TextStyle(
-                                fontWeight: FontWeight.bold,
-                                color: isDarkMode ? Colors.white : Colors.black87,
+          child:
+              _isLoading
+                  ? Center(
+                    child: CircularProgressIndicator(
+                      color: theme.colorScheme.primary,
+                    ),
+                  )
+                  : Padding(
+                    padding: const EdgeInsets.all(22.0),
+                    child: Column(
+                      crossAxisAlignment: CrossAxisAlignment.start,
+                      children: [
+                        // Date display
+                        Container(
+                          padding: const EdgeInsets.all(12),
+
+                          child: Row(
+                            mainAxisSize: MainAxisSize.min,
+                            children: [
+                              Icon(
+                                Icons.event_note,
+                                color: theme.colorScheme.secondary,
+                                size: 20,
+                              ),
+                              SizedBox(width: 8),
+                              Text(
+                                DateFormat(
+                                  'EEEE, MMMM d, yyyy',
+                                ).format(DateTime.parse(_currentDate)),
+                                style: TextStyle(
+                                  fontWeight: FontWeight.bold,
+                                  color:
+                                      isDarkMode
+                                          ? Colors.white
+                                          : Colors.black87,
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                        SizedBox(height: 16),
+
+                        // Prompt
+                        Text(
+                          'What did you do today?',
+                          style: theme.textTheme.titleMedium?.copyWith(
+                            color: isDarkMode ? Colors.white : Colors.black87,
+                          ),
+                        ),
+                        SizedBox(height: 8),
+
+                        // Journal text field
+                        Expanded(
+                          child: Container(
+                            child: TextField(
+                              textAlignVertical: TextAlignVertical.top,
+                              controller: _journalController,
+                              maxLines: null,
+                              expands: true,
+                              style: theme.textTheme.bodyMedium?.copyWith(
+                                color: Colors.black,
+                              ),
+
+                              decoration: InputDecoration(
+                                fillColor: const Color.fromARGB(
+                                  255,
+                                  255,
+                                  255,
+                                  255,
+                                ).withOpacity(0.9),
+                                hintText: 'Write about your day...',
+                                hintStyle: TextStyle(
+                                  color: const Color.fromARGB(255, 97, 97, 97),
+                                ),
+                                contentPadding: const EdgeInsets.all(16),
                               ),
                             ),
-                          ],
-                        ),
-                      ),
-                      SizedBox(height: 16),
-                      
-                      // Prompt
-                      Text(
-                        'What did you do today?',
-                        style: theme.textTheme.titleMedium?.copyWith(
-                          color: isDarkMode ? Colors.white : Colors.black87,
-                        ),
-                      ),
-                      SizedBox(height: 8),
-                      
-                      // Journal text field
-                      Expanded(
-                        child: Container(
-                          
-                          child: TextField(
-                            
-                            textAlignVertical: TextAlignVertical.top,
-                            controller: _journalController,
-                            maxLines: null,
-                            expands: true,
-                            style: theme.textTheme.bodyMedium?.copyWith(
-                              color: Colors.black,
-                            ),
-                            
-                            decoration: InputDecoration(
-                              fillColor: const Color.fromARGB(255, 255, 255, 255).withOpacity(0.9),
-                              hintText: 'Write about your day...',
-                              hintStyle: TextStyle(color: const Color.fromARGB(255, 97, 97, 97)),
-                              contentPadding: const EdgeInsets.all(16),
-                            ),
                           ),
                         ),
-                      ),
-                      SizedBox(height: 16),
-                      
-                      // Save button
-                      SizedBox(
-                        width: double.infinity,
-                        child: ElevatedButton(
-                          onPressed: _saveJournal,
-                          
-                          child: Text(
-                            'Save Journal',
+                        SizedBox(height: 16),
+
+                        // Save button
+                        SizedBox(
+                          width: double.infinity,
+                          child: ElevatedButton(
+                            onPressed: _saveJournal,
+
+                            child: Text('Save Journal'),
                           ),
                         ),
-                      ),
-                    ],
+                      ],
+                    ),
                   ),
-                ),
         ),
       ),
     );
@@ -292,24 +298,24 @@ class _JournalPageState extends State<JournalPage> {
       builder: (context, child) {
         final isDarkMode = Provider.of<ThemeProvider>(context).isDarkMode;
         return Theme(
-            data: isDarkMode
-              ? ThemeData(
-                colorScheme: ColorScheme.dark(
-                primary: const Color.fromARGB(255, 255, 255, 255),
-                ),
-              )
-              : ThemeData(
-                colorScheme: ColorScheme.light(
-                primary: const Color.fromARGB(255, 0, 0, 0),
-                ),
-              ),
-            
-          
+          data:
+              isDarkMode
+                  ? ThemeData(
+                    colorScheme: ColorScheme.dark(
+                      primary: const Color.fromARGB(255, 255, 255, 255),
+                    ),
+                  )
+                  : ThemeData(
+                    colorScheme: ColorScheme.light(
+                      primary: const Color.fromARGB(255, 0, 0, 0),
+                    ),
+                  ),
+
           child: child!,
         );
       },
     );
-    
+
     if (picked != null) {
       setState(() {
         _currentDate = DateFormat('yyyy-MM-dd').format(picked);

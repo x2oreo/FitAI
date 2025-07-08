@@ -5,6 +5,8 @@ import 'package:hk11/navigation/app_shell.dart';
 import 'package:hk11/pages/login_or_signup_page.dart';
 
 class OnboardingPage extends StatefulWidget {
+  const OnboardingPage({super.key});
+
   @override
   _OnboardingPageState createState() => _OnboardingPageState();
 }
@@ -168,9 +170,9 @@ class _OnboardingPageState extends State<OnboardingPage> {
       case 0:
         return '* Please select a goal';
       case 1:
-        if (currentWeight == null && desiredWeight == null)
+        if (currentWeight == null && desiredWeight == null) {
           return '* Please enter both your current and desired weight';
-        else if (currentWeight == null)
+        } else if (currentWeight == null)
           return '* Please enter your current weight';
         else
           return '* Please enter your desired weight';
@@ -399,7 +401,7 @@ class _OnboardingPageState extends State<OnboardingPage> {
             Expanded(child: SingleChildScrollView(child: _buildCurrentStep())),
 
             // Fixed navigation buttons - wrap in a container with fixed size constraints
-            Container(
+            SizedBox(
               height: 50,
               child: Padding(
                 padding: const EdgeInsets.symmetric(vertical: 8.0),

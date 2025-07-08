@@ -1,7 +1,6 @@
 // ignore_for_file: deprecated_member_use
 
 import 'package:flutter/material.dart';
-import 'package:hk11/pages/calendar_page.dart';
 // import 'package:hk11/pages/profile_page_.dart'; // Remove or comment this line
 import 'package:hk11/pages/journal_page.dart'; // Add this import
 import '../pages/home_page.dart';
@@ -49,9 +48,7 @@ class _AppShellState extends State<AppShell> {
       backgroundColor: theme.scaffoldBackgroundColor,
       body: _currentPage,
       bottomNavigationBar: Container(
-        decoration: BoxDecoration(
-          color: Colors.transparent,
-        ),
+        decoration: BoxDecoration(color: Colors.transparent),
         child: BottomNavigationBar(
           currentIndex: _selectedIndex,
           onTap: _onItemTapped,
@@ -74,7 +71,9 @@ class _AppShellState extends State<AppShell> {
               label: '',
             ),
             BottomNavigationBarItem(
-              icon: Icon(Icons.book_outlined), // Changed from person_outline to book_outlined
+              icon: Icon(
+                Icons.book_outlined,
+              ), // Changed from person_outline to book_outlined
               activeIcon: Icon(Icons.book), // Changed from person to book
               label: 'Journal', // Changed from empty to 'Journal'
             ),

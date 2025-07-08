@@ -11,7 +11,7 @@ import 'package:flutter_markdown/flutter_markdown.dart';
 import 'package:provider/provider.dart' as provider;
 
 class ChatPage extends StatefulWidget {
-  const ChatPage({Key? key}) : super(key: key);
+  const ChatPage({super.key});
 
   @override
   _ChatPageState createState() => _ChatPageState();
@@ -239,15 +239,14 @@ class _ChatPageState extends State<ChatPage> {
                     ]
                     : [
                       Color.fromARGB(255, 143, 143, 143), // Dark gray
-                    Color(0xFF868686), // Darker medium gray
-                    Color(0xFF9e9e9e), // Medium gray
-                    Color(0xFFb6b6b6), // Medium gray
-                    Color(0xFFcbcbcb), // Light/medium gray
-                    Color(0xFFdcdcdc), // Light gray
-                    Color(0xFFeeeeee), // Very light gray
-                    Color(0xFFffffff),
+                      Color(0xFF868686), // Darker medium gray
+                      Color(0xFF9e9e9e), // Medium gray
+                      Color(0xFFb6b6b6), // Medium gray
+                      Color(0xFFcbcbcb), // Light/medium gray
+                      Color(0xFFdcdcdc), // Light gray
+                      Color(0xFFeeeeee), // Very light gray
+                      Color(0xFFffffff),
                     ],
-            
           ),
         ),
         child: Column(
@@ -453,10 +452,10 @@ class ChatDetailPage extends StatefulWidget {
   final String chatTitle;
 
   const ChatDetailPage({
-    Key? key,
+    super.key,
     required this.chatId,
     required this.chatTitle,
-  }) : super(key: key);
+  });
 
   @override
   _ChatDetailPageState createState() => _ChatDetailPageState();
@@ -579,9 +578,10 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
         backgroundColor: Colors.transparent,
         foregroundColor: theme.textTheme.bodyLarge?.color,
         systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
-      ),
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              isDarkMode ? Brightness.light : Brightness.dark,
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -605,24 +605,27 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                       Color(0xFF0e021d), // Very dark purple
                       Color(0xFF090213), // Almost black with hint of purple
                       Color(0xFF040109), // Almost black
-                      Color(0xFF000000),  // Black
+                      Color(0xFF000000), // Black
                     ]
                     : [
                       Color.fromARGB(255, 143, 143, 143), // Dark gray
-                    Color(0xFF868686), // Darker medium gray
-                    Color(0xFF9e9e9e), // Medium gray
-                    Color(0xFFb6b6b6), // Medium gray
-                    Color(0xFFcbcbcb), // Light/medium gray
-                    Color(0xFFdcdcdc), // Light gray
-                    Color(0xFFeeeeee), // Very light gray
-                    Color(0xFFffffff),
+                      Color(0xFF868686), // Darker medium gray
+                      Color(0xFF9e9e9e), // Medium gray
+                      Color(0xFFb6b6b6), // Medium gray
+                      Color(0xFFcbcbcb), // Light/medium gray
+                      Color(0xFFdcdcdc), // Light gray
+                      Color(0xFFeeeeee), // Very light gray
+                      Color(0xFFffffff),
                     ],
-            
           ),
         ),
         child: Column(
           children: [
-            SizedBox(height: AppBar().preferredSize.height + MediaQuery.of(context).padding.top),
+            SizedBox(
+              height:
+                  AppBar().preferredSize.height +
+                  MediaQuery.of(context).padding.top,
+            ),
 
             // Messages list
             Expanded(
@@ -825,13 +828,11 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                 children: [
                   Expanded(
                     child: TextField(
-                      
                       controller: _messageController,
                       style: theme.textTheme.bodyMedium?.copyWith(
                         color: Colors.black,
                       ),
                       decoration: InputDecoration(
-                        
                         enabledBorder: OutlineInputBorder(
                           borderRadius: BorderRadius.circular(42),
                           borderSide: BorderSide(
@@ -886,15 +887,15 @@ class _ChatDetailPageState extends State<ChatDetailPage> {
                                   child: IconButton(
                                     padding: EdgeInsets.zero,
                                     icon: Icon(
-                                      
                                       Icons.arrow_upward_rounded,
                                       color: Colors.white,
                                       weight: 1000,
                                       size: 26,
                                     ),
                                     onPressed: () {
-                                      if (!_isLoading)
+                                      if (!_isLoading) {
                                         _sendMessage(_messageController.text);
+                                      }
                                     },
                                   ),
                                 ),

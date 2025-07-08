@@ -13,7 +13,7 @@ import 'dart:math';
 import '../config/api_config.dart';
 
 class WorkoutPage extends StatefulWidget {
-  const WorkoutPage({Key? key}) : super(key: key);
+  const WorkoutPage({super.key});
 
   @override
   State<WorkoutPage> createState() => _WorkoutPageState();
@@ -137,34 +137,41 @@ class _WorkoutPageState extends State<WorkoutPage> {
         "Goal - ${userData['goal'] ?? 'N/A'}",
         "Workout Time - ${userData['workout_time_weekly'] ?? 'N/A'}",
       ];
-      
+
       // Fetch recent journal entries (last 7 days)
       try {
         print('Fetching recent journal entries...');
         final now = DateTime.now();
         final sevenDaysAgo = DateTime.now().subtract(Duration(days: 7));
-        
-        final journalSnapshot = await _firestore
-            .collection('users')
-            .doc(userId)
-            .collection('journal_entries')
-            .where('date', isGreaterThanOrEqualTo: DateFormat('yyyy-MM-dd').format(sevenDaysAgo))
-            .orderBy('date', descending: true)
-            .limit(3)
-            .get();
-            
+
+        final journalSnapshot =
+            await _firestore
+                .collection('users')
+                .doc(userId)
+                .collection('journal_entries')
+                .where(
+                  'date',
+                  isGreaterThanOrEqualTo: DateFormat(
+                    'yyyy-MM-dd',
+                  ).format(sevenDaysAgo),
+                )
+                .orderBy('date', descending: true)
+                .limit(3)
+                .get();
+
         if (journalSnapshot.docs.isNotEmpty) {
           userInfoList.add("\nRecent Journal Entries:");
           for (var entry in journalSnapshot.docs) {
             final data = entry.data();
             final date = data['date'] as String? ?? 'Unknown date';
             final content = data['content'] as String? ?? '';
-            
+
             if (content.isNotEmpty) {
               // Add a summary of the journal entry (first 100 characters)
-              final summary = content.length > 100 
-                  ? '${content.substring(0, 100)}...' 
-                  : content;
+              final summary =
+                  content.length > 100
+                      ? '${content.substring(0, 100)}...'
+                      : content;
               userInfoList.add("[$date] $summary");
             }
           }
@@ -175,7 +182,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
         print('Error fetching journal entries: $e');
         userInfoList.add("\nCould not retrieve journal entries.");
       }
-      
+
       String userInfo = userInfoList.join('\n');
 
       // Make API request with detailed logging
@@ -371,9 +378,10 @@ class _WorkoutPageState extends State<WorkoutPage> {
         backgroundColor: Colors.transparent,
         foregroundColor: theme.textTheme.bodyLarge?.color,
         systemOverlayStyle: SystemUiOverlayStyle(
-        statusBarColor: Colors.transparent,
-        statusBarIconBrightness: isDarkMode ? Brightness.light : Brightness.dark,
-      ),
+          statusBarColor: Colors.transparent,
+          statusBarIconBrightness:
+              isDarkMode ? Brightness.light : Brightness.dark,
+        ),
       ),
       body: Container(
         decoration: BoxDecoration(
@@ -389,12 +397,16 @@ class _WorkoutPageState extends State<WorkoutPage> {
         child: Padding(
           padding: const EdgeInsets.all(22.0),
           child: Column(
-              crossAxisAlignment: CrossAxisAlignment.start,
-              children: [
-                SizedBox(height: AppBar().preferredSize.height + MediaQuery.of(context).padding.top),
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              SizedBox(
+                height:
+                    AppBar().preferredSize.height +
+                    MediaQuery.of(context).padding.top,
+              ),
 
               // Day selector cards
-              Container(
+              SizedBox(
                 height: 80,
                 child: ListView.builder(
                   scrollDirection: Axis.horizontal,
@@ -493,7 +505,6 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                 Text(
                                   'Loading your workout plan...',
                                   style: theme.textTheme.titleLarge,
-                                  
                                 ),
                               ],
                             ),
@@ -566,7 +577,7 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                               ],
                                     ),
                                     child: Text(
-                                      'DAY ${_selectedDay}',
+                                      'DAY $_selectedDay',
                                       style: TextStyle(
                                         color: Colors.white,
                                         fontWeight: FontWeight.bold,
@@ -580,14 +591,15 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                     style: theme.textTheme.titleLarge?.copyWith(
                                       fontWeight: FontWeight.bold,
                                       color: theme.colorScheme.secondary,
-                                          
                                     ),
                                   ),
                                 ],
                               ),
                               Divider(
                                 height: 32,
-                                color: theme.colorScheme.secondary.withOpacity(0.5),
+                                color: theme.colorScheme.secondary.withOpacity(
+                                  0.5,
+                                ),
                               ),
                               Expanded(
                                 child: SingleChildScrollView(
@@ -601,40 +613,48 @@ class _WorkoutPageState extends State<WorkoutPage> {
                                       shrinkWrap: true,
                                       physics: NeverScrollableScrollPhysics(),
                                       styleSheet: MarkdownStyleSheet(
-                                        h1: theme.textTheme.bodyMedium?.copyWith(
-                                          fontSize: 24,
-                                          fontWeight: FontWeight.w700,
-                                        ),
-                                        h2: theme.textTheme.bodyMedium?.copyWith(
-                                          fontSize: 22,
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        h3: theme.textTheme.bodyMedium?.copyWith(
-                                          fontSize: 20,
-                                          fontWeight: FontWeight.w500,
-                                        ),
+                                        h1: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontSize: 24,
+                                              fontWeight: FontWeight.w700,
+                                            ),
+                                        h2: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontSize: 22,
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                        h3: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontSize: 20,
+                                              fontWeight: FontWeight.w500,
+                                            ),
                                         p: theme.textTheme.bodyMedium,
-                                        strong: theme.textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.w600,
-                                        ),
-                                        em: theme.textTheme.bodyMedium?.copyWith(
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                        blockquote: theme.textTheme.bodyMedium?.copyWith(
-                                          fontStyle: FontStyle.italic,
-                                        ),
-                                        code: theme.textTheme.bodyMedium?.copyWith(
-                                          backgroundColor: Colors.black38,
-                                          fontFamily: 'monospace',
-                                        ),
+                                        strong: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.w600,
+                                            ),
+                                        em: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                        blockquote: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontStyle: FontStyle.italic,
+                                            ),
+                                        code: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              backgroundColor: Colors.black38,
+                                              fontFamily: 'monospace',
+                                            ),
                                         a: theme.textTheme.bodyMedium?.copyWith(
                                           decoration: TextDecoration.underline,
                                         ),
                                         listBullet: theme.textTheme.bodyMedium,
                                         checkbox: theme.textTheme.bodyMedium,
-                                        tableHead: theme.textTheme.bodyMedium?.copyWith(
-                                          fontWeight: FontWeight.bold,
-                                        ),
+                                        tableHead: theme.textTheme.bodyMedium
+                                            ?.copyWith(
+                                              fontWeight: FontWeight.bold,
+                                            ),
                                         tableBody: theme.textTheme.bodyMedium,
                                         textAlign: WrapAlignment.start,
                                       ),

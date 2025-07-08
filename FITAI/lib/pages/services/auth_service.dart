@@ -9,10 +9,11 @@ class AuthService {
   static final auth = FirebaseAuth.instance;
 
   Future<UserCredential?> loginWithGoogle() async {
+    var clientId =
+        "914180725286-d7043kn3k4haaau6rtcpgubqv1oocla7.apps.googleusercontent.com";
 
-    var clientId = "914180725286-d7043kn3k4haaau6rtcpgubqv1oocla7.apps.googleusercontent.com";
-
-    var serverClientId = "914180725286-7opicuf0nhplgsi7fd8luk82f0a69oca.apps.googleusercontent.com";
+    var serverClientId =
+        "914180725286-7opicuf0nhplgsi7fd8luk82f0a69oca.apps.googleusercontent.com";
 
     final GoogleSignIn googleSignIn = GoogleSignIn(
       clientId: clientId,
@@ -27,8 +28,9 @@ class AuthService {
         await googleSignIn.signIn();
 
     if (googleSignInAccount != null) {
-      final GoogleAPIClient httpClient =
-          GoogleAPIClient(await googleSignInAccount.authHeaders);
+      final GoogleAPIClient httpClient = GoogleAPIClient(
+        await googleSignInAccount.authHeaders,
+      );
       CalendarClient.calendar = cal.CalendarApi(httpClient);
 
       final GoogleSignInAuthentication googleSignInAuthentication =
@@ -40,22 +42,24 @@ class AuthService {
       );
 
       try {
-        final UserCredential userCredential =
-            await auth.signInWithCredential(credential);
+        final UserCredential userCredential = await auth.signInWithCredential(
+          credential,
+        );
         return userCredential;
       } on FirebaseAuthException catch (e) {
         if (e.code == 'account-exists-with-different-credential') {
           customSnackBar(
-              content:
-                  'The account already exists with a different credential');
+            content: 'The account already exists with a different credential',
+          );
         } else if (e.code == 'invalid-credential') {
           customSnackBar(
-              content:
-                  'Error occurred while accessing credentials. Try again.');
+            content: 'Error occurred while accessing credentials. Try again.',
+          );
         }
       } catch (e) {
         customSnackBar(
-            content: 'Error occurred using Google Sign In. Try again.');
+          content: 'Error occurred using Google Sign In. Try again.',
+        );
       }
     }
     return null;
@@ -71,7 +75,7 @@ class AuthService {
         password: password,
       );
     } on FirebaseAuthException catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -81,8 +85,10 @@ class AuthService {
     String? displayName,
   }) async {
     try {
-      UserCredential userCredential = await auth
-          .createUserWithEmailAndPassword(email: email, password: password);
+      UserCredential userCredential = await auth.createUserWithEmailAndPassword(
+        email: email,
+        password: password,
+      );
 
       if (displayName != null && displayName.isNotEmpty) {
         await userCredential.user?.updateDisplayName(displayName);
@@ -90,7 +96,7 @@ class AuthService {
 
       return userCredential;
     } on FirebaseAuthException catch (e) {
-      throw e;
+      rethrow;
     }
   }
 
@@ -98,7 +104,7 @@ class AuthService {
     try {
       await auth.sendPasswordResetEmail(email: email);
     } on FirebaseAuthException catch (e) {
-      throw e;
+      rethrow;
     }
   }
 

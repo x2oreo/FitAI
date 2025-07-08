@@ -142,7 +142,7 @@ class _LoginOrSignupPageState extends State<LoginOrSignupPage> {
                       ),
                     ),
                     style: theme.elevatedButtonTheme.style?.copyWith(
-                      backgroundColor: MaterialStateProperty.all(Colors.white),
+                      backgroundColor: WidgetStateProperty.all(Colors.white),
                     ),
                   ),
 

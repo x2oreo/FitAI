@@ -11,7 +11,7 @@ import 'package:path_provider/path_provider.dart';
 
 class ProfileScreen extends StatefulWidget {
   final ScrollController? scrollController;
-  
+
   const ProfileScreen({super.key, this.scrollController});
 
   @override
@@ -44,7 +44,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
   String _selectedHeightUnit = 'cm';
   String _selectedGender = 'Male';
   String _selectedActivityLevel = 'Lightly Active';
-  Map<String, bool> _dietaryPreferences = {
+  final Map<String, bool> _dietaryPreferences = {
     'vegetarian': false,
     'vegan': false,
     'glutenFree': false,
@@ -353,11 +353,8 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ],
       ),
       body: Container(
-        
         child: Stack(
-          
           children: [
-            
             // Main content
             _isLoading
                 ? Center(
@@ -375,12 +372,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 )
                 : SafeArea(
                   child: SingleChildScrollView(
-                    
-                    padding: EdgeInsets.all(22.0), 
+                    padding: EdgeInsets.all(22.0),
                     child: Column(
                       crossAxisAlignment: CrossAxisAlignment.center,
                       children: [
-  
                         Stack(
                           children: [
                             Container(
@@ -469,10 +464,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           textAlign: TextAlign.center,
                         ),
 
-
                         // Email with enhanced card styling - smaller with centered text
-                        
-
                         SizedBox(height: 24),
 
                         // Profile data section with enhanced styling
@@ -480,9 +472,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                           decoration: BoxDecoration(
                             color: theme.colorScheme.primary,
                             borderRadius: BorderRadius.circular(12),
-                            border: Border.all(
-                              color: Colors.black,
-                            ),
+                            border: Border.all(color: Colors.black),
                           ),
                           child: Column(
                             crossAxisAlignment: CrossAxisAlignment.start,
@@ -513,7 +503,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                         ),
                                         label: Text(
                                           'Edit',
-                                          style: theme.textTheme.bodySmall
+                                          style: theme.textTheme.bodySmall,
                                         ),
                                       ),
                                   ],
@@ -560,11 +550,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                           child: Text(
                                             'Cancel',
                                             style: theme.textTheme.bodyMedium
-                                                        ?.copyWith(
-                                                          fontSize: 14,
-                                                          fontWeight:
-                                                              FontWeight.bold,
-                                                        ),
+                                                ?.copyWith(
+                                                  fontSize: 14,
+                                                  fontWeight: FontWeight.bold,
+                                                ),
                                           ),
                                         ),
                                       ),
@@ -575,7 +564,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                               _isSaving ? null : _saveUserData,
                                           style: ElevatedButton.styleFrom(
                                             backgroundColor: Colors.green,
-                                            
+
                                             foregroundColor:
                                                 theme.colorScheme.onPrimary,
                                             padding: EdgeInsets.symmetric(
@@ -598,7 +587,9 @@ class _ProfileScreenState extends State<ProfileScreen> {
                                                   )
                                                   : Text(
                                                     'Save',
-                                                    style: theme.textTheme.bodyMedium
+                                                    style: theme
+                                                        .textTheme
+                                                        .bodyMedium
                                                         ?.copyWith(
                                                           fontSize: 14,
                                                           fontWeight:
@@ -635,9 +626,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
                               color: theme.colorScheme.error.withOpacity(0.5),
                             ),
                           ),
-                          icon: Icon(Icons.logout,
+                          icon: Icon(
+                            Icons.logout,
                             color: theme.colorScheme.secondary,
-                              ),
+                          ),
                           label: Text(
                             'Sign Out',
                             style: TextStyle(fontWeight: FontWeight.bold),
@@ -647,7 +639,6 @@ class _ProfileScreenState extends State<ProfileScreen> {
                     ),
                   ),
                 ),
-            
           ],
         ),
       ),
@@ -755,19 +746,23 @@ class _ProfileScreenState extends State<ProfileScreen> {
         Text('• No dietary restrictions', style: theme.textTheme.bodySmall),
       );
     } else {
-      if (prefs['vegetarian'] == true)
+      if (prefs['vegetarian'] == true) {
         preferences.add(Text('• Vegetarian', style: theme.textTheme.bodySmall));
+      }
 
-      if (prefs['vegan'] == true)
+      if (prefs['vegan'] == true) {
         preferences.add(Text('• Vegan', style: theme.textTheme.bodySmall));
+      }
 
-      if (prefs['glutenFree'] == true)
+      if (prefs['glutenFree'] == true) {
         preferences.add(
           Text('• Gluten-Free', style: theme.textTheme.bodySmall),
         );
+      }
 
-      if (prefs['keto'] == true)
+      if (prefs['keto'] == true) {
         preferences.add(Text('• Keto', style: theme.textTheme.bodySmall));
+      }
     }
 
     if (preferences.isEmpty) {
@@ -788,7 +783,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           SizedBox(
             width: 140,
             child: Text(
-              label + ':',
+              '$label:',
               style: theme.textTheme.bodyMedium?.copyWith(
                 fontWeight: FontWeight.bold,
                 color: theme.primaryColor,
@@ -924,9 +919,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: TextField(
                   controller: _currentWeightController,
                   keyboardType: TextInputType.number,
-                  decoration: textFieldDecoration.copyWith(
-                    hintText: '50-300',
-                  ),
+                  decoration: textFieldDecoration.copyWith(hintText: '50-300'),
                 ),
               ),
               SizedBox(width: 8),
@@ -955,9 +948,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: TextField(
                   controller: _desiredWeightController,
                   keyboardType: TextInputType.number,
-                  decoration: textFieldDecoration.copyWith(
-                    hintText: '50-300',
-                  ),
+                  decoration: textFieldDecoration.copyWith(hintText: '50-300'),
                 ),
               ),
               SizedBox(width: 8),
@@ -986,9 +977,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
                 child: TextField(
                   controller: _heightController,
                   keyboardType: TextInputType.number,
-                  decoration: textFieldDecoration.copyWith(
-                    hintText: '100-250',
-                  ),
+                  decoration: textFieldDecoration.copyWith(hintText: '100-250'),
                 ),
               ),
               SizedBox(width: 8),
@@ -1016,9 +1005,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TextField(
             controller: _ageController,
             keyboardType: TextInputType.number,
-            decoration: textFieldDecoration.copyWith(
-              hintText: '5-110',
-            ),
+            decoration: textFieldDecoration.copyWith(hintText: '5-110'),
           ),
 
           SizedBox(height: 16),
@@ -1107,9 +1094,7 @@ class _ProfileScreenState extends State<ProfileScreen> {
           TextField(
             controller: _workoutTimeController,
             keyboardType: TextInputType.number,
-            decoration: textFieldDecoration.copyWith(
-              hintText: '1-40',
-            ),
+            decoration: textFieldDecoration.copyWith(hintText: '1-40'),
           ),
 
           SizedBox(height: 16),
@@ -1249,10 +1234,10 @@ class _ProfileScreenState extends State<ProfileScreen> {
         ),
       ),
       value: _dietaryPreferences[key] ?? false,
-      
+
       checkColor: theme.colorScheme.primary,
       fillColor: WidgetStateProperty.all(theme.primaryColor.withOpacity(0.9)),
-      
+
       contentPadding: EdgeInsets.symmetric(horizontal: 16, vertical: 4),
       dense: true,
       controlAffinity: ListTileControlAffinity.trailing,
